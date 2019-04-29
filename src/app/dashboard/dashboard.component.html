@@ -19,14 +19,18 @@
   <div class="dashboard__tabselection">
     <a href="" (click)="onTabToggle($event)" value="data" [ngClass]="{ 'active': activeTab === 'data' }"><span (click)="onTabToggle($event)" value="data">DATA</span></a>
     <a href="" (click)="onTabToggle($event)" value="glyphs" [ngClass]="{ 'active': activeTab === 'glyphs' }"><span (click)="onTabToggle($event)" value="glyphs">GLYPHS</span></a>
-    <a href="" (click)="onTabToggle($event)" value="filter" [ngClass]="{ 'active': activeTab === 'filter' }"><span (click)="onTabToggle($event)" value="filter">FILTER</span></a>
-    <a href="" (click)="onTabToggle($event)" value="context" [ngClass]="{ 'active': activeTab === 'context' }"><span (click)="onTabToggle($event)" value="context">CONTEXT</span></a>
+    <a href="" (click)="onTabToggle($event)" value="filter" [ngClass]="{ 'active': activeTab === 'filter' }"><span (click)="onTabToggle($event)" value="filter">FIL</span></a>
+    <a href="" (click)="onTabToggle($event)" value="context" [ngClass]="{ 'active': activeTab === 'context' }"><span (click)="onTabToggle($event)" value="context">CON</span></a>
+    <a href="" (click)="onTabToggle($event)" value="compare" [ngClass]="{ 'active': activeTab === 'compare' }"><span (click)="onTabToggle($event)" value="compare">COMPARE</span></a>
+
+
   </div>
 
   <app-dashboard-tab-data [ngClass]="{ 'hidden': activeTab !== 'data' }"></app-dashboard-tab-data>
   <app-dashboard-tab-glyphs [ngClass]="{ 'hidden': activeTab !== 'glyphs' }"></app-dashboard-tab-glyphs>
   <app-dashboard-tab-filter [ngClass]="{ 'hidden': activeTab !== 'filter' }"></app-dashboard-tab-filter>
   <app-dashboard-tab-context [ngClass]="{ 'hidden': activeTab !== 'context' }"></app-dashboard-tab-context>
+  <div [ngClass]="{ 'hidden': activeTab !=='compare'}">Hallo Welt</div>
 
 </div>
 
