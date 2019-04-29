@@ -30,8 +30,7 @@
   <app-dashboard-tab-glyphs [ngClass]="{ 'hidden': activeTab !== 'glyphs' }"></app-dashboard-tab-glyphs>
   <app-dashboard-tab-filter [ngClass]="{ 'hidden': activeTab !== 'filter' }"></app-dashboard-tab-filter>
   <app-dashboard-tab-context [ngClass]="{ 'hidden': activeTab !== 'context' }"></app-dashboard-tab-context>
-  <div [ngClass]="{ 'hidden': activeTab !=='compare'}">Hallo Welt</div>
-
+  <app-dashboard-tab-compare  [ngClass]="{ 'hidden': activeTab !=='compare'}"></app-dashboard-tab-compare>
 </div>
 
 <div #icon class="dashboard--closed">

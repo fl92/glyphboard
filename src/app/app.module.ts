@@ -44,6 +44,7 @@ import { DashboardTogglesComponent } from './dashboard/dashboard-toggles/dashboa
 import { DashboardFunctionbuttonsComponent } from './dashboard/dashboard-functionbuttons/dashboard-functionbuttons.component';
 import { GlobalDialogComponent } from './global-dialog/global-dialog.component';
 import { AngularFileUploaderModule } from 'angular-file-uploader';
+import { DashboardTabCompareComponent } from './dashboard/dashboard-tab-compare/dashboard-tab-compare.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +68,8 @@ import { AngularFileUploaderModule } from 'angular-file-uploader';
     DashboardTabContextComponent,
     DashboardTogglesComponent,
     DashboardFunctionbuttonsComponent,
-    GlobalDialogComponent
+    GlobalDialogComponent,
+    DashboardTabCompareComponent
   ],
   imports: [
     BrowserModule,
