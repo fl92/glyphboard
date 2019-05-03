@@ -1,5 +1,6 @@
 import { Component, OnInit, Injector } from '@angular/core';
 import { DashboardTabComponent } from '../dashboard-tab/dashboard-tab.component';
+import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 
 @Component({
   selector: 'app-dashboard-tab-compare',
@@ -10,7 +11,8 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   public datasets: any;
   private allDatasets: Array<any>;
 
-  constructor(injector: Injector) {
+  constructor(injector: Injector,
+    private compareConfiguration: ConfigurationCompare ) {
     super(injector);
   }
 
@@ -28,6 +30,8 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
         return;
       }
 
+
+
       // if (this.configuration.dataSetRequest === 0 &&
       //     this.selectedDataset !== this.selectedDatasetSecond) {
       //   // Load same dataset for right side!
@@ -35,7 +39,12 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
       //   this.dashboardDataSetChangedSecond();
       // }
     });
-     this.updateData();
+
+  }
+
+  onTabVisible() {
+    this.updateData(true);
+    // change glyphplot
   }
 
   private updateDatasets() {
@@ -65,14 +74,13 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
     // });
   }
 
-  public updateData() {
+  public updateData(loadConfigA) {
+    this.compareConfiguration.loadConfigA = true;
     this.dataProvider.downloadDataSet(
       'febrl',
-      '222032018',
+      '22032018',
       'tsne'
     );
-    const test = this.dataProvider.dataSet;
-
    // this.dataProvider.getDataSet();
     // this.dataProvider.downloadDataSet(
     //   'comptest',
