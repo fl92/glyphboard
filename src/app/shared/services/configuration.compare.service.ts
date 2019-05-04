@@ -7,6 +7,7 @@ import { EventAggregatorService } from '../events/event-aggregator.service';
 export class ConfigurationCompare {
     private _configurationData: ConfigurationDataCompare; // Array<ConfigurationDataCompare>;
     private _isLoadConfigA: boolean;
+
     constructor(private logger: Logger,
         private eventAggregator: EventAggregatorService) {
         this._configurationData = new ConfigurationDataCompare(this, this.eventAggregator);
@@ -19,5 +20,6 @@ export class ConfigurationCompare {
     }
     public set isLoadConfigA(v: boolean) {
         this._isLoadConfigA = v;
+
     }
 }

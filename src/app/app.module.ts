@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { routing, appRoutingProviders } from './app.routes';
 import { GlyphplotComponent } from './glyphplot/glyphplot.component';
+import { GlyphplotComparisonComponent } from './glyphplot/glyphplot.comparison.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { Configuration } from './shared/services/configuration.service';
 import { DashboardGlyphConfigComponent } from './dashboard/dashboard-tab-glyphs/dashboard-glyph-config.component';
@@ -46,7 +47,6 @@ import { GlobalDialogComponent } from './global-dialog/global-dialog.component';
 import { AngularFileUploaderModule } from 'angular-file-uploader';
 import { DashboardTabCompareComponent } from './dashboard/dashboard-tab-compare/dashboard-tab-compare.component';
 import { ConfigurationCompare } from './shared/services/configuration.compare.service';
-import { GlyphplotComparisonComponent } from './glyphplot/glyphplot.comparison.component';
 
 @NgModule({
   declarations: [

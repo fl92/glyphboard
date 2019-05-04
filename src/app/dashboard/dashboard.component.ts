@@ -17,6 +17,7 @@ import { DataproviderService } from 'app/shared/services/dataprovider.service';
 import { EventAggregatorService } from 'app/shared/events/event-aggregator.service';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 import * as d3 from 'd3';
+import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,6 +43,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   constructor(
     private logger: Logger,
     public configuration: Configuration,
+    public configurationCompare: ConfigurationCompare,
     public cursor: LenseCursor,
     private regionManager: RegionManager,
     private dataProvider: DataproviderService,
@@ -53,6 +55,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       if (message == null) {
         return;
       }
+
+      this.onInitCompareData(message);
 
       // set the dataset for the appropriate configuration object (either 0 or 1)
       this.configuration.configurations[this.configuration.dataSetRequest].setData(message);
@@ -110,6 +114,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     } else {
       this.cursor.boundaries.right = window.innerWidth;
     }
+  }
+
+  onInitCompareData(message) {
+    this.configurationCompare.loadConfigA ?
+      this.configurationCompare.configurationData.setDataA = message :
+      this.configurationCompare.configurationData.setDataB = message;
   }
 
   ngAfterViewInit(): void {}
