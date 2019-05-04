@@ -34,8 +34,8 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   }
 
   onOpenTab() {
-    this.doubleDataProvider.downloadDataSetA('febrl', '22032018', 'tsne')
-    this.doubleDataProvider.downloadDataSetB('febrl', '22032018', 'tsne')
+    this.doubleDataProvider.downloadDataSetA('compTest', '22032018', 'tsne')
+    this.doubleDataProvider.downloadDataSetB('compTest', '22032019', 'tsne')
   }
 
 }

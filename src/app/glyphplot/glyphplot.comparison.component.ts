@@ -33,7 +33,8 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     selector: 'app-glyphplot-comparison',
     // templateUrl: './glyphplot.component.html',
     styleUrls: ['./glyphplot.component.css'],
-    template: '<div>Hallo Compare</div>'
+    template: '<div>Hallo Compare</div>',
+    providers: [ComparisonGlyphCreator]
   })
   export class GlyphplotComparisonComponent implements OnInit, OnChanges {
     @ViewChild('chart') public chartContainer: ElementRef;
@@ -53,7 +54,6 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     private _dataA: any;
     private _dataB: any;
     private _glyphs: ComparisonGlyph[] = [];
-    private _glyphsCreator = new ComparisonGlyphCreator();
     // private _answerCategories: string[];
     // private _targetNames: string[]
     private _configuration: ConfigurationDataCompare;
@@ -83,17 +83,21 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
 
     constructor(
       private configurationService: ConfigurationCompare,
+      private glyphCreator: ComparisonGlyphCreator
     ) {
-      this.configuration = this.configurationService.configurationData; // this.configurationService.addConfiguration();
+      this.configuration = this.configurationService.configurationData;
       this.configuration.getDataA().subscribe(msg => this.onMessage(msg, true));
       this.configuration.getDataB().subscribe(msg => this.onMessage(msg, false));
-      // this.configuration.getData
-      // this.configuration.
     }
 
     onMessage(msg, isA: boolean) {
       if (msg === undefined || msg === null) {return; }
-      const x = msg;
+      (isA) ? this._dataA = msg
+        : this._dataB = msg;
+
+      if ( this._dataA !== null && this._dataB !== null) {
+        this.glyphCreator.versions2Glyphs(this._dataA, this._dataB);
+      }
     }
 
     ngOnInit() {
@@ -139,7 +143,7 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     }
 
     private updateGlyphConfiguration() {
-        this._glyphs = this._glyphsCreator.json2Glyphs(this._dataA, this._dataB);
+        // this._glyphs = this._glyphsCreator.json2Glyphs(this._dataA, this._dataB);
     }
 
     public matrixLayout(sortFunction?: any): void {

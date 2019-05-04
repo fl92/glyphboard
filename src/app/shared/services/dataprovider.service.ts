@@ -50,9 +50,16 @@ export class DataproviderService {
     return JSON.stringify(a) === JSON.stringify(b);
   }
 
-  public downloadDataSet(name: string, version: string, position: string) {
+  /**
+   * 
+   * @param name name of dataset
+   * @param version version identifier
+   * @param position position algorithm
+   * @param oneSchemaMode if true then searching for schema file with identifier '_' (only one schema for all Versions)
+   */
+  public downloadDataSet(name: string, version: string, position: string, oneSchemaMode = false) {
     this.http
-      .get(this.backendAddress + 'datasets/' + name + '/' + version + '/schema')
+      .get(this.backendAddress + 'datasets/' + name + '/' + ((oneSchemaMode) ? '_' : version) + '/schema')
       .subscribe((schemaData) => {
         const schemaResponse = schemaData['_body'] || '';
         this.deliverSchema = JSON.parse(schemaResponse);

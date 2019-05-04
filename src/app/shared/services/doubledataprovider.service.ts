@@ -14,10 +14,10 @@ export class DoubleDataproviderService {
     }
 
     public downloadDataSetA(name: string, version: string, position: string) {
-        this.providerA.downloadDataSet(name, version, position);
+        this.providerA.downloadDataSet(name, version, position, true);
     }
     public downloadDataSetB(name: string, version: string, position: string) {
-        this.providerB.downloadDataSet(name, version, position);
+        this.providerB.downloadDataSet(name, version, position, true);
     }
 
     public getDataSets(): Observable<any> {

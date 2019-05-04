@@ -56,8 +56,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         return;
       }
 
-      this.onInitCompareData(message);
-
       // set the dataset for the appropriate configuration object (either 0 or 1)
       this.configuration.configurations[this.configuration.dataSetRequest].setData(message);
       this.configuration.configurations[this.configuration.dataSetRequest].activeDataSet = message;
@@ -116,11 +114,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onInitCompareData(message) {
-    this.configurationCompare.loadConfigA ?
-      this.configurationCompare.configurationData.setDataA = message :
-      this.configurationCompare.configurationData.setDataB = message;
-  }
 
   ngAfterViewInit(): void {}
 

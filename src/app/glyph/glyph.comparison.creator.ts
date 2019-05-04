@@ -1,9 +1,118 @@
 import { ComparisonGlyph } from './glyph.comparison';
 import { ComparisonHoleGlyph } from './glyph.comparison.hole';
+import { Injectable } from '@angular/core';
+import { version } from 'punycode';
 
+@Injectable()
 export class ComparisonGlyphCreator {
   private _proto: ComparisonGlyph = new ComparisonHoleGlyph();
 
+  public versions2Glyphs(versionA: any, versionB: any,
+    selectedTargetVariable: string = '') {
+
+    const objectsA = versionA['features'];
+    const objectsAMap = new Map<any, object> ();
+    const objectsB = versionB['features'];
+    const objectsBMap = new Map<any, object> ();
+
+    const positionsA = versionA['positions'];
+    const positionsAMap = new Map<any, object> ();
+    const positionsB = versionB['positions'];
+    const positionsBMap = new Map<any, object> ();
+
+    const objIds = new Set<any>();
+
+    const targetVariablesMap
+      = new Map<any, {
+        label: string,
+        targetLabels: string[],
+        targetPredictions: string[],
+      }> ();
+      // TODO füllen
+
+    // const targetVariables = versionA.schema['targetVariables'];
+    // for (const target of targetVariables) {
+    //   targetVariablesMap.set(target())
+    // }
+
+    // TODO selected target Variable prüfen
+    for (const object of objectsA) {
+      objIds.add(object['id']);
+      objectsAMap.set(object['id'], object);
+    }
+    for (const object of objectsB) {
+      objIds.add(object['id']);
+      objectsBMap.set(object['id'], object);
+    }
+    for (const object of positionsA) {
+      objIds.add(object['id']);
+      positionsAMap.set(object['id'], object);
+    }
+    for (const object of positionsB) {
+      objIds.add(object['id']);
+      positionsBMap.set(object['id'], object);
+    }
+
+
+    objIds.forEach((objId) => {
+
+      const glyph = this._proto.clone();
+      glyph.selectedFeature = '3';
+
+      const objectA = objectsAMap.get(objId);
+      const objectB = objectsBMap.get(objId);
+      const positionA = positionsAMap.get(objId);
+      const positionB = positionsBMap.get(objId);
+
+      for (const [isA, object, position] of [[true, objectA, positionA], [false, objectB, positionB]]) {
+        // const independentFeatures = new Map<string, number>();
+        const selectedTargetId = '2'; // TODO
+        const targetFeatures = new Map<string, [number[], number[]]>();
+        // const questions = []; TODO
+        const defContext = object['default-context'];
+        const vals = object['values'];
+          for (const featId in vals) {
+          //   if (shownFeatures.includes(featId)
+          //         && vals.hasOwnProperty(featId)) {
+          //     if (labelIDs.includes(featId)) {
+          //       const labId = featId;
+          //       const predId = predMap[labId];
+          //       const label: number[] = object['features'][defContext][labId];
+          //       const pred: number[] = object['features'][defContext][predId];
+
+          //       targetFeatures.set('' + labId, [label, pred] ); // TODO richtigen feature-namen
+          //     } else if ( predMap.hasOwnProperty(featId)) {
+          //       continue;
+          //     } else {
+          //       const features = object['features'][defContext];
+          //       const feature = Number(features[featId]);
+          //       // independentFeatures.set('' + featId, feature);
+          //     }
+          //   }
+          }
+          const targets = object['targetVariables'];
+          const targetMap = new Map<string, [number[], number[]]>()
+          for (const target of targets) {
+            const label = target['targetLabel'];
+            const prediction = target['targetPrediction'];
+            targetMap.set('?', [label, prediction])
+          }
+
+        //  (isA) ?
+        //      glyph.setVersionA():
+        //      glyph.setVersionB;
+          // if (object === objectA) {
+          //   const position = positionsA.get(objId);
+          //   glyph.setVersionA(targetFeatures, position);
+          // } else { //  if (object === objectB)
+          //   const position = positionsB.get(objId);
+          //   glyph.setVersionB(targetFeatures, position);
+          // }
+      }
+     // buffer.push(glyph);
+    }, this);
+    // return buffer;
+  }
   public json2Glyphs(glyphsJSONA, glyphsJSONB): ComparisonGlyph[] {
     const buffer: ComparisonGlyph[] = [];
 
