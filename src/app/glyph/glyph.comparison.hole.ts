@@ -1,5 +1,6 @@
 import { Glyph } from './glyph';
 import { ComparisonGlyph} from './glyph.comparison';
+import { stringify } from '@angular/core/src/render3/util';
 
 class HoleGlyphConfig {
   RADIUS_FACTOR = 50;
@@ -17,13 +18,18 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
   public draw() {
     const drawTarget = true;
     if (drawTarget) {
-    const [_, predsA] = this._targetsA.get(this.selectedFeature);
-    const [labelsB, predsB] = this._targetsB.get(this.selectedFeature);
+      if (this._targetsA === null || this._targetsB === null) {
+        return; }
+    const [_, predsA] = this._targetsA.get(this._selectedFeature);
+    const [labelsB, predsB] = this._targetsB.get(this._selectedFeature);
     const labels = labelsB;
 
-    const [predAClass, predA] = this.getMax(predsA);
-    const [predBClass, predB] = this.getMax(predsB);
-    const [labelClass, answersFor] = this.getMax(labels);
+    const [predAIdx, predA] = this.getMax(predsA);
+    const [predBIdx, predB] = this.getMax(predsB);
+    const [labelIdx, answersFor] = this.getMax(labels);
+    const predAClass = this.getTargetPrediction(predAIdx);
+    const predBClass = this.getTargetPrediction(predBIdx);
+    const labelClass = this.getTargetLabel(labelIdx);
     const confVal = answersFor / labels.reduce((a, b) => a + b, 0);
     this.drawTargetFeature(predAClass, predA,
       predBClass, predB, labelClass, [confVal, answersFor], this._positionB);
@@ -31,20 +37,20 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
   }
 
   private drawTargetFeature(
-    predAClass: number,
+    predAClass: string,
     predA: number,
-    predBClass: number,
+    predBClass: string,
     predB: number,
-    labelClass: number,
+    labelClass: string,
     interrater: [number, number],
     pos: [number, number]
     ) {
-      const possibleClassesLabel = 3; // TODO
-      const possibleClassesPred = 2; // TODO
+      const possibleClassesLabel = this.getLabelSize();
+      const possibleClassesPred = this.getPredictionSize();
       const isCorrectA = predAClass === labelClass;
       const isCorrectB = predBClass === labelClass;
       const hasChanged = predAClass !== predBClass;
-      const isMaybe = labelClass === 2;
+      // const isMaybe = labelClass === 2;
 
       const [x, y] = pos;
       let innerRadius: number;
@@ -67,9 +73,9 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       outerRadius = Math.pow(outerVal, 0.7) * this.config.RADIUS_FACTOR;
       // innerRadius = Math.pow(innerVal, 0.7) * this.config.RADIUS_FACTOR;
       // outerRadius = Math.pow(outerVal, 0.7) * this.config.RADIUS_FACTOR;
-      const innerRoundness = (isMaybe) ? 0.5 :
+      const innerRoundness = // (isMaybe) ? 0.5 :
                                 (isCorrectA) ? 0 : 1;
-      const outerRoundness = (isMaybe) ? 0.5 :
+      const outerRoundness = // (isMaybe) ? 0.5 :
                                 (isCorrectB) ? 0 : 1;
       // const innerRoundness = 1;
       // const outerRoundness = 1;
@@ -80,19 +86,22 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       {
         const minInterrater = (1 / possibleClassesLabel );
         const minS = 0.1;
-        const h = [0, 300, 150][labelClass];
-        const s = Math.pow(minS + (interrater[0] - minInterrater + minS) * ( 1 / (1 - minInterrater + minS)), 1.3)  * 100;
+        const map = this._labelColorMap;
+        const h = map.get(labelClass);
+        let s = Math.pow(minS + (interrater[0] - minInterrater + minS)
+          * ( 1 / (1 - minInterrater + minS)),
+           1.3)  * 100;
         const l = 50;
+        s = Math.round(s);
         colCode = `hsl( ${h}, ${s}%, ${l}%)`;
       }
 
       // adoption to perception of circles: https://www.stat.auckland.ac.nz/~ihaka/787/lectures-perception.pdf
 
-
       const kernel = new HoleGlyphKernel(this.config, x, y, innerRadius, outerRadius,
         innerRoundness, outerRoundness, colCode);
 
-      kernel.draw(this.context);
+      kernel.draw(this._context);
 
     }
 
@@ -155,7 +164,6 @@ class HoleGlyphKernel {
           const [_xb1, _yb1, _xb2, _yb2] = bezier[i];
           path.bezierCurveTo(_xb1, _yb1, _xb2, _yb2, _x, _y);
         }
-
       };
 
       drawInnerOuter(innerTriangle, innerBezier);

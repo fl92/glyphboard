@@ -31,9 +31,9 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
 
 @Component({
     selector: 'app-glyphplot-comparison',
-    // templateUrl: './glyphplot.component.html',
+    templateUrl: './glyphplot.component.html',
     styleUrls: ['./glyphplot.component.css'],
-    template: '<div>Hallo Compare</div>',
+    // template: '<div>Hallo Compare</div>',
     providers: [ComparisonGlyphCreator]
   })
   export class GlyphplotComparisonComponent implements OnInit, OnChanges {
@@ -51,8 +51,8 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     // private _dataB: [[number[]/*label*/, number[]/*prediction*/] /*targetVariable*/,
     //                     [number, number]/*position*/][];
 
-    private _dataA: any;
-    private _dataB: any;
+    private _dataA: any = null;
+    private _dataB: any = null;
     private _glyphs: ComparisonGlyph[] = [];
     // private _answerCategories: string[];
     // private _targetNames: string[]
@@ -96,7 +96,8 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
         : this._dataB = msg;
 
       if ( this._dataA !== null && this._dataB !== null) {
-        this.glyphCreator.versions2Glyphs(this._dataA, this._dataB);
+        this._glyphs = this.glyphCreator.versions2Glyphs(this._dataA, this._dataB);
+        this.createChart();
       }
     }
 
@@ -108,6 +109,12 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     }
 
     createChart(): void {
+    const that = this;
+    const element = this.chartContainer.nativeElement;
+    // this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
+
+    this.context = element.getContext('2d');
+    this.draw();
 
     }
 
@@ -118,10 +125,13 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
         context.save();
         context.clearRect(0, 0, this.width, this.height);
 
-        this._glyphs.forEach(g => {
+        this._glyphs.forEach(
+          g => {
             g.context = context;
             g.draw();
         });
+
+        // this._glyphs.forEach();
 
         // this._layoutController.getPositions().forEach(d => {
         //     this.context.beginPath();
@@ -140,6 +150,11 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
         this.selectionRect.clear();
         this.drawLock = false;
 
+    }
+
+    public animate() {
+      //TODO
+      this.draw();
     }
 
     private updateGlyphConfiguration() {

@@ -10,8 +10,19 @@ export abstract class ComparisonGlyph {
     protected _positionA: [number, number] = null;
     protected _positionB: [number, number] = null;
 
+    private _targetVariablesMeta: Map<any, {
+      targetName: string,
+      targetLabel: string[],
+      targetPrediction: string[],
+    }>;
+
+    protected _labelColorMap = new Map<string, number>();
+
     public constructor(context: CanvasRenderingContext2D = null) {
       this.context = context;
+      this._labelColorMap.set('yes', 0);
+      this._labelColorMap.set('no', 300);
+      this._labelColorMap.set('maybe', 150);
     }
 
     public abstract draw();
@@ -76,4 +87,40 @@ export abstract class ComparisonGlyph {
     this._context = value;
   }
 
+  public set targetVariablesMeta(v: Map<any, {
+    targetName: string,
+    targetLabel: string[],
+    targetPrediction: string[],
+  }>) {
+    this._targetVariablesMeta = v;
   }
+
+  public getTargetLabel(labelIdx: number) {
+    const key = this._selectedFeature;
+    const targetVariableMeta
+      = this._targetVariablesMeta.get(key);
+    return targetVariableMeta.targetLabel[labelIdx]
+  }
+  public getTargetPrediction(labelIdx: number) {
+    const key = this._selectedFeature;
+    const targetVariableMeta
+      = this._targetVariablesMeta.get(key);
+    return targetVariableMeta.targetPrediction[labelIdx]
+  }
+
+  public getLabelSize() {
+    const key = this._selectedFeature;
+    const targetVariableMeta
+      = this._targetVariablesMeta.get(key);
+    const size = targetVariableMeta.targetLabel.length;
+    return size;
+  }
+  public getPredictionSize() {
+    const key = this._selectedFeature;
+    const targetVariableMeta
+      = this._targetVariablesMeta.get(key);
+    const size = targetVariableMeta.targetPrediction.length;
+    return size;
+  }
+
+}
