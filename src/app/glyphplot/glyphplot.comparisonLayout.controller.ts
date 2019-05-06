@@ -1,12 +1,12 @@
-import { GlyphplotComponent } from './glyphplot.component';
 import { Logger } from 'app/shared/services/logger.service';
 import * as d3 from 'd3';
 import { Configuration } from '../shared/services/configuration.service';
+import { GlyphplotComparisonComponent } from './glyphplot.comparison.component';
 
 
 export class GlyphplotComparisonLayoutController {
     constructor(
-        private component: GlyphplotComponent,
+        private component: GlyphplotComparisonComponent,
         private logger: Logger,
         private configurationService: Configuration) {
     }
@@ -20,8 +20,15 @@ export class GlyphplotComparisonLayoutController {
         animationProgress: number): void {
         }
 
-    public updatePositions(): void {}
+    public updatePositions(): void {
+        let minX = 0,
+            maxX = 0,
+            minY = 0,
+            maxY = 0;
 
+        // this.component.configuration.itemsCount = this.component.glyphs.length;
+        this.component.glyphs.forEach( d => {});
+    }
 
     private search(quadtree, x0, y0, x3, y3) {}
 

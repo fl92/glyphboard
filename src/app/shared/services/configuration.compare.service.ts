@@ -5,6 +5,7 @@ import { EventAggregatorService } from '../events/event-aggregator.service';
 
 @Injectable()
 export class ConfigurationCompare {
+
     private _configurationData: ConfigurationDataCompare; // Array<ConfigurationDataCompare>;
     private _isLoadConfigA: boolean;
 
@@ -22,4 +23,5 @@ export class ConfigurationCompare {
         this._isLoadConfigA = v;
 
     }
+
 }

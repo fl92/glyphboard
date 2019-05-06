@@ -50,7 +50,7 @@ export class GlyphplotComponent implements OnInit, OnChanges {
   private _layoutController: GlyphplotLayoutController;
   private _flexiWallController: FlexiWallController;
   private _circle: Glyph;
-  private _simulation: any;
+  protected _simulation: any;
   private _currentLayout: any;
   private _drawLock: boolean;
   private _suppressAnimations = false;
@@ -101,7 +101,8 @@ export class GlyphplotComponent implements OnInit, OnChanges {
     private helper: Helper,
     private configurationService: Configuration,
     private cursor: LenseCursor,
-    private eventAggregator: EventAggregatorService
+    private eventAggregator: EventAggregatorService,
+    // isLoadFlexiWall = true
   ) {
     this.configuration = this.configurationService.addConfiguration();
 
@@ -113,22 +114,24 @@ export class GlyphplotComponent implements OnInit, OnChanges {
       this.configurationService,
       this.eventAggregator
     );
-    this._flexiWallController = new FlexiWallController(
-      this,
-      this.logger,
-      this.cursor,
-      this.configuration
-    );
     this._layoutController = new GlyphplotLayoutController(
       this,
       this.logger,
       this.configurationService
     );
-    this.configuration.leftSide = this.configurationService.configurations.length === 1;
-    if (this.configuration.leftSide) {
-      // Flexiwall connection only for first glyphboard component
-      this._flexiWallController.doWebSocket();
-    }
+    // if (isLoadFlexiWall) {
+    //   this._flexiWallController = new FlexiWallController(
+    //     this,
+    //     this.logger,
+    //     this.cursor,
+    //     this.configuration
+    //   );
+    //   this.configuration.leftSide = this.configurationService.configurations.length === 1;
+    //   if (this.configuration.leftSide) {
+    //     // Flexiwall connection only for first glyphboard component
+    //     this._flexiWallController.doWebSocket();
+    //   }
+    // }
     this._uniqueID = Math.random()
       .toString(36)
       .substring(2);

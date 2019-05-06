@@ -7,6 +7,9 @@ import { Observable } from "rxjs";
 
 export class ConfigurationDataCompare {
 
+
+   private _maxZoom = 50; // greatest magnification of glyphs (i.e. limits zoom.transform.k)
+   private _minScaleLevel = 0.5;
    private _glyph: ComparisonGlyph;
    private _dataA = new BehaviorSubject<any>(null);
    private _dataB = new BehaviorSubject<any>(null);
@@ -66,5 +69,11 @@ export class ConfigurationDataCompare {
   public get eventAggregator(): EventAggregatorService {
       return this._eventAggregator;
   }
+
+  get minScaleLevel() { return this._minScaleLevel }
+  set minScaleLevel(value: number) { this._minScaleLevel = value; }
+
+  get maxZoom(): number { return this._maxZoom; }
+  set maxZoom(zoom: number) { this._maxZoom = zoom; }
 
 }

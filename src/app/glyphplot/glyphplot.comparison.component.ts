@@ -27,6 +27,8 @@ import { ComparisonGlyph } from 'app/glyph/glyph.comparison';
 import { ComparisonGlyphCreator } from 'app/glyph/glyph.comparison.creator';
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
+import { GlyphplotComponent } from './glyphplot.component';
+import { Configuration } from 'app/shared/services/configuration.service';
 
 
 @Component({
@@ -36,7 +38,8 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     // template: '<div>Hallo Compare</div>',
     providers: [ComparisonGlyphCreator]
   })
-  export class GlyphplotComparisonComponent implements OnInit, OnChanges {
+  export class GlyphplotComparisonComponent extends GlyphplotComponent
+        implements OnInit, OnChanges {
     @ViewChild('chart') public chartContainer: ElementRef;
     @ViewChild('selectionrectangle') public selectionRectangle: ElementRef;
     // @ViewChild('tooltip') public tooltip: TooltipComponent;
@@ -56,22 +59,22 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     private _glyphs: ComparisonGlyph[] = [];
     // private _answerCategories: string[];
     // private _targetNames: string[]
-    private _configuration: ConfigurationDataCompare;
-    private _context: CanvasRenderingContext2D;
+    private _configurationData: ConfigurationDataCompare;
+    // private _context: CanvasRenderingContext2D;
     // private _selectionContext: any;
     // private _xAxis: any;
     // private _yAxis: any;
     // private _originalWidth: number;
     // private _originalHeight: number;
     // private _transform: any = d3.zoomIdentity;
-    private _selectionRect: SelectionRect;
+    // private _selectionRect: SelectionRect;
     // private _eventController: GlyphplotEventController;
-    private _layoutController: GlyphplotComparisonLayoutController;
+    // private _layoutController: GlyphplotComparisonLayoutController;
     // private _flexiWallController: FlexiWallController;
     // private _circle: Glyph;
     // private _simulation: any;
     // private _currentLayout: any;
-    private _drawLock: boolean;
+    // private  _drawLock: boolean;
     // private _suppressAnimations = false;
     // private _uniqueID: string;
     // private _zoom: any;
@@ -81,13 +84,28 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
 
     // private _data: any;
 
-    constructor(
-      private configurationService: ConfigurationCompare,
-      private glyphCreator: ComparisonGlyphCreator
+       constructor(
+      private glyphCreator: ComparisonGlyphCreator,
+      private configurationCompare: ConfigurationCompare,
+      private _logger: Logger,
+      private _configurationService: Configuration,
+      private _helper: Helper,
+      private _cursor: LenseCursor,
+      private _eventAggregator: EventAggregatorService
     ) {
-      this.configuration = this.configurationService.configurationData;
-      this.configuration.getDataA().subscribe(msg => this.onMessage(msg, true));
-      this.configuration.getDataB().subscribe(msg => this.onMessage(msg, false));
+     super(_logger, _helper, _configurationService, _cursor, _eventAggregator);
+      this._configurationData = this.configurationCompare.configurationData;
+      this._configurationData.getDataA().subscribe(msg => this.onMessage(msg, true));
+      this._configurationData.getDataB().subscribe(msg => this.onMessage(msg, false));
+
+    //   this._eventController = new GlyphplotEventController(
+    //     this,
+    //     this.configuration,
+    //     this.cursor,
+    //     this.logger,
+    //     this.configurationService,
+    //     this.eventAggregator
+    //   );
     }
 
     onMessage(msg, isA: boolean) {
@@ -102,10 +120,10 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     }
 
     ngOnInit() {
-
+       super.ngOnInit();
     }
     ngOnChanges() {
-
+        this.updateZoom();
     }
 
     createChart(): void {
@@ -113,10 +131,45 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     const element = this.chartContainer.nativeElement;
     // this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
 
+    this._simulation = d3
+      .forceSimulation()
+      .force('collision', d3.forceCollide().radius(20))
+      .on('end', () => {
+        GlyphplotComponent.ticked(that);
+      })
+      .stop();
+
     this.context = element.getContext('2d');
     this.draw();
 
     }
+
+    // public updateZoom() {
+    //     const that = this;
+    //     const element = this.chartContainer.nativeElement;
+    //     const rectangle = this.selectionRectangle.nativeElement;
+    //     let scaleBase = 1 *
+    //     Math.min(this.height / this._originalHeight, this.width / this._originalWidth);
+    //     scaleBase = this.configurationData.minScaleLevel;
+    //     this.zoom = d3.zoom()
+    //     .scaleExtent([scaleBase, this.configurationData.maxZoom])
+    //     .on('start', () => {
+    //         GlyphplotComparisonComponent.dragStart(that);
+    //     })
+    //     .on('zoom', () => {
+    //         GlyphplotComparisonComponent.zoomed(that);
+    //     })
+    //     .on('end', () => {
+    //         GlyphplotComparisonComponent.dragEnd(that);
+    //     });
+
+    //     const canvas = d3
+    //     .select(element)
+    //     .attr('width', this.width)
+    //     .attr('height', this.height)
+    //     .call(this.zoom);
+
+    // }
 
     draw(): void {
         this.drawLock = true;
@@ -157,9 +210,12 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
       this.draw();
     }
 
-    private updateGlyphConfiguration() {
-        // this._glyphs = this._glyphsCreator.json2Glyphs(this._dataA, this._dataB);
+    public updateGlyphLayout(updateAllItems: boolean = false): void {
+
     }
+
+    // public updateGlyphConfiguration() {
+    // }
 
     public matrixLayout(sortFunction?: any): void {
     }
@@ -176,24 +232,27 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
     this._dataB = value;
     }
 
-    get selectionRect(): SelectionRect {
-        return this._selectionRect;
-      }
-    set selectionRect(value: SelectionRect) {
-    this._selectionRect = value;
-    }
+    // get selectionRect(): SelectionRect {
+    //     return this._selectionRect;
+    //   }
+    // set selectionRect(value: SelectionRect) {
+    // this._selectionRect = value;
+    // }
+    // get eventController(): GlyphplotEventController {
+    //     return this._eventController;
+    // }
 //   get xAxis() { return this._xAxis; }
 //   set xAxis(value: any) { this._xAxis = value; }
 //   get yAxis() { return this._yAxis; }
 //   set yAxis(value: any) { this._yAxis = value; }
-  get configuration() { return this._configuration; }
-  set configuration(value: ConfigurationDataCompare) { this._configuration = value; }
+//   get configurationData() { return this._configuration; }
+//   set configurationData(value: ConfigurationDataCompare) { this._configuration = value; }
 //   get zoom() { return this._zoom; }
 //   set zoom(value: any) { this._zoom = value; }
-  get context(): CanvasRenderingContext2D { return this._context; }
-  set context(value: CanvasRenderingContext2D) { this._context = value; }
-  get drawLock() { return this._drawLock; }
-  set drawLock(value: boolean) { this._drawLock = value; }
+//   get context(): CanvasRenderingContext2D { return this._context; }
+//   set context(value: CanvasRenderingContext2D) { this._context = value; }
+//   get drawLock() { return this._drawLock; }
+//   set drawLock(value: boolean) { this._drawLock = value; }
 //   get currentLayout() { return this._currentLayout }
 //   set currentLayout(value: any) { this._currentLayout = value; }
 //   get quadtree() { return this._quadtree }
@@ -206,4 +265,5 @@ import { ConfigurationDataCompare } from 'app/shared/services/configuration.data
 //   get dataUpdated() { return this._dataUpdated; }
 //   set dataUpdated(value: boolean) { this._dataUpdated = value; }
 
+     get glyphs(): ComparisonGlyph[] { return this._glyphs; }
   }
