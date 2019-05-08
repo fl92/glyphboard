@@ -2,9 +2,6 @@ export class HeatMapComputation {
   private mean: number = null;
   private max: number = null;
   private exp: number = null;
-  private colorMap: any = null;
-  private colorMapType: ColorMapType = null;
-  private colorMapIdx: number;
 
   private diverg = [
     '#a50026',

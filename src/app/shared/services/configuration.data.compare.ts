@@ -3,6 +3,7 @@ import { EventAggregatorService } from "../events/event-aggregator.service";
 import { ConfigurationCompare } from "./configuration.compare.service";
 import { BehaviorSubject } from "rxjs/internal/BehaviorSubject";
 import { Observable } from "rxjs";
+import { ComparisonMoveGlyph } from "app/glyph/glyph.comparison.move";
 
 
 export class ConfigurationDataCompare {
@@ -10,7 +11,7 @@ export class ConfigurationDataCompare {
 
    private _maxZoom = 50; // greatest magnification of glyphs (i.e. limits zoom.transform.k)
    private _minScaleLevel = 0.5;
-   private _glyph: ComparisonGlyph;
+   private _glyph: ComparisonGlyph = new ComparisonMoveGlyph();
    private _dataA = new BehaviorSubject<any>(null);
    private _dataB = new BehaviorSubject<any>(null);
    private _selectedDataSetInfo = {

@@ -72,7 +72,7 @@ export class ComparisonGlyphCreator {
     }
 
     objIds.forEach((objId) => {
-      const glyph = this._proto.clone();
+      const glyph = this._proto.newInstance();
       glyph.selectedFeature = '3';
 
       const objectA = objectsAMap.get(objId);
@@ -213,4 +213,8 @@ export class ComparisonGlyphCreator {
   //   }, this);
   //   return buffer;
   // }
+
+  public set proto(v: ComparisonGlyph) {
+    this._proto = v;
+  }
 }

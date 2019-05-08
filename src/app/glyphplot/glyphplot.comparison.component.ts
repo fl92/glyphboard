@@ -29,6 +29,9 @@ import { ConfigurationCompare } from 'app/shared/services/configuration.compare.
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
 import { GlyphplotComponent } from './glyphplot.component';
 import { Configuration } from 'app/shared/services/configuration.service';
+import { ComparisonHoleGlyph } from 'app/glyph/glyph.comparison.hole';
+import { ComparisonMoveGlyph } from 'app/glyph/glyph.comparison.move';
+import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
 
 
 @Component({
@@ -36,7 +39,7 @@ import { Configuration } from 'app/shared/services/configuration.service';
     templateUrl: './glyphplot.component.html',
     styleUrls: ['./glyphplot.component.css'],
     // template: '<div>Hallo Compare</div>',
-    providers: [ComparisonGlyphCreator]
+    providers: [ComparisonGlyphCreator, MovementVisualizer]
   })
   export class GlyphplotComparisonComponent extends GlyphplotComponent
         implements OnInit, OnChanges {
@@ -87,6 +90,7 @@ import { Configuration } from 'app/shared/services/configuration.service';
        constructor(
       private glyphCreator: ComparisonGlyphCreator,
       private configurationCompare: ConfigurationCompare,
+      private movementVisualizer: MovementVisualizer,
       private _logger: Logger,
       private _configurationService: Configuration,
       private _helper: Helper,
@@ -114,6 +118,7 @@ import { Configuration } from 'app/shared/services/configuration.service';
         : this._dataB = msg;
 
       if ( this._dataA !== null && this._dataB !== null) {
+        this.glyphCreator.proto = this._configurationData.glyph;
         this._glyphs = this.glyphCreator.versions2Glyphs(this._dataA, this._dataB);
         this.createChart();
       }
@@ -178,11 +183,19 @@ import { Configuration } from 'app/shared/services/configuration.service';
         context.save();
         context.clearRect(0, 0, this.width, this.height);
 
-        this._glyphs.forEach(
-          g => {
-            g.context = context;
-            g.draw();
-        });
+        if (this.configurationCompare.configurationData.glyph instanceof ComparisonMoveGlyph) {
+          this.movementVisualizer.initGlyph(this._glyphs);
+          this.movementVisualizer.initPointsMinMax();
+          this.movementVisualizer.initContext(context, 500, 500);
+          this.movementVisualizer.drawConnections(
+            this.configurationCompare.isDrawPositionA);
+        } else {
+          this._glyphs.forEach(
+            g => {
+              g.context = context;
+              g.draw();
+          });
+        }
 
         // this._glyphs.forEach();
 
@@ -199,8 +212,8 @@ import { Configuration } from 'app/shared/services/configuration.service';
 
         // draw
 
-        context.restore();
-        this.selectionRect.clear();
+        // context.restore();
+        // this.selectionRect.clear();
         this.drawLock = false;
 
     }

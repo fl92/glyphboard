@@ -10,9 +10,15 @@ class HoleGlyphConfig {
 
 export class ComparisonHoleGlyph extends ComparisonGlyph {
 
+  protected _labelColorMap = new Map<string, number>();
+
   constructor(context: CanvasRenderingContext2D = null,
      private config = new HoleGlyphConfig()) {
     super(context);
+
+    this._labelColorMap.set('yes', 0);
+    this._labelColorMap.set('no', 300);
+    this._labelColorMap.set('maybe', 150);
   }
 
   public draw() {
@@ -105,7 +111,7 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
 
     }
 
-    public clone(): ComparisonGlyph {
+    public newInstance(): ComparisonGlyph {
       return new ComparisonHoleGlyph();
     }
 }

@@ -1,11 +1,13 @@
 import { ComparisonGlyph } from "./glyph.comparison";
 
-export class MoveComparisonGlyph extends ComparisonGlyph {
+export class ComparisonMoveGlyph extends ComparisonGlyph {
+
     public draw() {
+        throw new Error('method is deprecated');
     }
 
-    public clone(): ComparisonGlyph {
-        return new MoveComparisonGlyph();
+    public newInstance(): ComparisonGlyph {
+        return new ComparisonMoveGlyph();
     }
 
 

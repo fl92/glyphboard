@@ -9,6 +9,7 @@ export abstract class ComparisonGlyph {
     protected _targetsB: Map<any, [number[], number[]]> = null;
     protected _positionA: [number, number] = null;
     protected _positionB: [number, number] = null;
+    private _isPositionA: boolean;
 
     private _targetVariablesMeta: Map<any, {
       targetName: string,
@@ -16,13 +17,8 @@ export abstract class ComparisonGlyph {
       targetPrediction: string[],
     }>;
 
-    protected _labelColorMap = new Map<string, number>();
-
     public constructor(context: CanvasRenderingContext2D = null) {
       this.context = context;
-      this._labelColorMap.set('yes', 0);
-      this._labelColorMap.set('no', 300);
-      this._labelColorMap.set('maybe', 150);
     }
 
     public abstract draw();
@@ -45,7 +41,7 @@ export abstract class ComparisonGlyph {
       return [mZ, mz];
     }
 
-    public abstract clone (): ComparisonGlyph;
+    public abstract newInstance (): ComparisonGlyph;
 
     newLabeled(): any {
       for ( const feature of Array.from(this._targetsB.keys())) {
@@ -122,5 +118,24 @@ export abstract class ComparisonGlyph {
     const size = targetVariableMeta.targetPrediction.length;
     return size;
   }
+
+  public get positionA () {
+    return this._positionA;
+  }
+
+  public get positionB () {
+    return this._positionB;
+  }
+
+  public get isPositionA(): boolean {
+      return this._isPositionA;
+  }
+
+  public get position () {
+    return this._isPositionA ?
+      this._positionA :
+      this._positionB;
+  }
+
 
 }
