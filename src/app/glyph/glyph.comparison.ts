@@ -1,5 +1,6 @@
 export abstract class ComparisonGlyph {
 
+    private _objectId: any;
     protected _context: CanvasRenderingContext2D = null;
     protected _selectedFeature: any = null;
     protected _detailLevel = 1; // 1=global, 2=middle, 3=local
@@ -10,6 +11,8 @@ export abstract class ComparisonGlyph {
     protected _positionA: [number, number] = null;
     protected _positionB: [number, number] = null;
     private _isPositionA: boolean;
+
+    private _shownPosition: [number, number];
 
     private _targetVariablesMeta: Map<any, {
       targetName: string,
@@ -62,6 +65,7 @@ export abstract class ComparisonGlyph {
     // this._extractedsA = extracteds;
     this._targetsA = targets;
     this._positionA = position;
+    this._shownPosition = position;
   }
 
   public setVersionB(/*extracteds: Map<any, number>,*/ targets: Map<any, [number[], number[]]>,
@@ -127,15 +131,26 @@ export abstract class ComparisonGlyph {
     return this._positionB;
   }
 
-  public get isPositionA(): boolean {
-      return this._isPositionA;
+  // public get isPositionA(): boolean {
+  //     return this._isPositionA;
+  // }
+
+  // public get position () {
+  //   return this._isPositionA ?
+  //     this._positionA :
+  //     this._positionB;
+  // }
+
+  public get shownPosition(): [number, number] {
+    return this._shownPosition;
   }
-
-  public get position () {
-    return this._isPositionA ?
-      this._positionA :
-      this._positionB;
+  public set shownPosition(v: [number, number]) {
+    this._shownPosition = v;
   }
-
-
+  public get objectId(): any {
+    return this._objectId;
+  }
+  public set objectId(v: any) {
+    this._objectId = v;
+  }
 }

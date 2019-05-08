@@ -2,23 +2,24 @@
 import * as Delaunay from 'delaunay-triangulation';
 
 export class DelaunayWrapper {
-    public static computeConnections (points: [number, number][] )
-            : [number, number][] {
+    public static computeConnections (points: Map<any, [number, number]> )
+            : [any, any][] {
 
-                if (points.length === 2) {
-                    return [[0 , 1]];
+                if (points.size === 2) {
+                   const keys =  Array.from(points.keys());
+                    return [[keys[0] , keys[1]]];
                 }
 
                 const vertices = [];
-                const point2Idx = new Map<any, number>();
+                const point2Key = new Map<any, number>();
 
                 const connectionsPoints: [any, any][] = [];
-                const connectionsIdx: [number, number][] = [];
+                const connections: [any, any][] = [];
 
-                points.forEach(([x, y], idx) => {
+                points.forEach(([x, y], key) => {
                     const delPoint = new Delaunay.Point(x, y);
                     vertices.push(delPoint);
-                    point2Idx.set(delPoint, idx);
+                    point2Key.set(delPoint, key);
                     });
 
                 const triangles: any[] = Delaunay.triangulate(vertices);
@@ -38,10 +39,10 @@ export class DelaunayWrapper {
                 });
 
                 connectionsPoints.forEach( ([p1, p2]) => {
-                    const idx1 = point2Idx.get(p1);
-                    const idx2 = point2Idx.get(p2);
-                    connectionsIdx.push([idx1, idx2]);
+                    const key1 = point2Key.get(p1);
+                    const key2 = point2Key.get(p2);
+                    connections.push([key1, key2]);
                 });
-                return connectionsIdx;
+                return connections;
     }
 }

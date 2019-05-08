@@ -20,11 +20,10 @@ import { GlyphType } from 'app/glyph/glyph.type';
 
 import * as d3 from 'd3';
 // import { GlyphplotLayoutController } from './glyphplot.layout.controller';
-import {GlyphplotComparisonLayoutController} from './glyphplot.comparisonLayout.controller'
+import {GlyphplotComparisonLayoutController} from './glyphplot.comparison.layout_controller'
 import { GlyphLayout } from 'app/glyph/glyph.layout';
 import { DotGlyphConfiguration } from 'app/glyph/glyph.dot.configuration';
 import { ComparisonGlyph } from 'app/glyph/glyph.comparison';
-import { ComparisonGlyphCreator } from 'app/glyph/glyph.comparison.creator';
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
 import { GlyphplotComponent } from './glyphplot.component';
@@ -32,6 +31,9 @@ import { Configuration } from 'app/shared/services/configuration.service';
 import { ComparisonHoleGlyph } from 'app/glyph/glyph.comparison.hole';
 import { ComparisonMoveGlyph } from 'app/glyph/glyph.comparison.move';
 import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
+import { ComparisonDataItem } from './glyphplot.comparison.data_item';
+import { ComparisonDataCreator } from './glyphplot.comparison.data_creator';
+import { GlyphplotLayoutController } from './glyphplot.layout.controller';
 
 
 @Component({
@@ -39,7 +41,7 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
     templateUrl: './glyphplot.component.html',
     styleUrls: ['./glyphplot.component.css'],
     // template: '<div>Hallo Compare</div>',
-    providers: [ComparisonGlyphCreator, MovementVisualizer]
+    providers: [ComparisonDataCreator, MovementVisualizer]
   })
   export class GlyphplotComparisonComponent extends GlyphplotComponent
         implements OnInit, OnChanges {
@@ -57,50 +59,31 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
     // private _dataB: [[number[]/*label*/, number[]/*prediction*/] /*targetVariable*/,
     //                     [number, number]/*position*/][];
 
-    private _dataA: any = null;
-    private _dataB: any = null;
-    private _glyphs: ComparisonGlyph[] = [];
-    // private _answerCategories: string[];
-    // private _targetNames: string[]
+    private _dataA: any;
+    private _dataB: any;
+    private _comparedData: ComparisonDataItem[];
     private _configurationData: ConfigurationDataCompare;
-    // private _context: CanvasRenderingContext2D;
-    // private _selectionContext: any;
-    // private _xAxis: any;
-    // private _yAxis: any;
-    // private _originalWidth: number;
-    // private _originalHeight: number;
-    // private _transform: any = d3.zoomIdentity;
-    // private _selectionRect: SelectionRect;
-    // private _eventController: GlyphplotEventController;
-    // private _layoutController: GlyphplotComparisonLayoutController;
-    // private _flexiWallController: FlexiWallController;
-    // private _circle: Glyph;
-    // private _simulation: any;
-    // private _currentLayout: any;
-    // private  _drawLock: boolean;
-    // private _suppressAnimations = false;
-    // private _uniqueID: string;
-    // private _zoom: any;
-    // private _quadtree: any;
-    // private _clusterPoints;
-    // private _dataUpdated: boolean;
 
-    // private _data: any;
+    private _comparisonLayoutController: GlyphplotComparisonLayoutController;
 
        constructor(
-      private glyphCreator: ComparisonGlyphCreator,
-      private configurationCompare: ConfigurationCompare,
+      private comparisonCreator: ComparisonDataCreator,
       private movementVisualizer: MovementVisualizer,
       private _logger: Logger,
-      private _configurationService: Configuration,
       private _helper: Helper,
+      private _configurationService: ConfigurationCompare,
       private _cursor: LenseCursor,
       private _eventAggregator: EventAggregatorService
     ) {
      super(_logger, _helper, _configurationService, _cursor, _eventAggregator);
-      this._configurationData = this.configurationCompare.configurationData;
+      this._configurationData = this._configurationService.configurationData;
       this._configurationData.getDataA().subscribe(msg => this.onMessage(msg, true));
       this._configurationData.getDataB().subscribe(msg => this.onMessage(msg, false));
+      this._comparisonLayoutController = new GlyphplotComparisonLayoutController(
+        this,
+        this._logger,
+        this._configurationService
+      );
 
     //   this._eventController = new GlyphplotEventController(
     //     this,
@@ -113,13 +96,12 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
     }
 
     onMessage(msg, isA: boolean) {
-      if (msg === undefined || msg === null) {return; }
+      if (msg == null) {return; }
       (isA) ? this._dataA = msg
         : this._dataB = msg;
 
       if ( this._dataA !== null && this._dataB !== null) {
-        this.glyphCreator.proto = this._configurationData.glyph;
-        this._glyphs = this.glyphCreator.versions2Glyphs(this._dataA, this._dataB);
+        this._comparedData = this.comparisonCreator.versions2Data(this._dataA, this._dataB);
         this.createChart();
       }
     }
@@ -144,8 +126,10 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
       })
       .stop();
 
+    this.layoutController.updatePositions();
+
     this.context = element.getContext('2d');
-    this.draw();
+    this.animate();
 
     }
 
@@ -183,17 +167,18 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
         context.save();
         context.clearRect(0, 0, this.width, this.height);
 
-        if (this.configurationCompare.configurationData.glyph instanceof ComparisonMoveGlyph) {
-          this.movementVisualizer.initGlyph(this._glyphs);
-          this.movementVisualizer.initPointsMinMax();
-          this.movementVisualizer.initContext(context, 500, 500);
+        if (this._configurationService.configurationData.comparisonGlyph instanceof ComparisonMoveGlyph) {
+          this.movementVisualizer.init(this._comparedData);
+          // this.movementVisualizer.initPointsMinMax();
+          // this.movementVisualizer.updatePoints()
+          this.movementVisualizer.initContext(context);
           this.movementVisualizer.drawConnections(
-            this.configurationCompare.isDrawPositionA);
+            this._configurationService.isDrawPositionA);
         } else {
-          this._glyphs.forEach(
+          this._comparedData.forEach(
             g => {
-              g.context = context;
-              g.draw();
+              // g.context = context;
+              // g.draw();
           });
         }
 
@@ -220,15 +205,25 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
 
     public animate() {
       //TODO
+      if (!arguments.length) {
+      this.updateGlyphLayout();
       this.draw();
     }
 
-    public updateGlyphLayout(updateAllItems: boolean = false): void {
-
     }
 
-    // public updateGlyphConfiguration() {
-    // }
+    public updateGlyphLayout(updateAllItems: boolean = false): void {
+      const that = this;
+      this._comparedData.forEach(d => {
+        if (d.positionA == null || d.positionB == null) {return; }
+        d.drawnPositionA = [
+          that.transform.applyX(that.xAxis(d.positionA[0])),
+          that.transform.applyY(that.yAxis(d.positionA[1]))];
+        d.drawnPositionB = [
+          that.transform.applyX(that.xAxis(d.positionB[0])),
+          that.transform.applyY(that.yAxis(d.positionB[1]))];
+      });
+    }
 
     public matrixLayout(sortFunction?: any): void {
     }
@@ -244,6 +239,16 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
     set dataB(value: any) {
     this._dataB = value;
     }
+
+    get comparedData() {
+      return this._comparedData
+    }
+
+    public get layoutController(): GlyphplotLayoutController {
+      return this._comparisonLayoutController;
+    }
+    
+   
 
     // get selectionRect(): SelectionRect {
     //     return this._selectionRect;
@@ -277,6 +282,4 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
 //   get layoutController() { return this._layoutController; }
 //   get dataUpdated() { return this._dataUpdated; }
 //   set dataUpdated(value: boolean) { this._dataUpdated = value; }
-
-     get glyphs(): ComparisonGlyph[] { return this._glyphs; }
   }

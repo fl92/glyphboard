@@ -3,36 +3,30 @@ import { DelaunayWrapper } from './glyph.comparison.move.delaunayWrapper';
 import { ComparisonGlyph} from './glyph.comparison';
 import { Injectable } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
+import { ComparisonDataItem } from 'app/glyphplot/glyphplot.comparison.data_item';
 
 @Injectable()
 export class MovementVisualizer {
 
-    private pointsA: [number, number] [];
-    private pointsB: [number, number] [];
+    private pointsA: Map<any, [number, number]>;
+    private pointsB: Map<any, [number, number]>;
 
-    private connectionsA: [number, number] [];
-    private connectionsB: [number, number] [];
+    private connectionsA: [number, number][];
+    private connectionsB: [number, number][];
 
     private attributesSize: number;
-    private attrVectorsA: number[][];
-    private attrVectorsB: number[][];
+    private attrVectorsA: Map<any, [number, number]>;
+    private attrVectorsB: Map<any, [number, number]>;
 
     private heatMapComputation = new HeatMapComputation();
 
-    private contextMaxX: number;
-    private contextMaxY: number;
     private context: CanvasRenderingContext2D;
 
-    private pointsMinX: number;
-    private pointsMinY: number;
-    private pointsMaxX: number;
-    private pointsMaxY: number;
-
-    public init(pointsA: [number, number] [],
-                pointsB: [number, number] [],
+    private _init(pointsA: Map<any, [number, number]>,
+                pointsB: Map<any, [number, number]>,
                 attributesSize: number,
-                attrVectorsA: number[][],
-                attrVectorsB: number[][]
+                attrVectorsA: Map<any, [number, number]>,
+                attrVectorsB: Map<any, [number, number]>
                 ) {
         this.pointsA = pointsA;
         this.pointsB = pointsB;
@@ -45,19 +39,25 @@ export class MovementVisualizer {
         this.attrVectorsB = attrVectorsB;
     }
 
-    public initGlyph(
-        glyphs: ComparisonGlyph[]) {
-            const pointsA: [number, number] [] = [];
-            const pointsB: [number, number] [] = [];
-            const glyphsWithBothPositions = glyphs.filter(v => v.positionA != null && v.positionB != null)
+    public init(
+        data: ComparisonDataItem[]) {
+            const pointsA = new Map<any, [number, number]> ();
+            const pointsB = new Map<any, [number, number]> ();
+            const dataWithBothPositions = data.filter(v => v.positionA != null && v.positionB != null)
 
-            // TODO include glyphs with missing positions
-            // const glyphsWithMissingPositions = glyphs.filter(v => v.positionA == null || v.positionB == null)
-            glyphsWithBothPositions.forEach( glyph => {
-                pointsA.push(glyph.positionA);
-                pointsB.push(glyph.positionB);
+            // TODO include data with missing positions
+            // const dataWithMissingPositions = data.filter(v => v.positionA == null || v.positionB == null)
+            dataWithBothPositions.forEach( _data => {
+                pointsA.set(_data.objectId, _data.drawnPositionA);
+                pointsB.set(_data.objectId, _data.drawnPositionB);
             });
-            this.init(pointsA, pointsB, 2, pointsA, pointsB);
+            this._init(pointsA, pointsB, 2, pointsA, pointsB);
+    }
+
+    public updatePoints(points: Map<any, [number, number]>, isPointsA: boolean) {
+        isPointsA ?
+            this.pointsA = points :
+            this.pointsB = points;
     }
 
 public drawConnections (drawA: boolean) {
@@ -65,57 +65,31 @@ public drawConnections (drawA: boolean) {
 
     const diffs = this.heatMapInit(connections);
 
-    connections.forEach(([idx1, idx2], connIdx) => {
-       const diff = diffs[connIdx];
-       this.drawConnection(this.context, idx1, idx2, diff, drawA);
+    connections.forEach(([key1, key2], key) => {
+       const diff = diffs[key];
+       this.drawConnection(this.context, key1, key2, diff, drawA);
     } );
 }
 
-public initContext(context: CanvasRenderingContext2D, contextMaxX, contextMaxY){
+public initContext(context: CanvasRenderingContext2D){
     this.context = context;
-    this.contextMaxX = contextMaxX;
-    this.contextMaxY = contextMaxY;
-}
-
-public initPointsMinMax() {
-    this.pointsMinX = Infinity;
-    this.pointsMinY = Infinity;
-    this.pointsMaxX = -Infinity;
-    this.pointsMaxY = -Infinity;
-
-   [this.pointsA, this.pointsB].forEach(points => {
-        points.forEach( ([x, y]) => {
-        this.pointsMinX = Math.min(this.pointsMinX, x);
-        this.pointsMinY = Math.min(this.pointsMinY, y);
-        this.pointsMaxX = Math.max(this.pointsMaxX, x);
-        this.pointsMaxY = Math.max(this.pointsMaxY, y);
-    });
-   });
-}
-
-public cvtPointToScreen(x: number, y: number) {
-    const buffer: [number, number] = [
-        ((x - this.pointsMinX) / (this.pointsMaxX - this.pointsMinX)) * this.contextMaxX,
-        ((y - this.pointsMinX) / (this.pointsMaxY - this.pointsMinY)) * this.contextMaxY
-     ];
-     return buffer;
 }
 
         // draws connections to Version B-neighbours in Version A for one object and vice versa
 public drawFarConnections(context: CanvasRenderingContext2D,
     x: number, y: number, currentVersionA: boolean) {
 
-    // get idx of object
+    // get key of object
     const points = (currentVersionA) ? this.pointsA : this.pointsB;
-    if (points.length === 0) { return false; }
-    let idx = 0;
+    if (points.size === 0) { return false; }
+    let key = 0;
     let minSqDist = Infinity;
-    points.forEach(([_x, _y], _idx) => {
+    points.forEach(([_x, _y], _key) => {
         const [dx, dy] = [x - _x, y - _y];
         const sqDist = dx * dx + dy * dy;
         if (sqDist < minSqDist) {
             minSqDist = sqDist;
-            idx = _idx;
+            key = _key;
         };
     });
 
@@ -125,21 +99,21 @@ public drawFarConnections(context: CanvasRenderingContext2D,
     // connections of opposite Version
     let oppositeConnections = (currentVersionA) ? this.connectionsB : this.connectionsA;
 
-    // // connections on idx
+    // // connections on key
     // const connectionsIdc: number[] = [];
-    // oppositeConnections.forEach( ([attrIdx1, attrIdx2], connIdx) => {
-    //     if (attrIdx1 === idx || attrIdx2 === idx) {
-    //         connectionsIdc.push(connIdx); }
+    // oppositeConnections.forEach( ([attrkey1, attrkey2], connkey) => {
+    //     if (attrkey1 === key || attrkey2 === key) {
+    //         connectionsIdc.push(connkey); }
     // });
 
     // this.drawConnections5(context, !currentVersionA, connectionsIdc);
     const diffs = this.heatMapInit(oppositeConnections);
-    oppositeConnections = oppositeConnections.filter(([attrIdx1, attrIdx2], connIdx) =>
-        (attrIdx1 === idx || attrIdx2 === idx));
+    oppositeConnections = oppositeConnections.filter(([attrkey1, attrkey2], connkey) =>
+        (attrkey1 === key || attrkey2 === key));
 
-    oppositeConnections.forEach(([idx1, idx2], connIdx) => {
+    oppositeConnections.forEach(([key1, key2], connIdx) => {
         const diff = diffs[connIdx];
-        this.drawConnection(context, idx1, idx2, diff, currentVersionA);
+        this.drawConnection(context, key1, key2, diff, currentVersionA);
         } );
 
     return true;
@@ -152,9 +126,9 @@ private heatMapInit(connections: [number, number][]) {
     let maxDiff = 0;
     let minDiff = Infinity;
 
-    connections.forEach(([idx1, idx2]) => {
-        const distA = this.diffMagnitude(this.attrVectorsA[idx1], this.attrVectorsA[idx2]);
-        const distB = this.diffMagnitude(this.attrVectorsB[idx1], this.attrVectorsB[idx2]);
+    connections.forEach(([key1, key2]) => {
+        const distA = this.diffMagnitude(this.attrVectorsA.get(key1), this.attrVectorsA.get(key2));
+        const distB = this.diffMagnitude(this.attrVectorsB.get(key1), this.attrVectorsB.get(key2));
         const diff = distA - distB;
         diffs.push(diff);
         stdDevDiff += Math.abs(diff);
@@ -169,23 +143,25 @@ private heatMapInit(connections: [number, number][]) {
 }
 
 public drawConnection(context: CanvasRenderingContext2D,
-    idx1: number, idx2: number, diff: number, drawA: boolean) {
-    let [x1, y1] = (drawA) ? this.pointsA[idx1] : this.pointsB[idx1];
-    let [x2, y2] = (drawA) ? this.pointsA[idx2] : this.pointsB[idx2];
+    key1: number, key2: number, diff: number, drawA: boolean) {
+    const point1 = (drawA) ? this.pointsA.get(key1) : this.pointsB.get(key1);
+    const point2 = (drawA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
+    const [x1, y1] = point1;
+    const [x2, y2] = point2;
 
-    const vA1 = this.attrVectorsA[idx1];
-    const vA2 = this.attrVectorsA[idx2];
-    const vB1 = this.attrVectorsB[idx1];
-    const vB2 = this.attrVectorsB[idx2];
+    const vA1 = this.attrVectorsA.get(key1);
+    const vA2 = this.attrVectorsA.get(key2);
+    const vB1 = this.attrVectorsB.get(key1);
+    const vB2 = this.attrVectorsB.get(key2);
 
     const move1: number[] = []; // vB1 - vA1;
     const move2: number[] = []; // vB2 - vA2;
-    vA1.forEach((xa, idx) => {
-        const xb = vB1[idx];
+    vA1.forEach((xa, key) => {
+        const xb = vB1[key];
         move1.push(xb - xa);
     });
-    vA2.forEach((xa, idx) => {
-        const xb = vB2[idx];
+    vA2.forEach((xa, key) => {
+        const xb = vB2[key];
         move2.push(xb - xa);
     });
 
@@ -210,8 +186,6 @@ public drawConnection(context: CanvasRenderingContext2D,
             code2 = `rgb(${r},${g},${b},${Math.pow(move2Mag / move1Mag, 2)})`;
         }
 
-        [x1, y1] = this.cvtPointToScreen(x1, y1);
-        [x2, y2] = this.cvtPointToScreen(x2, y2);
         const grad = context.createLinearGradient( x1, y1, x2, y2);
         grad.addColorStop(0, code1);
         grad.addColorStop(1, code2);
