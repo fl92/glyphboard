@@ -42,6 +42,12 @@ export class ConfigurationDataCompare extends ConfigurationData {
        this._dataB.next(v);
    }
 
+   /////////
+
+   public filterRefresh() {
+       // do nothing, filter applied in movementvisualization directly
+   }
+
   // public get configuration(): ConfigurationCompare {
   //   return this._configuration;
   // }

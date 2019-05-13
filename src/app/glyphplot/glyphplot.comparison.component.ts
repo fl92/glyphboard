@@ -169,8 +169,6 @@ import { GlyphplotLayoutController } from './glyphplot.layout.controller';
 
         if (this._configurationService.configurationData.comparisonGlyph instanceof ComparisonMoveGlyph) {
           this.movementVisualizer.init(this._comparedData);
-          // this.movementVisualizer.initPointsMinMax();
-          // this.movementVisualizer.updatePoints()
           this.movementVisualizer.initContext(context);
           this.movementVisualizer.drawConnections(
             this._configurationService.isDrawPositionA);

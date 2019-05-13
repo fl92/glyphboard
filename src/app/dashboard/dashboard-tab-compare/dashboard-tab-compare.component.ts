@@ -2,6 +2,7 @@ import { Component, OnInit, Injector } from '@angular/core';
 import { DashboardTabComponent } from '../dashboard-tab/dashboard-tab.component';
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 import { DoubleDataproviderService } from 'app/shared/services/doubledataprovider.service';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-tab-compare',
@@ -11,12 +12,15 @@ import { DoubleDataproviderService } from 'app/shared/services/doubledataprovide
 })
 export class DashboardTabCompareComponent extends DashboardTabComponent implements OnInit {
 
+  public eventsSubject: Subject<void> = new Subject<void>();
+
   constructor(
     injector: Injector,
-    private configurationCompare: ConfigurationCompare,
+    public configurationCompare: ConfigurationCompare,
     private doubleDataProvider: DoubleDataproviderService
   ) {
     super(injector);
+
   }
 
   ngOnInit() {
@@ -32,6 +36,10 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
       });
       this.onOpenTab(); // TODO anders
   }
+
+  public onColorChange(e: any): void {}
+
+  public onFeatureConfigChange(e: any): void {}
 
   onOpenTab() {
     this.doubleDataProvider.downloadDataSetA('compTest', '22032018', 'tsne')
