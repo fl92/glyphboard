@@ -13,3 +13,6 @@
     [configuration]="configuration" label="correlation" property="correlation"
     [object]="null" [active]="true" [events]="eventsSubject"></feature-config-item>
 </div> -->
+
+<ng5-slider [(value)]="diffMin" [(highValue)]='diffMax'
+ [options]="diffOptions" (userChangeEnd)="onFeatureConfigChange($event)"></ng5-slider>

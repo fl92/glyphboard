@@ -3,6 +3,9 @@ import { DashboardTabComponent } from '../dashboard-tab/dashboard-tab.component'
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 import { DoubleDataproviderService } from 'app/shared/services/doubledataprovider.service';
 import { Subject } from 'rxjs';
+import { Options, LabelType } from 'ng5-slider';
+import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
+import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 
 @Component({
   selector: 'app-dashboard-tab-compare',
@@ -13,6 +16,15 @@ import { Subject } from 'rxjs';
 export class DashboardTabCompareComponent extends DashboardTabComponent implements OnInit {
 
   public eventsSubject: Subject<void> = new Subject<void>();
+  private configurationDataCompare: ConfigurationDataCompare;
+
+  diffMin = -1;
+  diffMax = 1;
+  diffOptions: Options = {
+    floor: -1, ceil: 1,
+    step: 0.01,
+    translate: (value, label) => { return ''}
+    }
 
   constructor(
     injector: Injector,
@@ -20,6 +32,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
     private doubleDataProvider: DoubleDataproviderService
   ) {
     super(injector);
+    this.configurationDataCompare = configurationCompare.configurationData;
 
   }
 
@@ -39,7 +52,12 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
 
   public onColorChange(e: any): void {}
 
-  public onFeatureConfigChange(e: any): void {}
+  public onFeatureConfigChange(e: any): void {
+    const filter = this.configurationDataCompare.connectionFilter;
+    filter.maxDifference = this.diffMax;
+    filter.minDifference = this.diffMin;
+    this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
+  }
 
   onOpenTab() {
     this.doubleDataProvider.downloadDataSetA('compTest', '22032018', 'tsne')

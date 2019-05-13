@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs';
 import { ComparisonMoveGlyph } from 'app/glyph/glyph.comparison.move';
 import { ConfigurationData } from './configuration.data';
+import { ConnectionCompareFilter } from '../filter/connection.compare-filter';
 
 
 export class ConfigurationDataCompare extends ConfigurationData {
@@ -14,8 +15,11 @@ export class ConfigurationDataCompare extends ConfigurationData {
    private _dataA = new BehaviorSubject<any>(null);
    private _dataB = new BehaviorSubject<any>(null);
 
+   private _connectionCompareFilter = new ConnectionCompareFilter();
 
   private _configuration: ConfigurationCompare;
+
+  
 
   constructor(configuration: ConfigurationCompare, eventAggregator: EventAggregatorService
     ) {
@@ -42,6 +46,12 @@ export class ConfigurationDataCompare extends ConfigurationData {
        this._dataB.next(v);
    }
 
+   public get connectionFilter(): ConnectionCompareFilter {
+       return this._connectionCompareFilter;
+   }
+   public set connectionFilter(v: ConnectionCompareFilter) {
+       this._connectionCompareFilter = v;
+   }
    /////////
 
    public filterRefresh() {

@@ -1,4 +1,4 @@
-export class HeatMapComputation {
+export class ColorComputation {
   private mean: number = null;
   private max: number = null;
   private exp: number = null;
@@ -16,6 +16,7 @@ export class HeatMapComputation {
     '#4575b4',
     '#313695'
     ];
+    private _unfilteredColor = [0xdf, 0xdf, 0xdf];
 
  /**
   * {param max: highest absolute value}
@@ -49,5 +50,9 @@ export class HeatMapComputation {
     const g = parseInt(code.slice(3, 5), 16);
     const b = parseInt(code.slice(5, 7), 16);
     return [r, g, b ];
+  }
+
+  public get unfilteredColor() {
+    return this._unfilteredColor;
   }
 }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { Ng5SliderModule } from 'ng5-slider';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -89,7 +90,8 @@ import { ConfigurationCompare } from './shared/services/configuration.compare.se
     MatSlideToggleModule,
     MatButtonModule,
     MatIconModule,
-    AngularFileUploaderModule
+    AngularFileUploaderModule,
+    Ng5SliderModule,
   ],
   providers: [
     appRoutingProviders,

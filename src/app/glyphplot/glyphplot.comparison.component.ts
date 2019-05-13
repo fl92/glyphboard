@@ -34,6 +34,7 @@ import { MovementVisualizer } from 'app/glyph/glyph.comparison.move.visualizer';
 import { ComparisonDataItem } from './glyphplot.comparison.data_item';
 import { ComparisonDataCreator } from './glyphplot.comparison.data_creator';
 import { GlyphplotLayoutController } from './glyphplot.layout.controller';
+import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 
 
 @Component({
@@ -84,6 +85,12 @@ import { GlyphplotLayoutController } from './glyphplot.layout.controller';
         this._logger,
         this._configurationService
       );
+
+      this._eventAggregator.getEvent(RefreshPlotEvent)
+      .subscribe((evt) => {
+        // this.animate();
+        const x = 3;
+      });
 
     //   this._eventController = new GlyphplotEventController(
     //     this,
@@ -170,6 +177,7 @@ import { GlyphplotLayoutController } from './glyphplot.layout.controller';
         if (this._configurationService.configurationData.comparisonGlyph instanceof ComparisonMoveGlyph) {
           this.movementVisualizer.init(this._comparedData);
           this.movementVisualizer.initContext(context);
+          this.movementVisualizer.initFilter(this._configurationData.connectionFilter)
           this.movementVisualizer.drawConnections(
             this._configurationService.isDrawPositionA);
         } else {

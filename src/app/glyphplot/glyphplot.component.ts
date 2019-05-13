@@ -102,18 +102,21 @@ export class GlyphplotComponent implements OnInit, OnChanges {
     private configurationService: Configuration,
     private cursor: LenseCursor,
     private eventAggregator: EventAggregatorService,
+    eventController: GlyphplotEventController = null
     // isLoadFlexiWall = true
   ) {
     this.configuration = this.configurationService.addConfiguration();
 
-    this._eventController = new GlyphplotEventController(
-      this,
-      this.configuration,
-      this.cursor,
-      this.logger,
-      this.configurationService,
-      this.eventAggregator
-    );
+    this._eventController = eventController != null ?
+      eventController :
+      new GlyphplotEventController(
+        this,
+        this.configuration,
+        this.cursor,
+        this.logger,
+        this.configurationService,
+        this.eventAggregator
+      );
     this._layoutController = new GlyphplotLayoutController(
       this,
       this.logger,
