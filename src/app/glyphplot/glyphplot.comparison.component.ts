@@ -206,7 +206,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
           this.movementVisualizer.initContext(context);
           this.movementVisualizer.initFilter(this._configurationDataCompare.connectionFilter)
           const isDrawFar = (this._configurationDataCompare.filteredItemsIds != null
-              || this._configurationDataCompare.filteredItemsIds.length !== 0)
+              && this._configurationDataCompare.filteredItemsIds.length !== 0)
 
           context.globalAlpha = isDrawFar ? this._configurationDataCompare.TRANSPARENCY : 1;
           this.movementVisualizer.drawConnections(
