@@ -19,7 +19,8 @@ export class ConfigurationDataCompare extends ConfigurationData {
 
   private _configuration: ConfigurationCompare;
 
-  
+  private _TRANSPARENCY = 0.7;
+
 
   constructor(configuration: ConfigurationCompare, eventAggregator: EventAggregatorService
     ) {
@@ -52,6 +53,11 @@ export class ConfigurationDataCompare extends ConfigurationData {
    public set connectionFilter(v: ConnectionCompareFilter) {
        this._connectionCompareFilter = v;
    }
+
+   // constants
+   public get TRANSPARENCY() {
+    return this._TRANSPARENCY;
+}
    /////////
 
    public filterRefresh() {

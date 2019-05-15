@@ -121,6 +121,16 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
 
   }
 
+  /**
+   * If the canvas is clicked, either fixate the tooltip in its position or make it movable again.
+   * @param e mouse click event
+   */
+  public onClick(e: MouseEvent): void {
+      const selectedIds: number[] = [];
+      this._component.configurationDataCompare.filteredItemsIds = selectedIds;
+      this._component.draw();
+  }
+
   private findSelectedIds() {
     const selectedIds: number[] = [];
     const rect = this._component.selectionRect;

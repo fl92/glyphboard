@@ -56,11 +56,6 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
     /**
      * Data consists of target variable for label und prediction and of position.
      */
-    // private _dataA: [[number[]/*label*/, number[]/*prediction*/] /*targetVariable*/,
-    //                     [number, number]/*position*/][];
-    // private _dataB: [[number[]/*label*/, number[]/*prediction*/] /*targetVariable*/,
-    //                     [number, number]/*position*/][];
-
     private _dataA: any;
     private _dataB: any;
     private _comparedData: ComparisonDataItem[];
@@ -70,7 +65,15 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
     private _comparisonLayoutController: GlyphplotComparisonLayoutController;
     private _comparisonEventController: GlyphplotComparisonEventController;
 
-       constructor(
+    @HostListener('click', ['$event'])
+    click(e: MouseEvent) {
+      this._eventController.onClick(e);
+    }
+    @HostListener('mousemove', ['$event'])
+    mouseMove(e: MouseEvent) {
+      this._eventController.onMouseMove(e);
+    }
+    constructor(
       private _comparisonCreator: ComparisonDataCreator,
       private movementVisualizer: MovementVisualizer,
        logger: Logger,
@@ -122,9 +125,19 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
        super.ngOnInit();
     }
     ngOnChanges() {
-        this.updateZoom();
-        this.updateGlyphLayout();
-        this.animate();
+      if (this.context == null) {
+        return;
+      }
+      if (this.width === 0 || this.height === 0) {
+        return;
+      }
+      // this.selectionRect.offset = {
+      //   x: this.configuration.leftSide ? 0 : window.innerWidth - this.width,
+      //   y: 0
+      // };
+      this.updateZoom();
+      this.updateGlyphLayout();
+      this.animate();
     }
 
     createChart(): void {
@@ -186,18 +199,24 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
         context.save();
         context.clearRect(0, 0, this.width, this.height);
 
-        if (this._configurationCompare.configurationData.comparisonGlyph instanceof ComparisonMoveGlyph) {
-          // this.movementVisualizer.init(this._comparedData);
+        if (this._configurationCompare.configurationData.comparisonGlyph
+          instanceof ComparisonMoveGlyph) {
           this.movementVisualizer.updatePoints(this._comparedData);
           this.movementVisualizer.initContext(context);
           this.movementVisualizer.initFilter(this._configurationDataCompare.connectionFilter)
-          context.globalAlpha = 0.1;
+          const isDrawFar = (this._configurationDataCompare.filteredItemsIds != null
+              || this._configurationDataCompare.filteredItemsIds.length !== 0)
+
+          context.globalAlpha = isDrawFar ? this._configurationDataCompare.TRANSPARENCY : 1;
           this.movementVisualizer.drawConnections(
             this._configurationCompare.isDrawPositionA);
-            context.globalAlpha = 1;
+          context.globalAlpha = 1;
+
+          if (isDrawFar) {
           this.movementVisualizer.drawFarConnections(
             this._configurationDataCompare.filteredItemsIds,
             this._configurationCompare.isDrawPositionA);
+          }
         } else {
           this._comparedData.forEach(
             g => {
@@ -236,6 +255,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
     }
 
     public updateGlyphLayout(updateAllItems: boolean = false): void {
+      if (this._comparedData == null) {return; }
       const that = this;
       if (! this._configurationDataCompare.useDragSelection) {
         this._comparedData.forEach(d => {
