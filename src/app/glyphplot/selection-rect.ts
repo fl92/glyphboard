@@ -3,7 +3,7 @@ import { GlyphplotComponent } from './glyphplot.component';
 export class SelectionRect {
   private component: GlyphplotComponent;
   private context: any;
-  private helper;
+  private _helper;
   private _animationIntervalId: number;
   private _animationProgress = 0;
   private _data: any;
@@ -31,7 +31,7 @@ export class SelectionRect {
 
   constructor(component: GlyphplotComponent, context: any, helper: any) {
     this.context = context;
-    this.helper = helper;
+    this._helper = helper;
     this.component = component;
   }
 
@@ -89,7 +89,7 @@ export class SelectionRect {
     const selectedIds = [];
     filteredData.positions = filteredData.positions.filter((elem) => {
       const position = elem.position;
-      if (!this.helper.checkClipping(position)
+      if (!this._helper.checkClipping(position)
          && position.x > left && position.x < right
          && position.y > top && position.y < bottom) {
         selectedIds.push(elem.id);
@@ -179,6 +179,10 @@ export class SelectionRect {
 
   public set data(_data: any) {
     this._data = _data;
+  }
+
+  public get helper() {
+    return this._helper;
   }
   //#endregion
 }

@@ -16,7 +16,7 @@ export class ColorComputation {
     '#4575b4',
     '#313695'
     ];
-    private _unfilteredColor = [0xdf, 0xdf, 0xdf];
+    private _unfilteredColor = [0xef, 0xef, 0xef];
 
  /**
   * {param max: highest absolute value}

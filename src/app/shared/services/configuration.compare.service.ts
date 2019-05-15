@@ -14,6 +14,7 @@ export class ConfigurationCompare extends Configuration {
     constructor(logger: Logger, eventAggregator: EventAggregatorService) {
         super(logger, eventAggregator);
         this._configurationData = new ConfigurationDataCompare(this, eventAggregator);
+        this._configurations.push(this._configurationData);
     }
 
     get configurationData(): ConfigurationDataCompare { return this._configurationData; }

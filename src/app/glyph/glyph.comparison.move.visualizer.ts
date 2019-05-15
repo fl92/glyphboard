@@ -5,10 +5,10 @@ import { Injectable } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ComparisonDataItem } from 'app/glyphplot/glyphplot.comparison.data_item';
 import { ConnectionCompareFilter } from 'app/shared/filter/connection.compare-filter';
+import { MetadataOverrider } from '@angular/core/testing/src/metadata_overrider';
 
 @Injectable()
 export class MovementVisualizer {
-
     private pointsA: Map<any, [number, number]>;
     private pointsB: Map<any, [number, number]>;
 
@@ -25,6 +25,26 @@ export class MovementVisualizer {
 
     private filter: ConnectionCompareFilter;
 
+
+    private characteristicsA: [number, number, number, number][];
+    private characteristicsB: [number, number, number, number][];
+
+    private metaA = {
+        minDiff: <number> null,
+        maxDiff: <number> null,
+        stdDevDiff: <number> null,
+        minMove: <number> null,
+        maxMove: <number> null
+    };
+    private metaB = this.metaA;
+
+
+    public init(
+        data: ComparisonDataItem[]) {
+            const [pointsA, pointsB] = this.filterPointsWithoutMissingPositions(data);
+            this._init(pointsA, pointsB, 2, pointsA, pointsB);
+    }
+
     private _init(pointsA: Map<any, [number, number]>,
                 pointsB: Map<any, [number, number]>,
                 attributesSize: number,
@@ -40,21 +60,9 @@ export class MovementVisualizer {
         this.attributesSize = attributesSize;
         this.attrVectorsA = attrVectorsA;
         this.attrVectorsB = attrVectorsB;
-    }
 
-    public init(
-        data: ComparisonDataItem[]) {
-            const pointsA = new Map<any, [number, number]> ();
-            const pointsB = new Map<any, [number, number]> ();
-            const dataWithBothPositions = data.filter(v => v.positionA != null && v.positionB != null)
-
-            // TODO include data with missing positions
-            // const dataWithMissingPositions = data.filter(v => v.positionA == null || v.positionB == null)
-            dataWithBothPositions.forEach( _data => {
-                pointsA.set(_data.objectId, _data.drawnPositionA);
-                pointsB.set(_data.objectId, _data.drawnPositionB);
-            });
-            this._init(pointsA, pointsB, 2, pointsA, pointsB);
+        this.computeCharacteristicsAndMeta(true);
+        this.computeCharacteristicsAndMeta(false);
     }
 
     public initContext(context: CanvasRenderingContext2D) {
@@ -65,16 +73,34 @@ export class MovementVisualizer {
         this.filter = filter;
     }
 
-
-    public updatePoints(points: Map<any, [number, number]>, isPointsA: boolean) {
+    public updatePoints(
+        data: ComparisonDataItem[]) {
+            const [pointsA, pointsB] = this.filterPointsWithoutMissingPositions(data);
+            this._updatePoints(pointsA, true);
+            this._updatePoints(pointsB, false);
+    }
+    public _updatePoints(points: Map<any, [number, number]>, isPointsA: boolean) {
         isPointsA ?
             this.pointsA = points :
             this.pointsB = points;
     }
 
-    public drawConnections (drawA: boolean) {
-        const connections = (drawA) ? this.connectionsA : this.connectionsB;
+    private filterPointsWithoutMissingPositions(data: ComparisonDataItem[]) {
+        const pointsA = new Map<any, [number, number]> ();
+        const pointsB = new Map<any, [number, number]> ();
+        const dataWithBothPositions = data.filter(v => v.positionA != null && v.positionB != null)
 
+        // TODO include data with missing positions
+        // const dataWithMissingPositions = data.filter(v => v.positionA == null || v.positionB == null)
+        dataWithBothPositions.forEach( _data => {
+            pointsA.set(_data.objectId, _data.drawnPositionA);
+            pointsB.set(_data.objectId, _data.drawnPositionB);
+        });
+        return [pointsA, pointsB];
+    }
+
+    private computeCharacteristicsAndMeta(drawA: boolean) {
+        const connections = (drawA) ? this.connectionsA : this.connectionsB;
         const characteristics: [number, number, number, number][] = [];
         const differences: number[] = [];
         const correlations: number[] = [];
@@ -89,23 +115,69 @@ export class MovementVisualizer {
             movements2.push(move2Mag);
             characteristics.push(characteristic);
         });
+        (drawA) ?
+            this.characteristicsA = characteristics :
+            this.characteristicsB = characteristics;
 
-        const [minDiff, maxDiff, stdDevDiff] = this.computeMeta(differences);
+        const meta = (drawA) ? this.metaA : this.metaB;
+        [meta.minDiff, meta.maxDiff, meta.stdDevDiff] = this.computeMeta(differences);
+        [meta.minMove, meta.maxMove] = this.computeMeta(movements1.concat(movements2));
+        (drawA) ?
+            this.metaA = meta :
+            this.metaB = meta;
+    }
+
+    public drawConnections (drawAttributA: boolean, drawPointA: boolean = null,
+        connectionsIdc: number[] = null) {
+        if (drawPointA == null) {
+            drawPointA = drawAttributA; }
+        const connections = (drawAttributA) ? this.connectionsA : this.connectionsB;
+
+        const characteristics = (drawAttributA) ? this.characteristicsA : this.characteristicsB;
+        const meta = (drawAttributA) ? this.metaA : this.metaB;
+        const [minDiff, maxDiff, stdDevDiff] = [meta.minDiff, meta.maxDiff, meta.stdDevDiff];
         const absMaxDiff = Math.max(Math.abs(maxDiff), Math.abs(minDiff));
-        const [minMove, maxMove] = this.computeMeta(movements1.concat(movements2));
+        const [minMove, maxMove] = [meta.minMove, meta.maxMove];
         this.heatMapComputation.init(stdDevDiff, absMaxDiff);
 
-        connections.forEach(([key1, key2], idx) => {
-        const [difference, correlation, movement1, movement2] = characteristics[idx];
-        let isUnfiltered = false;
-        if (this.filter != null) {
-            const normalDiff = difference / absMaxDiff;
-            const normalMovement1 = movement1 / maxMove;
-            const normalMovement2 = movement2 / maxMove;
-            isUnfiltered = !this.filter.connectionConfirmsToFilter(normalDiff, correlation, normalMovement1, normalMovement2);
+        const that = this;
+
+        const drawConnectionRoutine = ([key1, key2]: [number, number], idx: number) => {
+            const [difference, correlation, movement1, movement2] = characteristics[idx];
+            let isUnfiltered = false;
+            if (that.filter != null) {
+                const normalDiff = difference / absMaxDiff;
+                const normalMovement1 = movement1 / maxMove;
+                const normalMovement2 = movement2 / maxMove;
+                isUnfiltered = !that.filter.connectionConfirmsToFilter(normalDiff, correlation, normalMovement1, normalMovement2);
+            }
+            that._drawConnection(key1, key2, difference, correlation, movement1, movement2, drawPointA, isUnfiltered);
+        };
+        if (connectionsIdc == null) {
+            connections.forEach(drawConnectionRoutine);
+        } else {
+            connectionsIdc.forEach(idx => {
+                const [key1, key2] = connections[idx];
+                drawConnectionRoutine([key1, key2], idx);
+            });
         }
-        this._drawConnection(key1, key2, difference, correlation, movement1, movement2, drawA, isUnfiltered);
-        } );
+    }
+
+    public drawFarConnections(pointIds: number[], drawA: boolean) {
+
+        if (pointIds == null || pointIds.length === 0) {
+            return};
+        const oppositeConnections = (drawA) ? this.connectionsB : this.connectionsA;
+
+        const connectionsIdc: number[] = [];
+        oppositeConnections.forEach(([attrkey1, attrkey2], idx) => {
+            const included = pointIds.includes(attrkey1) || pointIds.includes(attrkey2);
+            if (included) {
+                connectionsIdc. push(idx);
+            }
+        });
+
+        this.drawConnections(!drawA, drawA, connectionsIdc);
     }
 
 
@@ -160,12 +232,12 @@ export class MovementVisualizer {
     }
     private _drawConnection(
         key1: number, key2: number, difference: number, correlation: number,
-        movement1: number, movement2: number, drawA: boolean, isUnfiltered: boolean) {
+        movement1: number, movement2: number, drawPointA: boolean, isUnfiltered: boolean) {
 
         if ( movement1 === 0 && movement2 === 0) {return}
 
-        const point1 = (drawA) ? this.pointsA.get(key1) : this.pointsB.get(key1);
-        const point2 = (drawA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
+        const point1 = (drawPointA) ? this.pointsA.get(key1) : this.pointsB.get(key1);
+        const point2 = (drawPointA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
         const [x1, y1] = point1;
         const [x2, y2] = point2;
 
@@ -221,15 +293,17 @@ export class MovementVisualizer {
         }
         return Math.sqrt(sum);
     }
-
 }
+
+  
+
 
         // draws connections to Version B-neighbours in Version A for one object and vice versa
     // public drawFarConnections(context: CanvasRenderingContext2D,
-    //     x: number, y: number, currentVersionA: boolean) {
+    //     x: number, y: number, drawA: boolean) {
 
     //     // get key of object
-    //     const points = (currentVersionA) ? this.pointsA : this.pointsB;
+    //     const points = (drawA) ? this.pointsA : this.pointsB;
     //     if (points.size === 0) { return false; }
     //     let key = 0;
     //     let minSqDist = Infinity;
@@ -246,7 +320,7 @@ export class MovementVisualizer {
     //         return; }
 
     //     // connections of opposite Version
-    //     let oppositeConnections = (currentVersionA) ? this.connectionsB : this.connectionsA;
+    //     let oppositeConnections = (drawA) ? this.connectionsB : this.connectionsA;
 
     //     // // connections on key
     //     // const connectionsIdc: number[] = [];
@@ -255,14 +329,14 @@ export class MovementVisualizer {
     //     //         connectionsIdc.push(connkey); }
     //     // });
 
-    //     // this.drawConnections5(context, !currentVersionA, connectionsIdc);
+    //     // this.drawConnections5(context, !drawA, connectionsIdc);
     //     const diffs = this.heatMapInit(oppositeConnections);
     //     oppositeConnections = oppositeConnections.filter(([attrkey1, attrkey2], connkey) =>
     //         (attrkey1 === key || attrkey2 === key));
 
     //     oppositeConnections.forEach(([key1, key2], connIdx) => {
     //         const diff = diffs[connIdx];
-    //         this.drawConnection(context, key1, key2, diff, currentVersionA);
+    //         this.drawConnection(context, key1, key2, diff, drawA);
     //         } );
 
     //     return true;

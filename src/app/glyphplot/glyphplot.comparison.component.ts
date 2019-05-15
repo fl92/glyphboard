@@ -35,6 +35,7 @@ import { ComparisonDataItem } from './glyphplot.comparison.data_item';
 import { ComparisonDataCreator } from './glyphplot.comparison.data_creator';
 import { GlyphplotLayoutController } from './glyphplot.layout.controller';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
+import { GlyphplotComparisonEventController } from './glyphplot.comparison.event_controller';
 
 
 @Component({
@@ -63,43 +64,47 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
     private _dataA: any;
     private _dataB: any;
     private _comparedData: ComparisonDataItem[];
-    private _configurationData: ConfigurationDataCompare;
+    private _configurationDataCompare: ConfigurationDataCompare;
+    private _configurationCompare: ConfigurationCompare;
 
     private _comparisonLayoutController: GlyphplotComparisonLayoutController;
+    private _comparisonEventController: GlyphplotComparisonEventController;
 
        constructor(
-      private comparisonCreator: ComparisonDataCreator,
+      private _comparisonCreator: ComparisonDataCreator,
       private movementVisualizer: MovementVisualizer,
-      private _logger: Logger,
-      private _helper: Helper,
-      private _configurationService: ConfigurationCompare,
-      private _cursor: LenseCursor,
-      private _eventAggregator: EventAggregatorService
+       logger: Logger,
+       helper: Helper,
+       configurationCompareService: ConfigurationCompare,
+       cursor: LenseCursor,
+       eventAggregator: EventAggregatorService
     ) {
-     super(_logger, _helper, _configurationService, _cursor, _eventAggregator);
-      this._configurationData = this._configurationService.configurationData;
-      this._configurationData.getDataA().subscribe(msg => this.onMessage(msg, true));
-      this._configurationData.getDataB().subscribe(msg => this.onMessage(msg, false));
-      this._comparisonLayoutController = new GlyphplotComparisonLayoutController(
-        this,
-        this._logger,
-        this._configurationService
-      );
+     super(logger, helper, configurationCompareService, cursor, eventAggregator);
 
-      this._eventAggregator.getEvent(RefreshPlotEvent)
-      .subscribe((evt) => {
-        // this.animate();
-        const x = 3;
-      });
+     this._configurationCompare = configurationCompareService;
+     this._configurationDataCompare = this._configurationCompare.configurationData;
+     this._configurationDataCompare.getDataA().subscribe(msg => this.onMessage(msg, true));
+     this._configurationDataCompare.getDataB().subscribe(msg => this.onMessage(msg, false));
+     this._eventController =
+     this._comparisonEventController =
+       new GlyphplotComparisonEventController(
+         this,
+         this._configurationDataCompare,
+         this.cursor,
+         this.logger,
+         this._configurationCompare,
+         this.eventAggregator
+       );
+       this._comparisonLayoutController =
+       this._layoutController = new GlyphplotComparisonLayoutController(
+         this,
+         this.logger,
+         this.configurationService
+       );
+     }
 
-    //   this._eventController = new GlyphplotEventController(
-    //     this,
-    //     this.configuration,
-    //     this.cursor,
-    //     this.logger,
-    //     this.configurationService,
-    //     this.eventAggregator
-    //   );
+    protected initControllers() {
+      // do nothing, look in constructor for controllers;
     }
 
     onMessage(msg, isA: boolean) {
@@ -107,8 +112,8 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
       (isA) ? this._dataA = msg
         : this._dataB = msg;
 
-      if ( this._dataA !== null && this._dataB !== null) {
-        this._comparedData = this.comparisonCreator.versions2Data(this._dataA, this._dataB);
+      if ( this._dataA != null && this._dataB != null) {
+        this._comparedData = this._comparisonCreator.versions2Data(this._dataA, this._dataB);
         this.createChart();
       }
     }
@@ -118,13 +123,20 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
     }
     ngOnChanges() {
         this.updateZoom();
+        this.updateGlyphLayout();
+        this.animate();
     }
 
     createChart(): void {
     const that = this;
     const element = this.chartContainer.nativeElement;
-    // this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
-
+    this.movementVisualizer.init(this._comparedData);
+    this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
+    this.selectionRect = new SelectionRect(this, this.selectionContext, this.helper);
+    this.selectionRect.offset = {
+      x: this.configuration.leftSide ? 0 : window.innerWidth - this.width,
+      y: 0
+    };
     this._simulation = d3
       .forceSimulation()
       .force('collision', d3.forceCollide().radius(20))
@@ -170,16 +182,22 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
     draw(): void {
         this.drawLock = true;
 
-        const context = this.context;
+        const context: CanvasRenderingContext2D = this.context;
         context.save();
         context.clearRect(0, 0, this.width, this.height);
 
-        if (this._configurationService.configurationData.comparisonGlyph instanceof ComparisonMoveGlyph) {
-          this.movementVisualizer.init(this._comparedData);
+        if (this._configurationCompare.configurationData.comparisonGlyph instanceof ComparisonMoveGlyph) {
+          // this.movementVisualizer.init(this._comparedData);
+          this.movementVisualizer.updatePoints(this._comparedData);
           this.movementVisualizer.initContext(context);
-          this.movementVisualizer.initFilter(this._configurationData.connectionFilter)
+          this.movementVisualizer.initFilter(this._configurationDataCompare.connectionFilter)
+          context.globalAlpha = 0.1;
           this.movementVisualizer.drawConnections(
-            this._configurationService.isDrawPositionA);
+            this._configurationCompare.isDrawPositionA);
+            context.globalAlpha = 1;
+          this.movementVisualizer.drawFarConnections(
+            this._configurationDataCompare.filteredItemsIds,
+            this._configurationCompare.isDrawPositionA);
         } else {
           this._comparedData.forEach(
             g => {
@@ -204,31 +222,32 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
         // draw
 
         // context.restore();
-        // this.selectionRect.clear();
+        this.selectionRect.clear();
         this.drawLock = false;
 
     }
 
     public animate() {
-      //TODO
-      if (!arguments.length) {
-      this.updateGlyphLayout();
+        this.updateGlyphLayout();
       this.draw();
-    }
+      // TODO test
+      this._configurationDataCompare.useDragSelection = true;
 
     }
 
     public updateGlyphLayout(updateAllItems: boolean = false): void {
       const that = this;
-      this._comparedData.forEach(d => {
-        if (d.positionA == null || d.positionB == null) {return; }
-        d.drawnPositionA = [
-          that.transform.applyX(that.xAxis(d.positionA[0])),
-          that.transform.applyY(that.yAxis(d.positionA[1]))];
-        d.drawnPositionB = [
-          that.transform.applyX(that.xAxis(d.positionB[0])),
-          that.transform.applyY(that.yAxis(d.positionB[1]))];
-      });
+      if (! this._configurationDataCompare.useDragSelection) {
+        this._comparedData.forEach(d => {
+          if (d.positionA == null || d.positionB == null) {return; }
+          d.drawnPositionA = [
+            that.transform.applyX(that.xAxis(d.positionA[0])),
+            that.transform.applyY(that.yAxis(d.positionA[1]))];
+          d.drawnPositionB = [
+            that.transform.applyX(that.xAxis(d.positionB[0])),
+            that.transform.applyY(that.yAxis(d.positionB[1]))];
+        });
+    }
     }
 
     public matrixLayout(sortFunction?: any): void {
@@ -253,8 +272,19 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
     public get layoutController(): GlyphplotLayoutController {
       return this._comparisonLayoutController;
     }
-    
-   
+
+    get comparisonCreator() {
+      return this._comparisonCreator;
+    }
+
+    get configurationCompare() {
+      return this._configurationCompare;
+    }
+    get configurationDataCompare() {
+      return this._configurationDataCompare;
+    }
+
+
 
     // get selectionRect(): SelectionRect {
     //     return this._selectionRect;

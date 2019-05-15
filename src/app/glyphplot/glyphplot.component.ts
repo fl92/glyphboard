@@ -46,8 +46,8 @@ export class GlyphplotComponent implements OnInit, OnChanges {
   private _originalHeight: number;
   private _transform: any = d3.zoomIdentity;
   private _selectionRect: SelectionRect;
-  private _eventController: GlyphplotEventController;
-  private _layoutController: GlyphplotLayoutController;
+  protected _eventController: GlyphplotEventController;
+  protected _layoutController: GlyphplotLayoutController;
   private _flexiWallController: FlexiWallController;
   private _circle: Glyph;
   protected _simulation: any;
@@ -97,18 +97,31 @@ export class GlyphplotComponent implements OnInit, OnChanges {
   //#endregion
 
   constructor(
-    private logger: Logger,
-    private helper: Helper,
-    private configurationService: Configuration,
-    private cursor: LenseCursor,
-    private eventAggregator: EventAggregatorService,
-    eventController: GlyphplotEventController = null
-    // isLoadFlexiWall = true
+    protected logger: Logger,
+    protected helper: Helper,
+    protected configurationService: Configuration,
+    protected cursor: LenseCursor,
+    protected eventAggregator: EventAggregatorService,
   ) {
     this.configuration = this.configurationService.addConfiguration();
 
-    this._eventController = eventController != null ?
-      eventController :
+    this.initControllers();
+
+    this._uniqueID = Math.random()
+      .toString(36)
+      .substring(2);
+    this.configuration.getData().subscribe(message => {
+      this.data = message;
+      if (this.data) {
+        if (this.configuration.leftSide) {
+          this.dataUpdated = true;
+        }
+        this.createChart();
+      }
+    });
+  }
+  protected initControllers() {
+    this._eventController =
       new GlyphplotEventController(
         this,
         this.configuration,
@@ -122,7 +135,6 @@ export class GlyphplotComponent implements OnInit, OnChanges {
       this.logger,
       this.configurationService
     );
-    // if (isLoadFlexiWall) {
     //   this._flexiWallController = new FlexiWallController(
     //     this,
     //     this.logger,
@@ -134,19 +146,6 @@ export class GlyphplotComponent implements OnInit, OnChanges {
     //     // Flexiwall connection only for first glyphboard component
     //     this._flexiWallController.doWebSocket();
     //   }
-    // }
-    this._uniqueID = Math.random()
-      .toString(36)
-      .substring(2);
-    this.configuration.getData().subscribe(message => {
-      this.data = message;
-      if (this.data) {
-        if (this.configuration.leftSide) {
-          this.dataUpdated = true;
-        }
-        this.createChart();
-      }
-    });
   }
 
   //#region initialization and update methods
@@ -573,6 +572,9 @@ export class GlyphplotComponent implements OnInit, OnChanges {
   }
   get eventController(): GlyphplotEventController {
     return this._eventController;
+  }
+  set eventController(v: GlyphplotEventController ) {
+    this._eventController = v;
   }
   get suppressAnimations(): boolean {
     return this._suppressAnimations;

@@ -12,7 +12,7 @@ export class Configuration {
     private _flowerConfigs = new Array<GlyphConfiguration>();
     private _starConfigs = new Array<GlyphConfiguration>();
     private _activeGlyphType = GlyphType.Flower;
-    private _configurations: Array<ConfigurationData>;
+    protected _configurations: Array<ConfigurationData>;
     private _dataSetRequest = 0;
     // whether or not the split screen is activated
     private _splitScreenActive = false;

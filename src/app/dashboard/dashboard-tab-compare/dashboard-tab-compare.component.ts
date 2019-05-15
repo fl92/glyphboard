@@ -3,7 +3,7 @@ import { DashboardTabComponent } from '../dashboard-tab/dashboard-tab.component'
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 import { DoubleDataproviderService } from 'app/shared/services/doubledataprovider.service';
 import { Subject } from 'rxjs';
-import { Options, LabelType } from 'ng5-slider';
+// import { Options, LabelType } from 'ng5-slider';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 
@@ -20,11 +20,11 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
 
   diffMin = -1;
   diffMax = 1;
-  diffOptions: Options = {
-    floor: -1, ceil: 1,
-    step: 0.01,
-    translate: (value, label) => { return ''}
-    }
+  // diffOptions: Options = {
+  //   floor: -1, ceil: 1,
+  //   step: 0.01,
+  //   translate: (value, label) => { return ''}
+  //   }
 
   constructor(
     injector: Injector,

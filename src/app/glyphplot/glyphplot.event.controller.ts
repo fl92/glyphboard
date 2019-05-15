@@ -19,35 +19,36 @@ import { RefreshHoverEvent } from 'app/shared/events/refresh-hover.event';
 import { RefreshHoverEventData } from 'app/shared/events/refresh-hover.event.data';
 
 export class GlyphplotEventController {
-  private counter: number;
-  private saveEndTransform = { x: 0, y: 0 };
-  private saveStartTransform = { x: 0, y: 0 };
-  private formerTranslation = { x: 0, y: 0 };
-  private selectionEnded: boolean;
-  private currentEventType: string;
+  protected counter: number;
+  protected saveEndTransform = { x: 0, y: 0 };
+  protected saveStartTransform = { x: 0, y: 0 };
+  protected formerTranslation = { x: 0, y: 0 };
+  protected selectionEnded: boolean;
+  protected currentEventType: string;
 
-  constructor(private component: GlyphplotComponent,
-    private configuration: ConfigurationData,
-    private cursor: LenseCursor,
-    private logger: Logger,
-    private configurationService: Configuration,
-    private eventAggregator: EventAggregatorService
+  constructor(protected component: GlyphplotComponent,
+    protected configuration: ConfigurationData,
+    protected cursor: LenseCursor,
+    protected logger: Logger,
+    protected configurationService: Configuration,
+    protected eventAggregator: EventAggregatorService
   ) {
+    const that = this;
     this.eventAggregator
       .getEvent(RefreshPlotEvent)
-      .subscribe(this.onRefreshPlot);
+      .subscribe(payload => that.onRefreshPlot(payload));
     this.eventAggregator
       .getEvent(FitToScreenEvent)
-      .subscribe(this.fitToScreen);
+      .subscribe(payload => that.fitToScreen(payload));
     this.eventAggregator
       .getEvent(FitToSelectionEvent)
-      .subscribe(this.fitToSelection);
+      .subscribe(payload => that.fitToSelection(payload));
     this.eventAggregator
       .getEvent(ManualZoom)
-      .subscribe(this.manualZoom);
+      .subscribe(payload => that.manualZoom(payload));
     this.eventAggregator
       .getEvent(RefreshHoverEvent)
-      .subscribe(this.onRefreshHover);
+      .subscribe(payload => that.onRefreshHover(payload));
   }
 
   /**
@@ -344,7 +345,7 @@ export class GlyphplotEventController {
     }
   }
 
-  private onRefreshPlot = (payload: boolean) => {
+  protected onRefreshPlot (payload: boolean) {
     if (this.component.data === null) {
       return;
     }
@@ -365,7 +366,7 @@ export class GlyphplotEventController {
     this.component.draw();
   };
 
-  private fitToScreen = (payload: boolean) => {
+  protected fitToScreen = (payload: boolean) => {
     this.component.transform.x = 0;
     this.component.transform.y = 0;
     this.component.transform.k = 1;
@@ -375,7 +376,7 @@ export class GlyphplotEventController {
     this.formerTranslation = {x: 0, y: 0};
   };
 
-  private fitToSelection = (payload: boolean) => {
+  protected fitToSelection = (payload: boolean) => {
     const that = this;
     const filteredPositions = [];
     this.component.layoutController.getPositions().forEach(d => {
@@ -433,7 +434,7 @@ export class GlyphplotEventController {
 
   };
 
-  private manualZoom = (payload: number) => {
+  protected manualZoom = (payload: number) => {
 
     this.component.transform.x = (this.component.width - this.component.width * payload) / 2 + this.formerTranslation.x * payload;
     this.component.transform.y = (this.component.height - this.component.height * payload) / 2 + this.formerTranslation.y * payload;
@@ -443,7 +444,7 @@ export class GlyphplotEventController {
     this.component.animate();
   };
 
-  private onRefreshHover = (payload: RefreshHoverEventData) => {
+  protected onRefreshHover = (payload: RefreshHoverEventData) => {
     this.component.draw();
     if (this.configuration.useDragSelection) {
       this.component.selectionRect.drawHighlightedGlyph();

@@ -22,8 +22,9 @@ export class DashboardTogglesComponent implements OnInit {
    */
   public onInteractionToggle(e: any): void {
     this.cursor.toggle(e.srcElement.value === 'magiclens');
-    this.configuration.configurations[0].useDragSelection = e.srcElement.value === 'selection';
-    this.configuration.configurations[1].useDragSelection = e.srcElement.value === 'selection';
+    this.configuration.configurations.forEach( (conf, idx) => {
+      this.configuration.configurations[idx].useDragSelection = e.srcElement.value === 'selection';
+    });
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }
 

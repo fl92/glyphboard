@@ -131,4 +131,26 @@ export class ComparisonDataCreator {
     }, this);
     return buffer;
   }
+
+  public data2PositionData(items: ComparisonDataItem[], useA: boolean) {
+    const buffer = { positions: []};
+    items.forEach( item => {
+      const _id = item.objectId;
+      const position = useA ? item.drawnPositionA : item.drawnPositionB;
+      if (position == null) {
+        return;
+      }
+      const [_x, _y] = position;
+      const elem =  {
+        id : _id,
+        position: {
+          x: _x,
+          y: _y
+        }
+      }
+      buffer.positions.push(elem);
+    });
+    return buffer;
+  }
+
 }
