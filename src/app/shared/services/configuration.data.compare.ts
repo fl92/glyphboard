@@ -6,26 +6,41 @@ import { Observable } from 'rxjs';
 import { ComparisonMoveGlyph } from 'app/glyph/glyph.comparison.move';
 import { ConfigurationData } from './configuration.data';
 import { ConnectionCompareFilter } from '../filter/connection.compare-filter';
+import { ComparisonHoleGlyph } from 'app/glyph/glyph.comparison.hole';
 
 
 export class ConfigurationDataCompare extends ConfigurationData {
 
 
-   private _comparisonGlyph: ComparisonGlyph = new ComparisonMoveGlyph();
+   
+   private _selectedFeature: any = '3';
+   
+   private allGlyphCompTypes: ComparisonGlyph[]
+        = [new ComparisonMoveGlyph(), new ComparisonHoleGlyph()];
+   private _comparisonGlyph: ComparisonGlyph = this.allGlyphCompTypes[0];
+   private iCompGlyph = 0;
+
    private _dataA = new BehaviorSubject<any>(null);
    private _dataB = new BehaviorSubject<any>(null);
 
    private _connectionCompareFilter = new ConnectionCompareFilter();
 
-  private _configuration: ConfigurationCompare;
+  private _configurationCompare: ConfigurationCompare;
 
-  private _TRANSPARENCY = 0.7;
-
+  private _TRANSPARENCY = 0.6;
 
   constructor(configuration: ConfigurationCompare, eventAggregator: EventAggregatorService
     ) {
       super(configuration, eventAggregator);
-      this._configuration = configuration;
+      this._configurationCompare = configuration;
+      this.selectedFeature = '16';
+  }
+
+
+  public toggleComparisonGlyphs () {
+      this.iCompGlyph++;
+      this.iCompGlyph %= this.allGlyphCompTypes.length;
+      this.comparisonGlyph = this.allGlyphCompTypes[this.iCompGlyph];
   }
 
    public get comparisonGlyph(): ComparisonGlyph {
@@ -53,6 +68,19 @@ export class ConfigurationDataCompare extends ConfigurationData {
    public set connectionFilter(v: ConnectionCompareFilter) {
        this._connectionCompareFilter = v;
    }
+
+   public get configurationCompare() {
+       return this._configurationCompare;
+   }
+   public get selectedFeature(): any {
+    return this._selectedFeature;
+}
+    public set selectedFeature(v: any) {
+        this._selectedFeature = v;
+        this.allGlyphCompTypes.forEach(glyph => {
+            glyph.selectedFeature = v;
+        });
+    }
 
    // constants
    public get TRANSPARENCY() {

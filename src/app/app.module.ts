@@ -48,6 +48,7 @@ import { GlobalDialogComponent } from './global-dialog/global-dialog.component';
 import { AngularFileUploaderModule } from 'angular-file-uploader';
 import { DashboardTabCompareComponent } from './dashboard/dashboard-tab-compare/dashboard-tab-compare.component';
 import { ConfigurationCompare } from './shared/services/configuration.compare.service';
+import { DashboardPropertyConfigComponent } from './dashboard/dashboard-tab-filter/dashboard-property-config.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { ConfigurationCompare } from './shared/services/configuration.compare.se
     FeatureplotComponent,
     DashboardComponent,
     DashboardGlyphConfigComponent,
+    DashboardPropertyConfigComponent,
     DashboardFeatureConfigComponent,
     DashboardSelectionVersionComponent,
     SplitterComponent,

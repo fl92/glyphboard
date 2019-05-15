@@ -3,6 +3,8 @@ import { LenseCursor } from 'app/lense/cursor.service';
 import { Configuration } from 'app/shared/services/configuration.service';
 import { EventAggregatorService } from 'app/shared/events/event-aggregator.service';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
+import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
+import { ConfigurationData } from 'app/shared/services/configuration.data';
 
 @Component({
   selector: 'app-dashboard-toggles',
@@ -11,7 +13,10 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 })
 export class DashboardTogglesComponent implements OnInit {
 
-  constructor(public cursor: LenseCursor, public configuration: Configuration, private eventAggregator: EventAggregatorService) { }
+  constructor(public cursor: LenseCursor,
+    public configuration: Configuration,
+    private configurationCompare: ConfigurationCompare,
+    private eventAggregator: EventAggregatorService) { }
 
   ngOnInit() {
   }
@@ -22,8 +27,12 @@ export class DashboardTogglesComponent implements OnInit {
    */
   public onInteractionToggle(e: any): void {
     this.cursor.toggle(e.srcElement.value === 'magiclens');
-    this.configuration.configurations.forEach( (conf, idx) => {
-      this.configuration.configurations[idx].useDragSelection = e.srcElement.value === 'selection';
+
+    let confs: ConfigurationData[] = [];
+    confs = confs.concat (this.configuration.configurations);
+    confs = confs.concat(this.configurationCompare.configurationCompareData);
+    confs.forEach( (conf) => {
+      conf.useDragSelection = e.srcElement.value === 'selection';
     });
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }

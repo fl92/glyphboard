@@ -1,7 +1,6 @@
 export class ComparisonDataItem {
 
     private _objectId: any;
-    private _selectedFeature: any = null;
     // private _extractedsA: Map<any, number> = null;
     private _targetsA: Map<any, [number[], number[]]> = null;
     private _positionA: [number, number] = null;
@@ -44,32 +43,29 @@ export class ComparisonDataItem {
       this._targetVariablesMeta = v;
     }
 
-    set selectedFeature(value: any) {
-      this._selectedFeature = value;
-    }
 
-    public getTargetLabel(labelIdx: number) {
-      const key = this._selectedFeature;
+    public getTargetLabel(labelIdx: number, feature: any) {
+      const key = feature;
       const targetVariableMeta
         = this._targetVariablesMeta.get(key);
       return targetVariableMeta.targetLabel[labelIdx]
     }
-    public getTargetPrediction(labelIdx: number) {
-      const key = this._selectedFeature;
+    public getTargetPrediction(labelIdx: number, feature: any) {
+      const key = feature;
       const targetVariableMeta
         = this._targetVariablesMeta.get(key);
       return targetVariableMeta.targetPrediction[labelIdx]
     }
 
-    public getLabelSize() {
-      const key = this._selectedFeature;
+    public getLabelSize (feature: any) {
+      const key = feature;
       const targetVariableMeta
         = this._targetVariablesMeta.get(key);
       const size = targetVariableMeta.targetLabel.length;
       return size;
     }
-    public getPredictionSize() {
-      const key = this._selectedFeature;
+    public getPredictionSize (feature: any) {
+      const key = feature;
       const targetVariableMeta
         = this._targetVariablesMeta.get(key);
       const size = targetVariableMeta.targetPrediction.length;

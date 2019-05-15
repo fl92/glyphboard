@@ -8,16 +8,16 @@ import { ConfigurationData } from './configuration.data';
 @Injectable()
 export class ConfigurationCompare extends Configuration {
 
-    private _configurationData: ConfigurationDataCompare; // Array<ConfigurationDataCompare>;
+    private _configurationCompareData: ConfigurationDataCompare; // Array<ConfigurationDataCompare>;
     private _isDrawPositionA = false;
 
     constructor(logger: Logger, eventAggregator: EventAggregatorService) {
         super(logger, eventAggregator);
-        this._configurationData = new ConfigurationDataCompare(this, eventAggregator);
-        this._configurations.push(this._configurationData);
+        this._configurationCompareData = new ConfigurationDataCompare(this, eventAggregator);
+        this._configurations.push(this._configurationCompareData);
     }
 
-    get configurationData(): ConfigurationDataCompare { return this._configurationData; }
+    get configurationCompareData(): ConfigurationDataCompare { return this._configurationCompareData; }
 
 
     public get isDrawPositionA(): boolean {
@@ -27,7 +27,7 @@ export class ConfigurationCompare extends Configuration {
         this._isDrawPositionA = v;
     }
 
-    get configurations(): Array<ConfigurationData> { return [this._configurationData]; }
+    get configurations(): Array<ConfigurationData> { return [this._configurationCompareData]; }
 
     // deprecated properties ////////////////////////////////
 

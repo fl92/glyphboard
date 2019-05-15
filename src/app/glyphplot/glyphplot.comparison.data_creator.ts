@@ -29,21 +29,35 @@ export class ComparisonDataCreator {
       return;
     }
 
+    // const targetVariablesObj = versionA['schema']['targetVariables'];
+    // const targetLabelsObj = versionA['schema']['targetLabels'];
+    // const targetPredictionsObj = versionA['schema']['targetPredictions'];
+    // for (const targetId in targetVariablesObj) {
+    //   if (targetVariablesObj.hasOwnProperty(targetId)) {
+    //     const targetName = targetVariablesObj[targetId];
+    //     const targetLabel = targetLabelsObj[targetId];
+    //     const targetPrediction = targetPredictionsObj[targetId];
+    //   targetVariablesMeta.set(targetId, {
+    //     targetName: targetName,
+    //     targetLabel: targetLabel,
+    //     targetPrediction: targetPrediction
+    //   }  );
+    //   }
+
     const targetVariablesObj = versionA['schema']['targetVariables'];
-    const targetLabelsObj = versionA['schema']['targetLabels'];
-    const targetPredictionsObj = versionA['schema']['targetPredictions'];
     for (const targetId in targetVariablesObj) {
       if (targetVariablesObj.hasOwnProperty(targetId)) {
-        const targetName = targetVariablesObj[targetId];
-        const targetLabel = targetLabelsObj[targetId];
-        const targetPrediction = targetPredictionsObj[targetId];
-      targetVariablesMeta.set(targetId, {
-        targetName: targetName,
-        targetLabel: targetLabel,
-        targetPrediction: targetPrediction
-      }  );
+        const targetName: string = targetVariablesObj[targetId]['targetName'];
+        const targetLabel: string[] = targetVariablesObj[targetId]['targetLabel'];
+        const targetPrediction: string[] = targetVariablesObj[targetId]['targetPrediction'];
+        targetVariablesMeta.set(targetId, {
+          targetName: targetName,
+          targetLabel: targetLabel,
+          targetPrediction: targetPrediction
+        }  );
       }
     }
+
     selectedTargetVariable = targetVariablesMeta.keys().next().value;
 
     // TODO selected target Variable prüfen
@@ -70,7 +84,6 @@ export class ComparisonDataCreator {
 
     objIds.forEach((objId) => {
       const data_item = new ComparisonDataItem();
-      data_item.selectedFeature = '3';
       data_item.objectId = objId;
 
       const objectA = objectsAMap.get(objId);
@@ -125,7 +138,6 @@ export class ComparisonDataCreator {
              data_item.setVersionA(targetMap, position) :
              data_item.setVersionB(targetMap, position);
       }
-     data_item.selectedFeature = selectedTargetVariable;
      data_item.targetVariablesMeta = targetVariablesMeta;
      buffer.push(data_item);
     }, this);

@@ -32,7 +32,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
     private doubleDataProvider: DoubleDataproviderService
   ) {
     super(injector);
-    this.configurationDataCompare = configurationCompare.configurationData;
+    this.configurationDataCompare = configurationCompare.configurationCompareData;
 
   }
 
@@ -40,12 +40,12 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
     this.doubleDataProvider.getDataSetA().subscribe(
       msg => {
         if (msg === undefined || msg === null) {return; }
-        this.configurationCompare.configurationData.setDataA(msg);
+        this.configurationCompare.configurationCompareData.setDataA(msg);
       });
     this.doubleDataProvider.getDataSetB().subscribe(
       msg => {
         if (msg === undefined || msg === null) {return; }
-        this.configurationCompare.configurationData.setDataB(msg);
+        this.configurationCompare.configurationCompareData.setDataB(msg);
       });
       this.onOpenTab(); // TODO anders
   }
@@ -62,6 +62,29 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   onOpenTab() {
     this.doubleDataProvider.downloadDataSetA('compTest', '22032018', 'tsne')
     this.doubleDataProvider.downloadDataSetB('compTest', '22032019', 'tsne')
+  }
+
+  onToggleMode() {
+    const isComp = this.configurationCompare.isComparisonMode
+      = !this.configurationCompare.isComparisonMode;
+    const gylph1 = this.regionManager.regions[0];
+    const gylph2 = this.regionManager.regions[1];
+    const compare_glyph = this.regionManager.regions[4];
+    gylph1.display = (isComp) ? 'none' : 'block';
+    gylph2.display = 'none';
+    compare_glyph.display = (isComp) ? 'block' : 'none';
+  }
+
+  /** which version determines positions */
+  onToggleDrawA() {
+    this.configurationCompare.isDrawPositionA
+      = !this.configurationCompare.isDrawPositionA;
+      this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
+  }
+
+  onToggleGlyphType() {
+    this.configurationDataCompare.toggleComparisonGlyphs();
+    this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }
 
 }

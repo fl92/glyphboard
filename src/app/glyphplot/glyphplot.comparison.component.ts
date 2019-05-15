@@ -85,7 +85,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
      super(logger, helper, configurationCompareService, cursor, eventAggregator);
 
      this._configurationCompare = configurationCompareService;
-     this._configurationDataCompare = this._configurationCompare.configurationData;
+     this._configurationDataCompare = this._configurationCompare.configurationCompareData;
      this._configurationDataCompare.getDataA().subscribe(msg => this.onMessage(msg, true));
      this._configurationDataCompare.getDataB().subscribe(msg => this.onMessage(msg, false));
      this._eventController =
@@ -199,8 +199,9 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
         context.save();
         context.clearRect(0, 0, this.width, this.height);
 
-        if (this._configurationCompare.configurationData.comparisonGlyph
-          instanceof ComparisonMoveGlyph) {
+        const glyph = this._configurationCompare.configurationCompareData.comparisonGlyph;
+
+        if ( glyph instanceof ComparisonMoveGlyph) {
           this.movementVisualizer.updatePoints(this._comparedData);
           this.movementVisualizer.initContext(context);
           this.movementVisualizer.initFilter(this._configurationDataCompare.connectionFilter)
@@ -219,9 +220,10 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
           }
         } else {
           this._comparedData.forEach(
-            g => {
-              // g.context = context;
-              // g.draw();
+            item => {
+              glyph.context = context;
+              glyph.comparisonDataItem = item;
+              glyph.draw();
           });
         }
 
@@ -247,10 +249,10 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
     }
 
     public animate() {
-        this.updateGlyphLayout();
+      this.updateGlyphLayout();
       this.draw();
       // TODO test
-      this._configurationDataCompare.useDragSelection = true;
+      // this._configurationDataCompare.useDragSelection = true;
 
     }
 
