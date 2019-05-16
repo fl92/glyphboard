@@ -13,7 +13,7 @@ export class ConfigurationDataCompare extends ConfigurationData {
 
 
    
-   private _selectedFeature: any = '3';
+   private _selectedFeature: any;
    
    private allGlyphCompTypes: ComparisonGlyph[]
         = [new ComparisonMoveGlyph(), new ComparisonHoleGlyph()];

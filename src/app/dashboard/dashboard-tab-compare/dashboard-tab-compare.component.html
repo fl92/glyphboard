@@ -5,15 +5,20 @@
 </p> -->
 <!-- <input type="button" \> -->
 
-<button>Position</button>
-<button>Target</button><br>
+<!-- <button>Position</button>
+<button>Target</button><br> -->
 <button (click)='onToggleMode()' >Compare <--> Single</button>
 <button (click)='onToggleDrawA()' >DrawA</button>
 <button (click)='onToggleGlyphType()' >GlyphType</button>
 
 <input type="range" min="-1" max="1" step="0.001"
-[(ngModel)]="diffMin" (input)="onFeatureConfigChange($event)"
-
+[(ngModel)]="filter.minDifference" (input)="onFeatureConfigChange($event)"
+/>
+<input type="range" min="-1" max="1" step="0.001"
+[(ngModel)]="filter.minCorrelation" (input)="onFeatureConfigChange($event)"
+/>
+<input type="range" min="0" max="1" step="0.001"
+[(ngModel)]="filter.minMovement" (input)="onFeatureConfigChange($event)"
 />
 
 <property-config-item></property-config-item>

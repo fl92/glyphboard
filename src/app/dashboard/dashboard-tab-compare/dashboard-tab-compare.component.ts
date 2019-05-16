@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 // import { Options, LabelType } from 'ng5-slider';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
+import { ConnectionCompareFilter } from 'app/shared/filter/connection.compare-filter';
 
 @Component({
   selector: 'app-dashboard-tab-compare',
@@ -18,6 +19,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   public eventsSubject: Subject<void> = new Subject<void>();
   private configurationDataCompare: ConfigurationDataCompare;
 
+  filter: ConnectionCompareFilter;
   diffMin = -1;
   diffMax = 1;
   // diffOptions: Options = {
@@ -33,6 +35,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   ) {
     super(injector);
     this.configurationDataCompare = configurationCompare.configurationCompareData;
+    this.filter = this.configurationDataCompare.connectionFilter;
 
   }
 
@@ -53,9 +56,6 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   public onColorChange(e: any): void {}
 
   public onFeatureConfigChange(e: any): void {
-    const filter = this.configurationDataCompare.connectionFilter;
-    filter.maxDifference = this.diffMax;
-    filter.minDifference = this.diffMin;
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }
 
