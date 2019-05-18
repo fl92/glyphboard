@@ -127,8 +127,17 @@ export class MovementVisualizer {
             this.metaB = meta;
     }
 
-    public drawConnections (drawAttributA: boolean, drawPointA: boolean = null,
-        connectionsIdc: number[] = null) {
+    public drawConnections (animation: number) {
+        const help = this.context.globalAlpha;
+        this.context.globalAlpha = help * animation;
+        this._drawConnections(true, true, animation);
+        this.context.globalAlpha = help * (1 - animation);
+        this._drawConnections(false, false, (1 - animation));
+        this.context.globalAlpha = help;
+    }
+
+    private _drawConnections (drawAttributA: boolean, drawPointA: boolean = null,
+        animation = 0, connectionsIdc: number[] = null) {
         if (drawPointA == null) {
             drawPointA = drawAttributA; }
         const connections = (drawAttributA) ? this.connectionsA : this.connectionsB;
@@ -137,7 +146,7 @@ export class MovementVisualizer {
         const meta = (drawAttributA) ? this.metaA : this.metaB;
         const [minDiff, maxDiff, stdDevDiff] = [meta.minDiff, meta.maxDiff, meta.stdDevDiff];
         const absMaxDiff = Math.max(Math.abs(maxDiff), Math.abs(minDiff));
-        const [minMove, maxMove] = [meta.minMove, meta.maxMove];
+        const [_, maxMove] = [meta.minMove, meta.maxMove];
         this.heatMapComputation.init(stdDevDiff, absMaxDiff);
 
         const that = this;
@@ -151,7 +160,8 @@ export class MovementVisualizer {
                 const normalMovement2 = movement2 / maxMove;
                 isUnfiltered = !that.filter.connectionConfirmsToFilter(normalDiff, correlation, normalMovement1, normalMovement2);
             }
-            that._drawConnection(key1, key2, difference, correlation, movement1, movement2, drawPointA, isUnfiltered);
+            that._drawConnection(key1, key2, difference, correlation,
+                movement1, movement2, drawPointA, isUnfiltered, animation);
         };
         if (connectionsIdc == null) {
             connections.forEach(drawConnectionRoutine);
@@ -163,23 +173,29 @@ export class MovementVisualizer {
         }
     }
 
-    public drawFarConnections(pointIds: number[], drawA: boolean) {
-
+    public drawFarConnections(pointIds: number[], animation: number) {
         if (pointIds == null || pointIds.length === 0) {
             return};
-        const oppositeConnections = (drawA) ? this.connectionsB : this.connectionsA;
 
-        const connectionsIdc: number[] = [];
-        oppositeConnections.forEach(([attrkey1, attrkey2], idx) => {
-            const included = pointIds.includes(attrkey1) || pointIds.includes(attrkey2);
-            if (included) {
-                connectionsIdc. push(idx);
-            }
+        const that = this;
+        const help = this.context.globalAlpha;
+        [true, false].forEach( (_drawA) => {
+            const oppositeConnections = (_drawA) ? this.connectionsB : this.connectionsA;
+            const _animation = (_drawA) ? animation : 1 - animation;
+            const alpha = (_drawA) ? help * animation : help * (1 - animation);
+
+            const connectionsIdc: number[] = [];
+            oppositeConnections.forEach(([attrkey1, attrkey2], idx) => {
+                const included = pointIds.includes(attrkey1) || pointIds.includes(attrkey2);
+                if (included) {
+                    connectionsIdc.push(idx);
+                }
+            });
+            this.context.globalAlpha = alpha;
+            that._drawConnections(!_drawA, _drawA, _animation, connectionsIdc);
         });
-
-        this.drawConnections(!drawA, drawA, connectionsIdc);
+        this.context.globalAlpha = help;
     }
-
 
     private computeMeta( vals: number[])
         : [number, number, number] {
@@ -232,15 +248,22 @@ export class MovementVisualizer {
     }
     private _drawConnection(
         key1: number, key2: number, difference: number, correlation: number,
-        movement1: number, movement2: number, drawPointA: boolean, isUnfiltered: boolean) {
+        movement1: number, movement2: number, drawPointA: boolean,
+        isUnfiltered: boolean, animation: number) {
 
         if ( movement1 === 0 && movement2 === 0) {return}
 
         const point1 = (drawPointA) ? this.pointsA.get(key1) : this.pointsB.get(key1);
         const point2 = (drawPointA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
-        const [x1, y1] = point1;
-        const [x2, y2] = point2;
+        const oppPoint1 = (!drawPointA) ? this.pointsA.get(key1) : this.pointsB.get(key1);
+        const oppPoint2 = (!drawPointA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
+        let [x1, y1] = point1;
+        let [x2, y2] = point2;
+        const [_x1, _y1] = oppPoint1;
+        const [_x2, _y2] = oppPoint2;
 
+        [x1, y1] = [_x1 + animation * (x1 - _x1), _y1 + animation * (y1 - _y1)];
+        [x2, y2] = [_x2 + animation * (x2 - _x2), _y2 + animation * (y2 - _y2)];
 
         const [r, g, b] = (isUnfiltered) ?
             this.heatMapComputation.unfilteredColor :
@@ -294,109 +317,3 @@ export class MovementVisualizer {
         return Math.sqrt(sum);
     }
 }
-
-  
-
-
-        // draws connections to Version B-neighbours in Version A for one object and vice versa
-    // public drawFarConnections(context: CanvasRenderingContext2D,
-    //     x: number, y: number, drawA: boolean) {
-
-    //     // get key of object
-    //     const points = (drawA) ? this.pointsA : this.pointsB;
-    //     if (points.size === 0) { return false; }
-    //     let key = 0;
-    //     let minSqDist = Infinity;
-    //     points.forEach(([_x, _y], _key) => {
-    //         const [dx, dy] = [x - _x, y - _y];
-    //         const sqDist = dx * dx + dy * dy;
-    //         if (sqDist < minSqDist) {
-    //             minSqDist = sqDist;
-    //             key = _key;
-    //         };
-    //     });
-
-    //     if ( Math.sqrt(minSqDist) > 10) { // TOOD constant
-    //         return; }
-
-    //     // connections of opposite Version
-    //     let oppositeConnections = (drawA) ? this.connectionsB : this.connectionsA;
-
-    //     // // connections on key
-    //     // const connectionsIdc: number[] = [];
-    //     // oppositeConnections.forEach( ([attrkey1, attrkey2], connkey) => {
-    //     //     if (attrkey1 === key || attrkey2 === key) {
-    //     //         connectionsIdc.push(connkey); }
-    //     // });
-
-    //     // this.drawConnections5(context, !drawA, connectionsIdc);
-    //     const diffs = this.heatMapInit(oppositeConnections);
-    //     oppositeConnections = oppositeConnections.filter(([attrkey1, attrkey2], connkey) =>
-    //         (attrkey1 === key || attrkey2 === key));
-
-    //     oppositeConnections.forEach(([key1, key2], connIdx) => {
-    //         const diff = diffs[connIdx];
-    //         this.drawConnection(context, key1, key2, diff, drawA);
-    //         } );
-
-    //     return true;
-    // }
-
-    
-    // public drawConnection(context: CanvasRenderingContext2D,
-    //     key1: number, key2: number, diff: number, drawA: boolean) {
-    //     const point1 = (drawA) ? this.pointsA.get(key1) : this.pointsB.get(key1);
-    //     const point2 = (drawA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
-    //     const [x1, y1] = point1;
-    //     const [x2, y2] = point2;
-
-    //     const vA1 = this.attrVectorsA.get(key1);
-    //     const vA2 = this.attrVectorsA.get(key2);
-    //     const vB1 = this.attrVectorsB.get(key1);
-    //     const vB2 = this.attrVectorsB.get(key2);
-
-    //     const move1: number[] = []; // vB1 - vA1;
-    //     const move2: number[] = []; // vB2 - vA2;
-    //     vA1.forEach((xa, key) => {
-    //         const xb = vB1[key];
-    //         move1.push(xb - xa);
-    //     });
-    //     vA2.forEach((xa, key) => {
-    //         const xb = vB2[key];
-    //         move2.push(xb - xa);
-    //     });
-
-    //     const move1Mag = this.magnitude(move1);
-    //     const move2Mag = this.magnitude(move2);
-
-    //     if ( move2Mag !== 0 || move2Mag !== 0) {
-
-    //         const maxMove = (move1Mag > move2Mag) ? move1 : move2;
-    //         const moveCorrelation = (move1Mag !== 0 || move2Mag !== 0) ?
-    //                                 2 * (this.sumMagnitude(move1, move2)
-    //                                 / this.sumMagnitude(maxMove, maxMove)) - 1 : 0;
-
-    //         const [r, g, b] = this.heatMapComputation.computeColor(diff);
-    //         let code1: string;
-    //         let code2: string;
-    //         if (move1Mag < move2Mag) {
-    //             code1 = `rgb(${r},${g},${b},${Math.pow(move1Mag / move2Mag, 2)})`;
-    //             code2 = `rgb(${r},${g},${b},${1})`;
-    //         } else {
-    //             code1 = `rgb(${r},${g},${b},${1})`;
-    //             code2 = `rgb(${r},${g},${b},${Math.pow(move2Mag / move1Mag, 2)})`;
-    //         }
-
-    //         const grad = context.createLinearGradient( x1, y1, x2, y2);
-    //         grad.addColorStop(0, code1);
-    //         grad.addColorStop(1, code2);
-    //         context.strokeStyle = grad;
-    //         context.lineWidth = (moveCorrelation > 0) ?
-    //         2 + 3 * Math.pow(moveCorrelation, 2) :
-    //         1;
-    //         context.beginPath();
-    //         context.moveTo(x1 , y1 );
-    //         context.lineTo(x2 , y2 );
-    //         context.stroke();
-    //     }
-    // }

@@ -12,9 +12,9 @@ import { ComparisonHoleGlyph } from 'app/glyph/glyph.comparison.hole';
 export class ConfigurationDataCompare extends ConfigurationData {
 
 
-   
+
    private _selectedFeature: any;
-   
+
    private allGlyphCompTypes: ComparisonGlyph[]
         = [new ComparisonMoveGlyph(), new ComparisonHoleGlyph()];
    private _comparisonGlyph: ComparisonGlyph = this.allGlyphCompTypes[0];

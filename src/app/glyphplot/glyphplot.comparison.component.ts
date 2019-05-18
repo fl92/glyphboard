@@ -210,13 +210,15 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
 
           context.globalAlpha = isDrawFar ? this._configurationDataCompare.TRANSPARENCY : 1;
           this.movementVisualizer.drawConnections(
-            this._configurationCompare.isDrawPositionA);
+            this.configurationCompare.versionAnimation);
+            // this._configurationCompare.isDrawPositionA);
           context.globalAlpha = 1;
 
           if (isDrawFar) {
           this.movementVisualizer.drawFarConnections(
             this._configurationDataCompare.filteredItemsIds,
-            this._configurationCompare.isDrawPositionA);
+            this.configurationCompare.versionAnimation);
+            // this._configurationCompare.isDrawPositionA);
           }
         } else {
           this._comparedData.forEach(
@@ -250,10 +252,27 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
 
     public animate() {
       this.updateGlyphLayout();
-      this.draw();
-      // TODO test
-      // this._configurationDataCompare.useDragSelection = true;
 
+      const that = this;
+
+      if ( this.configurationCompare.isChangeVersion) {
+        // const begin =  that.configurationCompare.isDrawPositionA;
+        let animation = that.configurationCompare.versionAnimation;
+        const [step, end] = (animation > 0.5) ? [-0.06, 0] : [0.06, 1];
+        const t = d3.timer(() => {
+          animation = that.configurationCompare.versionAnimation;
+          animation += step;
+          if (Math.abs(end - animation) <= Math.abs(step)) {
+            t.stop();
+            animation = end;
+          }
+          that.configurationCompare.versionAnimation = animation;
+          that.draw();
+          }, 300);
+          this.configurationCompare.isChangeVersion = false;
+      } else {
+        that.draw();
+      }
     }
 
     public updateGlyphLayout(updateAllItems: boolean = false): void {

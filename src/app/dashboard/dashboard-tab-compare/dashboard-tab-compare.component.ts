@@ -20,13 +20,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   private configurationDataCompare: ConfigurationDataCompare;
 
   filter: ConnectionCompareFilter;
-  diffMin = -1;
-  diffMax = 1;
-  // diffOptions: Options = {
-  //   floor: -1, ceil: 1,
-  //   step: 0.01,
-  //   translate: (value, label) => { return ''}
-  //   }
+
 
   constructor(
     injector: Injector,
@@ -77,8 +71,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
 
   /** which version determines positions */
   onToggleDrawA() {
-    this.configurationCompare.isDrawPositionA
-      = !this.configurationCompare.isDrawPositionA;
+    this.configurationCompare.isChangeVersion = true;
       this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }
 
