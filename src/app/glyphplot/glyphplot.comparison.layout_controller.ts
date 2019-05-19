@@ -48,6 +48,11 @@ export class GlyphplotComparisonLayoutController extends GlyphplotLayoutControll
         .scaleLinear()
         .domain([minY + minY / 20, maxY - minY / 20])
         .range([this._component.height - 5, 5]);
+
+    //     d3
+    //   .quadtree()
+    //   .x(d => this._component.xAxis(d[0]))
+    //   .y(d => this._component.yAxis(d[1]));
     }
 
     // private search(quadtree, x0, y0, x3, y3) {}

@@ -143,6 +143,8 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
     createChart(): void {
     const that = this;
     const element = this.chartContainer.nativeElement;
+    this.context = element.getContext('2d');
+
     this.movementVisualizer.init(this._comparedData);
     this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
     this.selectionRect = new SelectionRect(this, this.selectionContext, this.helper);
@@ -160,7 +162,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
 
     this.layoutController.updatePositions();
 
-    this.context = element.getContext('2d');
+    this.updateZoom();
     this.animate();
 
     }
@@ -200,6 +202,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
         context.clearRect(0, 0, this.width, this.height);
 
         const glyph = this._configurationCompare.configurationCompareData.comparisonGlyph;
+        glyph.context = context;
 
         if ( glyph instanceof ComparisonMoveGlyph) {
           this.movementVisualizer.updatePoints(this._comparedData);
@@ -223,7 +226,6 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
         } else {
           this._comparedData.forEach(
             item => {
-              glyph.context = context;
               glyph.comparisonDataItem = item;
               glyph.draw();
           });
@@ -258,7 +260,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
       if ( this.configurationCompare.isChangeVersion) {
         // const begin =  that.configurationCompare.isDrawPositionA;
         let animation = that.configurationCompare.versionAnimation;
-        const [step, end] = (animation > 0.5) ? [-0.06, 0] : [0.06, 1];
+        const [step, end] = (animation > 0.5) ? [-0.08, 0] : [0.08, 1];
         const t = d3.timer(() => {
           animation = that.configurationCompare.versionAnimation;
           animation += step;
@@ -268,7 +270,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
           }
           that.configurationCompare.versionAnimation = animation;
           that.draw();
-          }, 300);
+          }, 500);
           this.configurationCompare.isChangeVersion = false;
       } else {
         that.draw();

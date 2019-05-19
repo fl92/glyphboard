@@ -47,51 +47,6 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
     this._component.configurationDataCompare.filteredItemsIds = selectedIds;
     this._component.draw();
 
-    // const existingIdFilters: FeatureFilter[] = this.configuration.featureFilters.filter((filter: FeatureFilter) => {
-    //   if (filter instanceof IdFilter) {
-    //     return true;
-    //   }
-    // });
-
-    // const positionData =
-    //   this._component.comparisonCreator.data2PositionData(
-    //     this._component.comparedData,
-    //     this._component.configurationCompare.isDrawPositionA);
-  
-  
-
-    // this.component.selectionRect.data = positionData;
-    // const selection = this.component.selectionRect.selectedGlyphs;
-    // const selectedIds: number[] = selection.positions.reduce((arrayOfIds: number[], item: any) => {
-    //   arrayOfIds.push(item.id);
-    //   return arrayOfIds;
-    // }, []);
-
-    // this.clearIdFilters();
-
-    // filter only if at least one glyph was selected
-    // if (selectedIds.length > 0) {
-    //   let idFilter: IdFilter;
-
-    //   if (this.configuration.extendSelection && existingIdFilters.length > 0) {
-    //     const existingFilter = existingIdFilters[0];
-    //     if (existingFilter instanceof IdFilter) {
-    //       idFilter = existingFilter;
-    //     }
-    //     idFilter.extendAccaptableIds(selectedIds);
-    //   } else {
-    //     idFilter = new IdFilter('id', selectedIds);
-    //   }
-    //   if (this.viewsShowTheSameDataSet()) {
-    //     this.configurationService.configurations[0].featureFilters.push(idFilter);
-    //     this.configurationService.configurations[1].featureFilters.push(idFilter);
-    //     this.configurationService.configurations[0].filterRefresh();
-    //     this.configurationService.configurations[1].filterRefresh();
-    //   } else {
-    //     this.configuration.featureFilters.push(idFilter);
-    //     this.configuration.filterRefresh();
-    //   }
-    // }
     // draws the selection rectangle if the user is currently in the specific mode
     if (
       this.configuration.useDragSelection &&
@@ -126,6 +81,9 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
    * @param e mouse click event
    */
   public onClick(e: MouseEvent): void {
+    if (!this.configuration.useDragSelection) {
+      return;
+    }
       const selectedIds: number[] = [];
       this._component.configurationDataCompare.filteredItemsIds = selectedIds;
       this._component.draw();

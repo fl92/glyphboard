@@ -129,10 +129,14 @@ export class MovementVisualizer {
 
     public drawConnections (animation: number) {
         const help = this.context.globalAlpha;
-        this.context.globalAlpha = help * animation;
-        this._drawConnections(true, true, animation);
-        this.context.globalAlpha = help * (1 - animation);
-        this._drawConnections(false, false, (1 - animation));
+        let alpha = this.context.globalAlpha = help * animation;
+        if ( alpha !== 0) {
+            this._drawConnections(true, true, animation);
+        }
+        alpha = this.context.globalAlpha = help * (1 - animation);
+        if ( alpha !== 0) {
+            this._drawConnections(false, false, (1 - animation));
+        }
         this.context.globalAlpha = help;
     }
 
@@ -179,10 +183,11 @@ export class MovementVisualizer {
 
         const that = this;
         const help = this.context.globalAlpha;
-        [true, false].forEach( (_drawA) => {
+        const drawOrder = (animation < 0.5) ? [false, true] : [true, false];
+        drawOrder.forEach( (_drawA) => {
             const oppositeConnections = (_drawA) ? this.connectionsB : this.connectionsA;
             const _animation = (_drawA) ? animation : 1 - animation;
-            const alpha = (_drawA) ? help * animation : help * (1 - animation);
+            // const alpha = (_drawA) ? help * animation : help * (1 - animation);
 
             const connectionsIdc: number[] = [];
             oppositeConnections.forEach(([attrkey1, attrkey2], idx) => {
@@ -191,7 +196,7 @@ export class MovementVisualizer {
                     connectionsIdc.push(idx);
                 }
             });
-            this.context.globalAlpha = alpha;
+            // this.context.globalAlpha = alpha;
             that._drawConnections(!_drawA, _drawA, _animation, connectionsIdc);
         });
         this.context.globalAlpha = help;
