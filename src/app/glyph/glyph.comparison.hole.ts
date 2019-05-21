@@ -30,19 +30,20 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       if (!this.targetsA.has(feature)) {
         throw Error('unknown target feature');
       }
-      const [_, predsA] = this.targetsA.get(feature);
+      const [labelsA, predsA] = this.targetsA.get(feature);
       const [labelsB, predsB] = this.targetsB.get(feature);
-      const labels = labelsB;
+      const isNewLabeled = labelsA == null
+      const labels = labelsB; // only consider newer Label of both
 
-      const [predAIdx, predA] = this.getMax(predsA);
-      const [predBIdx, predB] = this.getMax(predsB);
-      const [labelIdx, answersFor] = this.getMax(labels);
-      const predAClass = this.getTargetPrediction(predAIdx);
-      const predBClass = this.getTargetPrediction(predBIdx);
-      const labelClass = this.getTargetLabel(labelIdx);
-      const confVal = answersFor / labels.reduce((a, b) => a + b, 0);
+      const [predAIdx, predA] = (predsA != null) ? this.getMax(predsA) : [null, null];
+      const [predBIdx, predB] = (predsB != null) ? this.getMax(predsB) : [null, null];
+      const [labelIdx, answersFor] = (labels != null) ? this.getMax(labels) : [null, null];
+      const predAClass = (predsA != null) ? this.getTargetPrediction(predAIdx) : null;
+      const predBClass = (predsB != null) ? this.getTargetPrediction(predBIdx) : null;
+      const labelClass = (labels != null) ? this.getTargetLabel(labelIdx) : null;
+      const confVal = (labels != null) ? answersFor / labels.reduce((a, b) => a + b, 0) : null;
       this.drawTargetFeature(predAClass, predA,
-        predBClass, predB, labelClass, [confVal, answersFor], this.position);
+        predBClass, predB, labelClass, [confVal, answersFor], isNewLabeled, this.position);
     }
   }
 
@@ -53,13 +54,17 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
     predB: number,
     labelClass: string,
     interrater: [number, number],
+    isNewLabeled: boolean,
     pos: [number, number]
     ) {
       const possibleClassesLabel = this.getLabelSize();
       const possibleClassesPred = this.getPredictionSize();
-      const isCorrectA = predAClass === labelClass;
-      const isCorrectB = predBClass === labelClass;
+      const isCorrectA = predAClass === labelClass || labelClass == null;
+      const isCorrectB = predBClass === labelClass || labelClass == null;
       const hasChanged = predAClass !== predBClass;
+      const isLabelded = labelClass != null;
+      const isNew = predAClass == null; // dataobject added between compared versions
+      const isRemoved = predBClass == null; // dataobject removed between compared versions
       // const isMaybe = labelClass === 2;
 
       const [x, y] = pos;
@@ -67,7 +72,14 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       let outerRadius: number;
       let innerVal: number;
       let outerVal: number;
-      if ( hasChanged) {
+
+      if ( isNew) {
+        innerVal = 0;
+        outerVal = predB;
+      } else if (isRemoved) {
+        innerVal = 0;
+        outerVal = predA;
+      } else if ( hasChanged) {
         innerVal = (predA);
         outerVal = (predA + predB);
       } else {
@@ -81,19 +93,17 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
 
       innerRadius = Math.pow(innerVal, 0.7) * this.config.RADIUS_FACTOR;
       outerRadius = Math.pow(outerVal, 0.7) * this.config.RADIUS_FACTOR;
-      // innerRadius = Math.pow(innerVal, 0.7) * this.config.RADIUS_FACTOR;
-      // outerRadius = Math.pow(outerVal, 0.7) * this.config.RADIUS_FACTOR;
-      const innerRoundness = // (isMaybe) ? 0.5 :
-                                (isCorrectA) ? 0 : 1;
-      const outerRoundness = // (isMaybe) ? 0.5 :
-                                (isCorrectB) ? 0 : 1;
-      // const innerRoundness = 1;
-      // const outerRoundness = 1;
+      const innerRoundness = isLabelded ?
+                                ((isCorrectA) ? 0 : 1)
+                                : 1;
+      const outerRoundness = isLabelded ?
+                                ((isCorrectB) ? 0 : 1)
+                                : 1;
 
-        innerRadius *= Math.pow(1.3, (1 - innerRoundness));
-        outerRadius *= Math.pow(1.55, (1 - outerRoundness));
+      innerRadius *= Math.pow(1.3, (1 - innerRoundness));
+      outerRadius *= Math.pow(1.55, (1 - outerRoundness));
       let colCode: string;
-      {
+      if (isLabelded) { // Typ A labeled Glyph
         const minInterrater = (1 / possibleClassesLabel );
         const minS = 0.1;
         const map = this._labelColorMap;
@@ -104,12 +114,21 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
         const l = 50;
         s = Math.round(s);
         colCode = `hsl( ${h}, ${s}%, ${l}%)`;
+      } else { // Typ B unlabeled Glyph
+        const map = this._labelColorMap;
+        const h = (!isRemoved) ? map.get(predBClass) : map.get(predAClass);
+        let s = 100;
+        const l = 75;
+        s = Math.round(s);
+        colCode = `hsl( ${h}, ${s}%, ${l}%)`;
       }
+      const strokeColCode: string = (isNew || isNewLabeled) ? 'black'
+      : isRemoved ? 'red' : null;
 
       // adoption to perception of circles: https://www.stat.auckland.ac.nz/~ihaka/787/lectures-perception.pdf
 
       const kernel = new HoleGlyphKernel(this.config, x, y, innerRadius, outerRadius,
-        innerRoundness, outerRoundness, colCode);
+        innerRoundness, outerRoundness, colCode, strokeColCode);
 
       kernel.draw(this._context);
 

@@ -1,4 +1,4 @@
-import { HoleGlyphConfig } from "./glyph.comparison.hole.config";
+import { HoleGlyphConfig } from './glyph.comparison.hole.config';
 
 export class HoleGlyphKernel {
 
