@@ -41,7 +41,7 @@ export class MovementVisualizer {
 
     public init(
         data: ComparisonDataItem[]) {
-            const [pointsA, pointsB] = this.filterPointsWithoutMissingPositions(data);
+            const [pointsA, pointsB] = this.comparisonData2Positions(data);
             this._init(pointsA, pointsB, 2, pointsA, pointsB);
     }
 
@@ -54,8 +54,21 @@ export class MovementVisualizer {
         this.pointsA = pointsA;
         this.pointsB = pointsB;
 
-        this.connectionsA = DelaunayWrapper.computeConnections(pointsA);
-        this.connectionsB = DelaunayWrapper.computeConnections(pointsB);
+        const pointsNotNullA = new Map<any, [number, number]>();
+        const pointsNotNullB = new Map<any, [number, number]>();
+        pointsA.forEach((point, key) => {
+            if (point != null) {
+                pointsNotNullA.set(key, point);
+            }
+        });
+        pointsB.forEach((point, key) => {
+            if (point != null) {
+                pointsNotNullB.set(key, point);
+            }
+        });
+
+        this.connectionsA = DelaunayWrapper.computeConnections(pointsNotNullA);
+        this.connectionsB = DelaunayWrapper.computeConnections(pointsNotNullB);
 
         this.attributesSize = attributesSize;
         this.attrVectorsA = attrVectorsA;
@@ -75,7 +88,7 @@ export class MovementVisualizer {
 
     public updatePoints(
         data: ComparisonDataItem[]) {
-            const [pointsA, pointsB] = this.filterPointsWithoutMissingPositions(data);
+            const [pointsA, pointsB] = this.comparisonData2Positions(data);
             this._updatePoints(pointsA, true);
             this._updatePoints(pointsB, false);
     }
@@ -85,14 +98,14 @@ export class MovementVisualizer {
             this.pointsB = points;
     }
 
-    private filterPointsWithoutMissingPositions(data: ComparisonDataItem[]) {
+    private comparisonData2Positions(data: ComparisonDataItem[]) {
         const pointsA = new Map<any, [number, number]> ();
         const pointsB = new Map<any, [number, number]> ();
-        const dataWithBothPositions = data.filter(v => v.positionA != null && v.positionB != null)
+        // const dataWithBothPositions = data.filter(v => v.positionA != null && v.positionB != null)
 
         // TODO include data with missing positions
         // const dataWithMissingPositions = data.filter(v => v.positionA == null || v.positionB == null)
-        dataWithBothPositions.forEach( _data => {
+        data.forEach( _data => {
             pointsA.set(_data.objectId, _data.drawnPositionA);
             pointsB.set(_data.objectId, _data.drawnPositionB);
         });
@@ -122,6 +135,7 @@ export class MovementVisualizer {
         const meta = (drawA) ? this.metaA : this.metaB;
         [meta.minDiff, meta.maxDiff, meta.stdDevDiff] = this.computeMeta(differences);
         [meta.minMove, meta.maxMove] = this.computeMeta(movements1.concat(movements2));
+        meta.maxDiff /= 0.99; // connections with one point missing in 1 version will be 100%
         (drawA) ?
             this.metaA = meta :
             this.metaB = meta;
@@ -156,7 +170,10 @@ export class MovementVisualizer {
         const that = this;
 
         const drawConnectionRoutine = ([key1, key2]: [number, number], idx: number) => {
-            const [difference, correlation, movement1, movement2] = characteristics[idx];
+            let [difference, correlation, movement1, movement2] = characteristics[idx];
+            if (difference == null) { // difference is null when one version is missing
+                difference = drawPointA ? -absMaxDiff : absMaxDiff;
+            }
             let isUnfiltered = false;
             if (that.filter != null) {
                 const normalDiff = difference / absMaxDiff;
@@ -169,7 +186,7 @@ export class MovementVisualizer {
         };
         if (connectionsIdc == null) {
             connections.forEach(drawConnectionRoutine);
-        } else {
+        } else { // for far connections
             connectionsIdc.forEach(idx => {
                 const [key1, key2] = connections[idx];
                 drawConnectionRoutine([key1, key2], idx);
@@ -209,6 +226,7 @@ export class MovementVisualizer {
         let absMean = 0;
         if (vals.length !== 0) {
             vals.forEach(val => {
+                if (val == null) {return};
                 min = Math.min(val, min);
                 max = Math.max(val, max);
                 absMean += Math.abs(val);
@@ -225,20 +243,36 @@ export class MovementVisualizer {
         const vB1 = this.attrVectorsB.get(key1);
         const vB2 = this.attrVectorsB.get(key2);
 
-        const move1: number[] = []; // vB1 - vA1;
-        const move2: number[] = []; // vB2 - vA2;
-        vA1.forEach((xa, key) => {
-            const xb = vB1[key];
-            move1.push(xb - xa);
-        });
-        vA2.forEach((xa, key) => {
-            const xb = vB2[key];
-            move2.push(xb - xa);
-        });
+        let move1: number[] = []; // vB1 - vA1;
+        let move2: number[] = []; // vB2 - vA2;
+        if (vA1 != null && vB1 != null) {
+            for ( let i = 0; i < this.attributesSize; i++ ) {
+                const xa = vA1[i];
+                const xb = vB1[i];
+                move1.push(xb - xa);
+            }
+        } else {
+            move1 = null;
+        }
 
-        const move1Mag = this.magnitude(move1);
-        const move2Mag = this.magnitude(move2);
+        if (vA2 != null && vB2 != null) {
+            for ( let i = 0; i < this.attributesSize; i++ ) {
+                const xa = vA2[i];
+                const xb = vB2[i];
+                move2.push(xb - xa);
+            }
+        } else {
+            move2 = null;
+        }
 
+        const move1Mag = (move1 != null) ? this.magnitude(move1) : null;
+        const move2Mag = (move2 != null) ? this.magnitude(move2) : null;
+
+        if (move1 == null || move2 == null) {
+            const _difference = null; // will be later mapped to maximum difference.
+            const _correlation = -1;
+            return [_difference, _correlation, move1Mag, move2Mag];
+        }
 
         const maxMove = (move1Mag > move2Mag) ? move1 : move2;
         const correlation = (move1Mag !== 0 || move2Mag !== 0) ?
@@ -262,14 +296,19 @@ export class MovementVisualizer {
         const point2 = (drawPointA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
         const oppPoint1 = (!drawPointA) ? this.pointsA.get(key1) : this.pointsB.get(key1);
         const oppPoint2 = (!drawPointA) ? this.pointsA.get(key2) : this.pointsB.get(key2);
+
+        if ( point1 == null || point2 == null) { return; }
+
         let [x1, y1] = point1;
         let [x2, y2] = point2;
-        const [_x1, _y1] = oppPoint1;
-        const [_x2, _y2] = oppPoint2;
 
-        [x1, y1] = [_x1 + animation * (x1 - _x1), _y1 + animation * (y1 - _y1)];
-        [x2, y2] = [_x2 + animation * (x2 - _x2), _y2 + animation * (y2 - _y2)];
+        if (oppPoint1 != null && oppPoint2 != null) {
+            const [_x1, _y1] = oppPoint1;
+            const [_x2, _y2] = oppPoint2;
 
+            [x1, y1] = [_x1 + animation * (x1 - _x1), _y1 + animation * (y1 - _y1)];
+            [x2, y2] = [_x2 + animation * (x2 - _x2), _y2 + animation * (y2 - _y2)];
+        }
         const [r, g, b] = (isUnfiltered) ?
             this.heatMapComputation.unfilteredColor :
             this.heatMapComputation.computeColor(difference);

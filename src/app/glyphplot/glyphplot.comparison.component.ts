@@ -282,13 +282,16 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
       const that = this;
       if (! this._configurationDataCompare.useDragSelection) {
         this._comparedData.forEach(d => {
-          if (d.positionA == null || d.positionB == null) {return; }
+          if (d.positionA != null) {
           d.drawnPositionA = [
             that.transform.applyX(that.xAxis(d.positionA[0])),
             that.transform.applyY(that.yAxis(d.positionA[1]))];
+          }
+          if (d.positionB != null) {
           d.drawnPositionB = [
             that.transform.applyX(that.xAxis(d.positionB[0])),
             that.transform.applyY(that.yAxis(d.positionB[1]))];
+          }
         });
     }
     }
