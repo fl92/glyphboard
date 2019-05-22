@@ -36,6 +36,7 @@ import { ComparisonDataCreator } from './glyphplot.comparison.data_creator';
 import { GlyphplotLayoutController } from './glyphplot.layout.controller';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 import { GlyphplotComparisonEventController } from './glyphplot.comparison.event_controller';
+import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
 
 
 @Component({
@@ -49,7 +50,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
         implements OnInit, OnChanges {
     @ViewChild('chart') public chartContainer: ElementRef;
     @ViewChild('selectionrectangle') public selectionRectangle: ElementRef;
-    // @ViewChild('tooltip') public tooltip: TooltipComponent;
+    @ViewChild('tooltip') public tooltip: TooltipComponent;
     @Input() width: number;
     @Input() height: number;
 
@@ -58,7 +59,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
      */
     private _dataA: any;
     private _dataB: any;
-    private _comparedData: ComparisonDataItem[];
+    private _comparedData: ComparisonDataContainer;
     private _configurationDataCompare: ConfigurationDataCompare;
     private _configurationCompare: ConfigurationCompare;
 
@@ -144,8 +145,9 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
     const that = this;
     const element = this.chartContainer.nativeElement;
     this.context = element.getContext('2d');
+    this.tooltip.data = this._comparedData;
 
-    this.movementVisualizer.init(this._comparedData);
+    this.movementVisualizer.init(this._comparedData.items);
     this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
     this.selectionRect = new SelectionRect(this, this.selectionContext, this.helper);
     this.selectionRect.offset = {
@@ -205,7 +207,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
         glyph.context = context;
 
         if ( glyph instanceof ComparisonMoveGlyph) {
-          this.movementVisualizer.updatePoints(this._comparedData);
+          this.movementVisualizer.updatePoints(this._comparedData.items);
           this.movementVisualizer.initContext(context);
           this.movementVisualizer.initFilter(this._configurationDataCompare.connectionFilter)
           const isDrawFar = (this._configurationDataCompare.filteredItemsIds != null
@@ -224,7 +226,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
             // this._configurationCompare.isDrawPositionA);
           }
         } else {
-          this._comparedData.forEach(
+          this._comparedData.items.forEach(
             item => {
               glyph.comparisonDataItem = item;
               glyph.draw();
@@ -281,7 +283,7 @@ import { GlyphplotComparisonEventController } from './glyphplot.comparison.event
       if (this._comparedData == null) {return; }
       const that = this;
       if (! this._configurationDataCompare.useDragSelection) {
-        this._comparedData.forEach(d => {
+        this._comparedData.items.forEach(d => {
           if (d.positionA != null) {
           d.drawnPositionA = [
             that.transform.applyX(that.xAxis(d.positionA[0])),

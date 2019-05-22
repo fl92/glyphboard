@@ -1,11 +1,12 @@
 import { ComparisonDataItem } from './glyphplot.comparison.data_item';
 import { Injectable } from '@angular/core';
+import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
 
 @Injectable()
 export class ComparisonDataCreator {
   public versions2Data(versionA: any, versionB: any,
     selectedTargetVariable: string = '') {
-    const buffer: ComparisonDataItem[] = [];
+    const comparison_items: ComparisonDataItem[] = [];
     const objectsA = versionA['features'];
     const objectsAMap = new Map<any, object> ();
     const objectsB = versionB['features'];
@@ -93,35 +94,38 @@ export class ComparisonDataCreator {
 
       for (const [isA, object] of [[true, objectA], [false, objectB]]) {
         const position = isA ? positionA : positionB;
-        // const independentFeatures = new Map<string, number>();
-        // const questions = []; TODO
-        const defContext = object !== undefined ?
-          object['default-context'] :
-          undefined;
-        // const vals = object['values'];
-        //   for (const featId in vals) {
-        //   //   if (shownFeatures.includes(featId)
-        //   //         && vals.hasOwnProperty(featId)) {
-        //   //     if (labelIDs.includes(featId)) {
-        //   //       const labId = featId;
-        //   //       const predId = predMap[labId];
-        //   //       const label: number[] = object['features'][defContext][labId];
-        //   //       const pred: number[] = object['features'][defContext][predId];
+        let targetMap: Map<string, [number[], number[]]> = null;
+        let featureMap: Map<any, number> = null;
+        let valueMap: Map<any, string> = null;
+        if ( object != null) {
 
-        //   //       targetFeatures.set('' + labId, [label, pred] ); // TODO richtigen feature-namen
-        //   //     } else if ( predMap.hasOwnProperty(featId)) {
-        //   //       continue;
-        //   //     } else {
-        //   //       const features = object['features'][defContext];
-        //   //       const feature = Number(features[featId]);
-        //   //       // independentFeatures.set('' + featId, feature);
-        //   //     }
-        //   //   }
-        //   }
-        let targetMap = null;
-        if ( object !== undefined) {
+          featureMap = new Map<any, number>();
+          const defContext = object != null ?
+            object['default-context'] :
+            undefined;
+          const vals = object['values'];
+            for (const featId in vals) {
+              if (vals.hasOwnProperty(featId)) {
+                  const featuresObj = object['features'][defContext];
+                  if (featuresObj.hasOwnProperty(featId)) {
+                    const feature = Number(featuresObj[featId]);
+                    featureMap.set(featId, feature)
+                  }
+              }
+            }
+
+          valueMap = new Map<any, string>();
+          for (const featId in vals) {
+            if (vals.hasOwnProperty(featId)) {
+              const valsObj = object['values'];
+              const value = String(valsObj[featId]);
+              valueMap.set(featId, value);
+            }
+          }
+
+
           const targetObj = object['targetVariables'];
-          if (targetObj !== undefined) {
+          if (targetObj != null) {
             targetMap = new Map<string, [number[], number[]]>();
             for (const targetId in targetObj) {
               if (targetObj.hasOwnProperty(targetId)) {
@@ -135,34 +139,37 @@ export class ComparisonDataCreator {
         }
 
          isA ?
-             data_item.setVersionA(targetMap, position) :
-             data_item.setVersionB(targetMap, position);
+             data_item.setVersionA(targetMap, position, featureMap, valueMap) :
+             data_item.setVersionB(targetMap, position, featureMap, valueMap);
       }
      data_item.targetVariablesMeta = targetVariablesMeta;
-     buffer.push(data_item);
+     comparison_items.push(data_item);
     }, this);
-    return buffer;
+
+    const schema = versionA['schema']
+    const container = new ComparisonDataContainer(comparison_items, schema);
+    return container;
   }
 
-  public data2PositionData(items: ComparisonDataItem[], useA: boolean) {
-    const buffer = { positions: []};
-    items.forEach( item => {
-      const _id = item.objectId;
-      const position = useA ? item.drawnPositionA : item.drawnPositionB;
-      if (position == null) {
-        return;
-      }
-      const [_x, _y] = position;
-      const elem =  {
-        id : _id,
-        position: {
-          x: _x,
-          y: _y
-        }
-      }
-      buffer.positions.push(elem);
-    });
-    return buffer;
-  }
+  // public data2PositionData(items: ComparisonDataItem[], useA: boolean) {
+  //   const buffer = { positions: []};
+  //   items.forEach( item => {
+  //     const _id = item.objectId;
+  //     const position = useA ? item.drawnPositionA : item.drawnPositionB;
+  //     if (position == null) {
+  //       return;
+  //     }
+  //     const [_x, _y] = position;
+  //     const elem =  {
+  //       id : _id,
+  //       position: {
+  //         x: _x,
+  //         y: _y
+  //       }
+  //     }
+  //     buffer.positions.push(elem);
+  //   });
+  //   return buffer;
+  // }
 
 }

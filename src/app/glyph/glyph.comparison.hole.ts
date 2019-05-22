@@ -91,6 +91,7 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       innerVal /= 2;
       outerVal /= 2;
 
+      // adoption to perception of circles: https://www.stat.auckland.ac.nz/~ihaka/787/lectures-perception.pdf
       innerRadius = Math.pow(innerVal, 0.7) * this.config.RADIUS_FACTOR;
       outerRadius = Math.pow(outerVal, 0.7) * this.config.RADIUS_FACTOR;
       const innerRoundness = isLabelded ?
@@ -125,8 +126,7 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       const strokeColCode: string = (isNew || isNewLabeled) ? 'black'
       : isRemoved ? 'red' : null;
 
-      // adoption to perception of circles: https://www.stat.auckland.ac.nz/~ihaka/787/lectures-perception.pdf
-
+      
       const kernel = new HoleGlyphKernel(this.config, x, y, innerRadius, outerRadius,
         innerRoundness, outerRoundness, colCode, strokeColCode);
 

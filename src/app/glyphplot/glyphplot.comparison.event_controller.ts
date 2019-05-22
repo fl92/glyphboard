@@ -81,12 +81,14 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
    * @param e mouse click event
    */
   public onClick(e: MouseEvent): void {
-    if (!this.configuration.useDragSelection) {
-      return;
-    }
+    if (this.configuration.useDragSelection) {
       const selectedIds: number[] = [];
       this._component.configurationDataCompare.filteredItemsIds = selectedIds;
       this._component.draw();
+    } else {
+      this.component.tooltip.isVisible = true;
+      this.component.tooltip.updateClosestPoint(e, this.component.transform);
+    }
   }
 
   private findSelectedIds() {
@@ -106,7 +108,7 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
       : rect.end.x;
     const compData = this._component.comparedData;
     const drawA = this._component.configurationCompare.versionAnimation;
-    compData.forEach(item => {
+    compData.items.forEach(item => {
       const _id = item.objectId;
       const position = drawA ? item.drawnPositionA : item.drawnPositionB;
       if (position == null) {

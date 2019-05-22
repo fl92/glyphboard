@@ -28,7 +28,7 @@ export class GlyphplotComparisonLayoutController extends GlyphplotLayoutControll
             minY = Infinity,
             maxY = -Infinity;
 
-        this._component.comparedData.forEach( d => {
+        this._component.comparedData.items.forEach( d => {
             [d.positionA, d.positionB].forEach((pos) => {
                 if ( pos != null) {
                     const [x, y] = pos;

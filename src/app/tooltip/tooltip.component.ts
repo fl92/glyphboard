@@ -1,6 +1,7 @@
 import { OnInit, ElementRef,  ViewChild,   Component } from '@angular/core';
 import { Helper } from 'app/glyph/glyph.helper';
 import { Configuration } from 'app/shared/services/configuration.service';
+import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 
 @Component({
   selector: 'app-tooltip',
@@ -27,7 +28,9 @@ export class TooltipComponent implements OnInit {
 
   private readonly cursorOffset = 5;
 
-  constructor(private helper: Helper, private configuration: Configuration) {}
+  constructor(private helper: Helper,
+    private configuration: Configuration,
+    private configurationCompare: ConfigurationCompare) {}
 
   ngOnInit(): void {
     this.tooltipElement = this.tooltipContainer.nativeElement;
@@ -87,7 +90,10 @@ export class TooltipComponent implements OnInit {
     if (closestPoint !== undefined && closestPoint != null) {
       this.closestPoint = this._data.features.find(item => item.id === closestPoint.id);
       this.title = `ID: ${closestPoint.id}`;
-      const context = this.configuration.configurations[0].globalFeatureContext;
+      let context = this.configuration.configurations[0].globalFeatureContext;
+      if (context == null || context < 0){
+        context = this.configurationCompare.configurationCompareData.globalFeatureContext;
+      }
 
       let label: string;
       for (const property in this._data.schema.tooltip) {

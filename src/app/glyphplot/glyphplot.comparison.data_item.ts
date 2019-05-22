@@ -1,11 +1,13 @@
 export class ComparisonDataItem {
 
     private _objectId: any;
-    // private _extractedsA: Map<any, number> = null;
+    private _featuresA: Map<any, number> = null;
+    private _valuesA: Map<any, string> = null;
     private _targetsA: Map<any, [number[], number[]]> = null;
     private _positionA: [number, number] = null;
     private _drawnPositionA: [number, number] = [null, null];
-    // private _extractedsB: Map<any, number> = null;
+    private _featuresB: Map<any, number> = null;
+    private _valuesB: Map<any, string> = null;
     private _targetsB: Map<any, [number[], number[]]> = null;
     private _positionB: [number, number] = null;
     private _drawnPositionB: [number, number] = [null, null];
@@ -19,17 +21,21 @@ export class ComparisonDataItem {
     public constructor() {
     }
 
-    public setVersionA(/*extracteds: Map<any, number>,*/ targets: Map<any, [number[], number[]]>,
-      position: [number, number]) {
-      // this._extractedsA = extracteds;
+    public setVersionA(targets: Map<any, [number[], number[]]>,
+      position: [number, number], features: Map<any, number>,
+      values: Map<any, string>) {
+      this._featuresA = features;
+      this._valuesA = values;
       this._targetsA = targets;
       this._positionA = position;
       this._drawnPositionA = position;
     }
 
-    public setVersionB(/*extracteds: Map<any, number>,*/ targets: Map<any, [number[], number[]]>,
-      position: [number, number]) {
-      // this._extractedsB = extracteds;
+    public setVersionB(targets: Map<any, [number[], number[]]>,
+      position: [number, number], features: Map<any, number>,
+      values: Map<any, string>) {
+      this._featuresB = features;
+      this._valuesB = values;
       this._targetsB = targets;
       this._positionB = position;
       this._drawnPositionB = position;
@@ -86,6 +92,20 @@ export class ComparisonDataItem {
 
     public get positionB () {
       return this._positionB;
+    }
+    public get featuresA () {
+      return this._featuresA;
+    }
+
+    public get featuresB () {
+      return this._featuresB;
+    }
+    public get valuesA () {
+      return this._valuesA;
+    }
+
+    public get valuesB () {
+      return this._valuesB;
     }
 
     public get drawnPositionA(): [number, number] {
