@@ -63,8 +63,8 @@ export class ComparisonDataContainer {
                     featuresObj[key] = Math.abs(featureB - featureA);
                     valueA = valueA == null ? '' : valueA;
                     valueB = valueB == null ? '' : valueB;
-                    valuesObj[key] = valueA + ', ' + String(featureA.toFixed(2)) + '..'
-                        + ' => ' + valueB + ', ' + String(featureB.toFixed(2)) + '..';
+                    valuesObj[key] = valueA + ', ' + String(featureA.toFixed(4)) + '..'
+                        + ' => ' + valueB + ', ' + String(featureB.toFixed(4)) + '..';
                     }
                 }
             }

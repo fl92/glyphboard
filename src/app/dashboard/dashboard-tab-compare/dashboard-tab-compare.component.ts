@@ -20,6 +20,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   private configurationDataCompare: ConfigurationDataCompare;
 
   filter: ConnectionCompareFilter;
+  test: number = null;
 
 
   constructor(
@@ -49,6 +50,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
 
   public onColorChange(e: any): void {}
 
+  
   public onFeatureConfigChange(e: any): void {
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }

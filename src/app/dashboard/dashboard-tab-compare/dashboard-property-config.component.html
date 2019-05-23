@@ -1,0 +1,11 @@
+  <div>
+    <canvas #chart (mousedown)='onMouseDown($event)'
+    (mouseup)='onMouseUp($event)'
+    (mousemove)='onMouseMove($event)'
+    (mouseleave)='onMouseLeave($event)'
+    width="{{this.WIDTH}}" height="{{this.HEIGHT }}" 
+    style="background-color: #ebebeb"
+    >
+    </canvas><br/>
+    <label>{{this.label}}</label>
+  </div>

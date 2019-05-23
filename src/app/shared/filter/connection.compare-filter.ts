@@ -24,7 +24,7 @@ export class ConnectionCompareFilter {
     }
     /** Difference is distance change of connected points between compared versions */
     public get maxDifference(): number {
-        return this._minDifference;
+        return this._maxDifference;
     }
     public set minDifference(v: number) {
         this.testRange(v, -1, 1);
@@ -32,7 +32,7 @@ export class ConnectionCompareFilter {
     }
     public set maxDifference(v: number) {
         this.testRange(v, -1, 1);
-        this._minDifference = v;
+        this._maxDifference = v;
     }
 
     /// Correlation
@@ -42,7 +42,7 @@ export class ConnectionCompareFilter {
     }
     /** Correlation is similarity of movements of connected points. */
     public get maxCorrelation(): number {
-        return this._minCorrelation;
+        return this._maxCorrelation;
     }
     public set minCorrelation(v: number) {
         this.testRange(v, -1, 1);
@@ -50,7 +50,7 @@ export class ConnectionCompareFilter {
     }
     public set maxCorrelation(v: number) {
         this.testRange(v, -1, 1);
-        this._minCorrelation = v;
+        this._maxCorrelation = v;
     }
 
 
@@ -61,7 +61,7 @@ export class ConnectionCompareFilter {
     }
     /** Magnitude of movement of each connected point */
     public get maxMovement(): number {
-        return this._minMovement;
+        return this._maxMovement;
     }
     public set minMovement(v: number) {
         this.testRange(v, 0, 1);
@@ -69,7 +69,7 @@ export class ConnectionCompareFilter {
     }
     public set maxMovement(v: number) {
         this.testRange(v, 0, 1);
-        this._minMovement = v;
+        this._maxMovement = v;
     }
 
     private testRange(v: number, min: number, max: number) {

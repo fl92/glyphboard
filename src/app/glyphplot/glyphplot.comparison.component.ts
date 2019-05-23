@@ -233,6 +233,9 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
           });
         }
 
+        this.comparedData.drawA =
+          this.configurationCompare.versionAnimation > 0.5;
+
         // this._glyphs.forEach();
 
         // this._layoutController.getPositions().forEach(d => {
