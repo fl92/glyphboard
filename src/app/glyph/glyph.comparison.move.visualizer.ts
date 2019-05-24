@@ -29,14 +29,13 @@ export class MovementVisualizer {
     private characteristicsA: [number, number, number, number][];
     private characteristicsB: [number, number, number, number][];
 
-    private metaA = {
+    private meta = {
         minDiff: <number> null,
         maxDiff: <number> null,
         stdDevDiff: <number> null,
-        minMove: <number> null,
+        meanMove: <number> null,
         maxMove: <number> null
     };
-    private metaB = this.metaA;
 
 
     public init(
@@ -74,8 +73,7 @@ export class MovementVisualizer {
         this.attrVectorsA = attrVectorsA;
         this.attrVectorsB = attrVectorsB;
 
-        this.computeCharacteristicsAndMeta(true);
-        this.computeCharacteristicsAndMeta(false);
+        this.computeCharacteristicsAndMeta();
     }
 
     public initContext(context: CanvasRenderingContext2D) {
@@ -112,33 +110,38 @@ export class MovementVisualizer {
         return [pointsA, pointsB];
     }
 
-    private computeCharacteristicsAndMeta(drawA: boolean) {
-        const connections = (drawA) ? this.connectionsA : this.connectionsB;
-        const characteristics: [number, number, number, number][] = [];
-        const differences: number[] = [];
-        const correlations: number[] = [];
-        const movements1: number[] = [];
-        const movements2: number[] = [];
-        connections.forEach(([key1, key2]) => {
-            const characteristic = this._computeCharacteristic(key1, key2);
-            const [difference, correlation, move1Mag, move2Mag] = characteristic;
-            differences.push(difference);
-            correlations.push(correlation);
-            movements1.push(move1Mag);
-            movements2.push(move2Mag);
-            characteristics.push(characteristic);
+    private computeCharacteristicsAndMeta() {
+        let differences: number[] = [];
+        let correlations: number[] = [];
+        let movements: number[] = [];
+        [true, false].forEach ((drawA) => {
+            const connections = (drawA) ? this.connectionsA : this.connectionsB;
+            const characteristics: [number, number, number, number][] = [];
+            const _differences: number[] = [];
+            const _correlations: number[] = [];
+            const _movements1: number[] = [];
+            const _movements2: number[] = [];
+            connections.forEach(([key1, key2]) => {
+                const characteristic = this._computeCharacteristic(key1, key2);
+                const [difference, correlation, move1Mag, move2Mag] = characteristic;
+                _differences.push(difference);
+                _correlations.push(correlation);
+                _movements1.push(move1Mag);
+                _movements2.push(move2Mag);
+                characteristics.push(characteristic);
+            });
+            (drawA) ?
+                this.characteristicsA = characteristics :
+                this.characteristicsB = characteristics;
+            differences = differences.concat(_differences);
+            correlations = correlations.concat(_correlations);
+            movements = movements.concat(_movements1).concat(_movements2);
         });
-        (drawA) ?
-            this.characteristicsA = characteristics :
-            this.characteristicsB = characteristics;
-
-        const meta = (drawA) ? this.metaA : this.metaB;
+        const meta = this.meta;
         [meta.minDiff, meta.maxDiff, meta.stdDevDiff] = this.computeMeta(differences);
-        [meta.minMove, meta.maxMove] = this.computeMeta(movements1.concat(movements2));
+        [, meta.maxMove, meta.meanMove] = this.computeMeta(movements);
         meta.maxDiff /= 0.99; // connections with one point missing in 1 version will be 100%
-        (drawA) ?
-            this.metaA = meta :
-            this.metaB = meta;
+        this.meta = meta;
     }
 
     public drawConnections (animation: number) {
@@ -161,11 +164,12 @@ export class MovementVisualizer {
         const connections = (drawAttributA) ? this.connectionsA : this.connectionsB;
 
         const characteristics = (drawAttributA) ? this.characteristicsA : this.characteristicsB;
-        const meta = (drawAttributA) ? this.metaA : this.metaB;
+        const meta = this.meta;
         const [minDiff, maxDiff, stdDevDiff] = [meta.minDiff, meta.maxDiff, meta.stdDevDiff];
         const absMaxDiff = Math.max(Math.abs(maxDiff), Math.abs(minDiff));
-        const [_, maxMove] = [meta.minMove, meta.maxMove];
+        const [maxMove, meanMove] = [meta.maxMove, meta.meanMove];
         this.heatMapComputation.init(stdDevDiff, absMaxDiff);
+        this.heatMapComputation.initAlpha(meanMove, maxMove);
 
         const that = this;
 
@@ -309,17 +313,25 @@ export class MovementVisualizer {
             [x1, y1] = [_x1 + animation * (x1 - _x1), _y1 + animation * (y1 - _y1)];
             [x2, y2] = [_x2 + animation * (x2 - _x2), _y2 + animation * (y2 - _y2)];
         }
-        const [r, g, b] = (isUnfiltered) ?
-            this.heatMapComputation.unfilteredColor :
-            this.heatMapComputation.computeColor(difference);
         let code1: string;
         let code2: string;
-        if (movement1 < movement2) {
-            code1 = `rgb(${r},${g},${b},${Math.pow(movement1 / movement2, 2)})`;
-            code2 = `rgb(${r},${g},${b},${1})`;
+        if (false) {
+            const [r, g, b] = (isUnfiltered) ?
+                ColorComputation.unfilteredColor :
+                this.heatMapComputation.computeColor(difference);
+            if (movement1 < movement2) {
+                code1 = `rgb(${r},${g},${b},${Math.pow(movement1 / movement2, 2)})`;
+                code2 = `rgb(${r},${g},${b},${1})`;
+            } else {
+                code1 = `rgb(${r},${g},${b},${1})`;
+                code2 = `rgb(${r},${g},${b},${Math.pow(movement2 / movement1, 2)})`;
+            }
+        } else if (true) {
+            code1 = this.heatMapComputation.computeColorII(difference, movement1, isUnfiltered);
+            code2 = this.heatMapComputation.computeColorII(difference, movement2, isUnfiltered);
         } else {
-            code1 = `rgb(${r},${g},${b},${1})`;
-            code2 = `rgb(${r},${g},${b},${Math.pow(movement2 / movement1, 2)})`;
+            code1 = this.heatMapComputation.computeColorIII(difference, movement1, isUnfiltered);
+            code2 = this.heatMapComputation.computeColorIII(difference, movement2, isUnfiltered);
         }
 
         const grad = this.context.createLinearGradient( x1, y1, x2, y2);

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter, HostListener } from '@angular/core';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -18,6 +18,7 @@ export class DashboardPropertyConfigComponent implements OnInit {
     HEIGHT = 45;
     startX: number = null;
     endX: number = null;
+    private isMoving = false;
     private _startValue: number ;
     private _endValue: number ;
     private context: CanvasRenderingContext2D;
@@ -59,20 +60,35 @@ export class DashboardPropertyConfigComponent implements OnInit {
       this.endValueChange.emit(v);
     }
 
+    @HostListener('mousemove', ['$event'])
+    mouseMove(e: MouseEvent) {
+      this.mouseMove(e);
+    }
+
     onMouseDown(e: MouseEvent) {
-      this.startX = e.offsetX;
-      this.endX = this.startX;
+      if (Math.abs(this.startX - e.offsetX) < 5) {
+        this.startX = this.endX;
+        this.endX = e.offsetX;
+      } else if (Math.abs(this.endX - e.offsetX) < 5) {
+        this.endX = e.offsetX;
+      } else {
+        this.startX = e.offsetX;
+        this.endX = this.startX;
+      }
+     
+      this.isMoving = true;
     }
     onMouseUp(e: MouseEvent) {
 
-      if (this.startX === this.endX) {
+      if (this.startX === this.endX) { // click
         this.startValue = this.min;
         this.endValue = this.max;
         this.context.clearRect(0, 0, this.WIDTH, this.HEIGHT);
         this.input.emit('null');
       }
-      this.startX = null;
-      this.endX = null;
+      this.isMoving = false;
+      // this.startX = null;
+      // this.endX = null;
     }
     onMouseLeave(e: MouseEvent) {
       if ( e.offsetX >= this.WIDTH && this.startX != null) {
@@ -82,11 +98,12 @@ export class DashboardPropertyConfigComponent implements OnInit {
         this.endX = 0;
         this.moving();
       }
-      this.startX = null;
-      this.endX = null;
+      this.isMoving = false;
+      // this.startX = null;
+      // this.endX = null;
     }
     onMouseMove(e: MouseEvent) {
-      if (this.startX == null) {return; }
+      if (!this.isMoving) {return; }
       this.endX = e.offsetX;
 
       this.moving();
