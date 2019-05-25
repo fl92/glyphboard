@@ -17,6 +17,8 @@ export class DashboardPropertyConfigComponent implements OnInit {
     WIDTH = 200;
     HEIGHT = 45;
     startX: number = null;
+    documentStartX: number = null;
+    documentEndX: number = null;
     endX: number = null;
     private isMoving = false;
     private _startValue: number ;
@@ -59,12 +61,7 @@ export class DashboardPropertyConfigComponent implements OnInit {
       this._endValue = v;
       this.endValueChange.emit(v);
     }
-
-    @HostListener('mousemove', ['$event'])
-    mouseMove(e: MouseEvent) {
-      this.mouseMove(e);
-    }
-
+    private lock = true;
     onMouseDown(e: MouseEvent) {
       if (Math.abs(this.startX - e.offsetX) < 5) {
         this.startX = this.endX;
@@ -75,38 +72,40 @@ export class DashboardPropertyConfigComponent implements OnInit {
         this.startX = e.offsetX;
         this.endX = this.startX;
       }
-     
       this.isMoving = true;
     }
+    @HostListener('window:mousedown', ['$event'])
+    onDocumentMouseDown(e: MouseEvent) {
+      this.documentStartX = e.offsetX;
+
+      if( this.endX != null && this.startX != null) {
+        this.documentStartX -= this.endX - this.startX
+      }
+    }
+
+    @HostListener('window:mouseup', ['$event'])
     onMouseUp(e: MouseEvent) {
 
       if (this.startX === this.endX) { // click
+        this.startX = null;
+        this.endX = null;
         this.startValue = this.min;
         this.endValue = this.max;
         this.context.clearRect(0, 0, this.WIDTH, this.HEIGHT);
         this.input.emit('null');
       }
       this.isMoving = false;
-      // this.startX = null;
-      // this.endX = null;
     }
-    onMouseLeave(e: MouseEvent) {
-      if ( e.offsetX >= this.WIDTH && this.startX != null) {
-        this.endX = this.WIDTH;
-        this.moving();
-      } else if ( e.offsetX <= 0 && this.startX != null) {
-        this.endX = 0;
+
+    @HostListener('window:mousemove', ['$event'])
+    onDocumentMouseMove(e: MouseEvent) {
+      if (this.documentStartX != null && this.isMoving) {
+        const delta = e.offsetX - this.documentStartX;
+        this.endX = this.startX + delta;
+      }
+      if (this.isMoving) {
         this.moving();
       }
-      this.isMoving = false;
-      // this.startX = null;
-      // this.endX = null;
-    }
-    onMouseMove(e: MouseEvent) {
-      if (!this.isMoving) {return; }
-      this.endX = e.offsetX;
-
-      this.moving();
     }
 
     private moving() {
@@ -118,26 +117,22 @@ export class DashboardPropertyConfigComponent implements OnInit {
       this.context.strokeStyle = 'white';
       this.context.stroke();
 
-      // this.startX = 50; this.endX = 60;
       // computeValues
-      const start = Math.min(this.startX, this.endX);
-      const end = Math.max(this.startX, this.endX);
+      let start = Math.min(this.startX, this.endX);
+      if (start < 0) { start = 0; }
+      let end = Math.max(this.startX, this.endX);
+      if (end > this.WIDTH) { end = this.WIDTH; }
+
       this.startValue = this.min
         + (start * (this.max - this.min)) / this.WIDTH;
       this.endValue = this.min
         + (end * (this.max - this.min)) / this.WIDTH;
-
-      // this.transform.applyX(this.xAxis)
 
       this.input.emit('null');
     }
 
     ngOnInit() {
       this.context = this.chartContainer.nativeElement.getContext('2d');
-      // this.xAxis = d3
-      // .scaleLinear()
-      // .domain([this.min, this.max])
-      // .range([5, this.width - 5]);
     }
 
 }

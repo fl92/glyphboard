@@ -6,6 +6,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 import { ComparisonDataItem } from 'app/glyphplot/glyphplot.comparison.data_item';
 import { ConnectionCompareFilter } from 'app/shared/filter/connection.compare-filter';
 import { MetadataOverrider } from '@angular/core/testing/src/metadata_overrider';
+import { ComparisonDataContainer } from 'app/glyphplot/glyphplot.comparison.data_container';
 
 @Injectable()
 export class MovementVisualizer {
@@ -16,8 +17,8 @@ export class MovementVisualizer {
     private connectionsB: [number, number][];
 
     private attributesSize: number;
-    private attrVectorsA: Map<any, [number, number]>;
-    private attrVectorsB: Map<any, [number, number]>;
+    private attrVectorsA: Map<any, number[]>;
+    private attrVectorsB: Map<any, number[]>;
 
     private heatMapComputation = new ColorComputation();
 
@@ -39,16 +40,21 @@ export class MovementVisualizer {
 
 
     public init(
-        data: ComparisonDataItem[]) {
-            const [pointsA, pointsB] = this.comparisonData2Positions(data);
-            this._init(pointsA, pointsB, 2, pointsA, pointsB);
+        data: ComparisonDataContainer) {
+            const [pointsA, pointsB] = this.comparisonData2Positions(data.items);
+            let attributesSize = data.unnamedFeatureVectorLength;
+            const [attrVectorsA, attrVectorsB] = (attributesSize != null) ?
+                this.comparisonData2Attributes(data.items)
+                : [pointsA, pointsB];
+            attributesSize = (attributesSize != null) ? attributesSize : 2;
+            this._init(pointsA, pointsB, attributesSize, attrVectorsA, attrVectorsB);
     }
 
     private _init(pointsA: Map<any, [number, number]>,
                 pointsB: Map<any, [number, number]>,
                 attributesSize: number,
-                attrVectorsA: Map<any, [number, number]>,
-                attrVectorsB: Map<any, [number, number]>
+                attrVectorsA: Map<any, number[]>,
+                attrVectorsB: Map<any, number[]>
                 ) {
         this.pointsA = pointsA;
         this.pointsB = pointsB;
@@ -85,8 +91,8 @@ export class MovementVisualizer {
     }
 
     public updatePoints(
-        data: ComparisonDataItem[]) {
-            const [pointsA, pointsB] = this.comparisonData2Positions(data);
+        data: ComparisonDataContainer) {
+            const [pointsA, pointsB] = this.comparisonData2Positions(data.items);
             this._updatePoints(pointsA, true);
             this._updatePoints(pointsB, false);
     }
@@ -99,15 +105,21 @@ export class MovementVisualizer {
     private comparisonData2Positions(data: ComparisonDataItem[]) {
         const pointsA = new Map<any, [number, number]> ();
         const pointsB = new Map<any, [number, number]> ();
-        // const dataWithBothPositions = data.filter(v => v.positionA != null && v.positionB != null)
 
-        // TODO include data with missing positions
-        // const dataWithMissingPositions = data.filter(v => v.positionA == null || v.positionB == null)
         data.forEach( _data => {
             pointsA.set(_data.objectId, _data.drawnPositionA);
             pointsB.set(_data.objectId, _data.drawnPositionB);
         });
         return [pointsA, pointsB];
+    }
+    private comparisonData2Attributes(data: ComparisonDataItem[]) {
+        const attrA = new Map<any, number[]> ();
+        const attrB = new Map<any, number[]> ();
+            data.forEach( _data => {
+                attrA.set(_data.objectId, _data.unnamedFeatureVectorA);
+                attrB.set(_data.objectId, _data.unnamedFeatureVectorB);
+            });
+        return [attrA, attrB];
     }
 
     private computeCharacteristicsAndMeta() {

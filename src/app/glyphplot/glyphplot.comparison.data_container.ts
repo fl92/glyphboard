@@ -45,6 +45,11 @@ export class ComparisonDataContainer {
         return this._schema;
     }
 
+    get unnamedFeatureVectorLength() {
+        const unnamedFeatureVectorLength = this.schema['unnamedFeatureVectorLength'];
+        return unnamedFeatureVectorLength;
+    }
+
     // needed for tooltips
     get features() {
         const features = [];

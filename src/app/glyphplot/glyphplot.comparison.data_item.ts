@@ -6,11 +6,13 @@ export class ComparisonDataItem {
     private _targetsA: Map<any, [number[], number[]]> = null;
     private _positionA: [number, number] = null;
     private _drawnPositionA: [number, number] = [null, null];
+    private _unnamedFeatureVectorA: number[];
     private _featuresB: Map<any, number> = null;
     private _valuesB: Map<any, string> = null;
     private _targetsB: Map<any, [number[], number[]]> = null;
     private _positionB: [number, number] = null;
     private _drawnPositionB: [number, number] = [null, null];
+    private _unnamedFeatureVectorB: number[];
 
     private _targetVariablesMeta: Map<any, {
       targetName: string,
@@ -23,22 +25,24 @@ export class ComparisonDataItem {
 
     public setVersionA(targets: Map<any, [number[], number[]]>,
       position: [number, number], features: Map<any, number>,
-      values: Map<any, string>) {
+      values: Map<any, string>, unnamedFeatureVector: number[]) {
       this._featuresA = features;
       this._valuesA = values;
       this._targetsA = targets;
       this._positionA = position;
       this._drawnPositionA = position;
+      this._unnamedFeatureVectorA = unnamedFeatureVector;
     }
 
     public setVersionB(targets: Map<any, [number[], number[]]>,
       position: [number, number], features: Map<any, number>,
-      values: Map<any, string>) {
+      values: Map<any, string>, unnamedFeatureVector: number[]) {
       this._featuresB = features;
       this._valuesB = values;
       this._targetsB = targets;
       this._positionB = position;
       this._drawnPositionB = position;
+      this._unnamedFeatureVectorB = unnamedFeatureVector;
     }
 
     public set targetVariablesMeta(v: Map<any, {
@@ -48,7 +52,6 @@ export class ComparisonDataItem {
     }>) {
       this._targetVariablesMeta = v;
     }
-
 
     public getTargetLabel(labelIdx: number, feature: any) {
       const key = feature;
@@ -108,6 +111,14 @@ export class ComparisonDataItem {
       return this._valuesB;
     }
 
+    public get unnamedFeatureVectorA() {
+      return this._unnamedFeatureVectorA;
+    }
+
+    public get unnamedFeatureVectorB() {
+      return this._unnamedFeatureVectorB;
+    }
+
     public get drawnPositionA(): [number, number] {
       return this._drawnPositionA;
     }
@@ -127,7 +138,4 @@ export class ComparisonDataItem {
     public set objectId(v: any) {
       this._objectId = v;
     }
-
-
-
 }

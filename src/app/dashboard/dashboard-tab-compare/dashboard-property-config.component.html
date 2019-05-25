@@ -1,8 +1,6 @@
   <div>
-    <canvas #chart (mousedown)='onMouseDown($event)'
-    (mouseup)='onMouseUp($event)'
-    (mousemove)='onMouseMove($event)'
-    (mouseleave)='onMouseLeave($event)'
+    <canvas #chart 
+    (mousedown)='onMouseDown($event)'
     width="{{this.WIDTH}}" height="{{this.HEIGHT }}" 
     style="background-color: #ebebeb"
     >

@@ -24,6 +24,7 @@ export class ColorComputation {
     private static diverg2: string[];
 
     public static unfilteredColor: [number, number, number] = [0xef, 0xef, 0xef];
+    public static unfilteredColor2: [number, number, number] = [0xaa, 0xaa, 0xaa];
 
     public static stcCstr = (() => {
       const cls = ColorComputation;
@@ -94,8 +95,8 @@ export class ColorComputation {
     const a = Math.pow((valToAlpha / this.maxAlpha), this.expAlpha * 2);
 
     if (isUnfiltered) {
-      const [r, g, b] = ColorComputation.unfilteredColor;
-      return `rgba(${r},${g},${b},${1})`
+      const [r, g, b] = ColorComputation.unfilteredColor2;
+      return `rgba(${r},${g},${b},${a})`
 
     } else {
       sign = Math.sign(valToColor);

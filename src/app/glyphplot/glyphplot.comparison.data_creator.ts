@@ -46,6 +46,9 @@ export class ComparisonDataCreator {
     //   }
 
     const targetVariablesObj = versionA['schema']['targetVariables'];
+    let unnamedFeatureVectorLength = versionA['schema']['unnamedFeatureVectorLength'];
+    unnamedFeatureVectorLength = unnamedFeatureVectorLength != null ?
+      unnamedFeatureVectorLength : null;
     for (const targetId in targetVariablesObj) {
       if (targetVariablesObj.hasOwnProperty(targetId)) {
         const targetName: string = targetVariablesObj[targetId]['targetName'];
@@ -97,6 +100,7 @@ export class ComparisonDataCreator {
         let targetMap: Map<string, [number[], number[]]> = null;
         let featureMap: Map<any, number> = null;
         let valueMap: Map<any, string> = null;
+        let unnamedFeatureVector: number[];
         if ( object != null) {
 
           featureMap = new Map<any, number>();
@@ -136,11 +140,20 @@ export class ComparisonDataCreator {
               }
             }
           }
+
+          unnamedFeatureVector = object['unnamedFeatureVector'];
+          if (unnamedFeatureVector == null
+            || unnamedFeatureVector.length < unnamedFeatureVectorLength ) {
+              unnamedFeatureVector = [];
+              while (unnamedFeatureVector.length >= unnamedFeatureVectorLength) {
+                unnamedFeatureVector.push(0);
+              }
+            }
         }
 
          isA ?
-             data_item.setVersionA(targetMap, position, featureMap, valueMap) :
-             data_item.setVersionB(targetMap, position, featureMap, valueMap);
+             data_item.setVersionA(targetMap, position, featureMap, valueMap, unnamedFeatureVector) :
+             data_item.setVersionB(targetMap, position, featureMap, valueMap, unnamedFeatureVector);
       }
      data_item.targetVariablesMeta = targetVariablesMeta;
      comparison_items.push(data_item);
