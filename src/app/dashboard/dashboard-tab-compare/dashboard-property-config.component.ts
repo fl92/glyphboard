@@ -63,10 +63,12 @@ export class DashboardPropertyConfigComponent implements OnInit {
     }
     private lock = true;
     onMouseDown(e: MouseEvent) {
-      if (Math.abs(this.startX - e.offsetX) < 5) {
+      const startDiff = Math.abs(this.startX - e.offsetX);
+      const endDiff = Math.abs(this.endX - e.offsetX)
+      if (startDiff < endDiff && startDiff < 10) {
         this.startX = this.endX;
         this.endX = e.offsetX;
-      } else if (Math.abs(this.endX - e.offsetX) < 5) {
+      } else if (endDiff < startDiff && endDiff < 10) {
         this.endX = e.offsetX;
       } else {
         this.startX = e.offsetX;
@@ -76,7 +78,7 @@ export class DashboardPropertyConfigComponent implements OnInit {
     }
     @HostListener('window:mousedown', ['$event'])
     onDocumentMouseDown(e: MouseEvent) {
-      this.documentStartX = e.offsetX;
+      this.documentStartX = e.clientX;
 
       if( this.endX != null && this.startX != null) {
         this.documentStartX -= this.endX - this.startX
@@ -100,7 +102,7 @@ export class DashboardPropertyConfigComponent implements OnInit {
     @HostListener('window:mousemove', ['$event'])
     onDocumentMouseMove(e: MouseEvent) {
       if (this.documentStartX != null && this.isMoving) {
-        const delta = e.offsetX - this.documentStartX;
+        const delta = e.clientX - this.documentStartX;
         this.endX = this.startX + delta;
       }
       if (this.isMoving) {

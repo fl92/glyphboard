@@ -24,7 +24,7 @@ export class ColorComputation {
     private static diverg2: string[];
 
     public static unfilteredColor: [number, number, number] = [0xef, 0xef, 0xef];
-    public static unfilteredColor2: [number, number, number] = [0xaa, 0xaa, 0xaa];
+    public static unfilteredColor2: [number, number, number] = [0xf6, 0xf6, 0xf6];
 
     public static stcCstr = (() => {
       const cls = ColorComputation;
@@ -92,23 +92,34 @@ export class ColorComputation {
     let heat: number;
     let sign: number;
 
-    const a = Math.pow((valToAlpha / this.maxAlpha), this.expAlpha * 2);
-
     if (isUnfiltered) {
       const [r, g, b] = ColorComputation.unfilteredColor2;
-      return `rgba(${r},${g},${b},${a})`
+      return `rgba(${r},${g},${b})`
 
     } else {
+      const a = Math.pow((valToAlpha / this.maxAlpha), this.expAlpha * 1.5);
       sign = Math.sign(valToColor);
       valToColor = Math.abs(valToColor);
-      heat = Math.pow((valToColor / this.max), this.exp * 0.5);
+      heat = Math.pow((valToColor / this.max), this.exp * 0.7);
+      if (false) { // computation with transparency
 
       const h = sign > 0 ? 246 /*blue*/ : 0 /*red*/;
+      // const h = sign > 0 ? 180 /*cyan*/ : 300 /*pink*/;
+      // const h = sign > 0 ? 210 /*cyan*/ : 330 /*pink*/;
       const s = 100;
       const l = heat * 50; // mapped from black to color
       return  `hsla(${h},${s}%,${l}%,${a})`;
-    }
+      } else { // computation without transparency
+        // const rgb = sign > 0 ? [0, 0, 0xFF] : [0xFF, 0, 0];
+        const rgb = sign > 0 ? [0, 0x40, 0xFF] : [0xFF, 0x40, 0]; // 0085ff, ff7a00
+        rgb.forEach( (val, idx) => rgb[idx] = val * heat);
+        rgb.forEach( (val, idx) => rgb[idx] = 0xFF - ((0xFF - val) * a));
+        const [r, g, b] = rgb;
+        return `rgb(${r},${g},${b})`
+      }}
   }
+
+  
 
   public computeColorIII(valToColor: number,
     valToAlpha: number, isUnfiltered: boolean): string {
