@@ -100,7 +100,7 @@ export class ComparisonDataCreator {
         let targetMap: Map<string, [number[], number[]]> = null;
         let featureMap: Map<any, number> = null;
         let valueMap: Map<any, string> = null;
-        let unnamedFeatureVector: number[];
+        let unnamedFeatureVector: number[] = null;
         if ( object != null) {
 
           featureMap = new Map<any, number>();
@@ -134,19 +134,22 @@ export class ComparisonDataCreator {
             for (const targetId in targetObj) {
               if (targetObj.hasOwnProperty(targetId)) {
                 const target = targetObj[targetId];
-                const label = target['targetLabel'];
-                const prediction = target['targetPrediction'];
+                let label = target['targetLabel'];
+                let prediction = target['targetPrediction'];
+                if (label.length === 0) {label = null; }
+                if (prediction.length === 0) {prediction = null; }
                 targetMap.set(targetId, [label, prediction])
               }
             }
           }
-
-          unnamedFeatureVector = object['unnamedFeatureVector'];
-          if (unnamedFeatureVector == null
-            || unnamedFeatureVector.length < unnamedFeatureVectorLength ) {
-              unnamedFeatureVector = [];
-              while (unnamedFeatureVector.length >= unnamedFeatureVectorLength) {
-                unnamedFeatureVector.push(0);
+          if (unnamedFeatureVectorLength != null) {
+            unnamedFeatureVector = object['unnamedFeatureVector'];
+            if (unnamedFeatureVector == null
+              || unnamedFeatureVector.length < unnamedFeatureVectorLength ) {
+                unnamedFeatureVector = [];
+                while (unnamedFeatureVector.length >= unnamedFeatureVectorLength) {
+                  unnamedFeatureVector.push(0);
+                }
               }
             }
         }

@@ -26,9 +26,13 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
         return; // can't draw without position.
       }
 
-      const feature = this._selectedFeature;
+      let feature = this._selectedFeature;
       if (!this.targetsA.has(feature)) {
-        throw Error('unknown target feature');
+        if (this.targetsA.size > 0) {
+          feature = this.targetsA.keys().next().value;
+        } else {
+          return;
+        }
       }
       const [labelsA, predsA] = this.targetsA.get(feature);
       const [labelsB, predsB] = this.targetsB.get(feature);

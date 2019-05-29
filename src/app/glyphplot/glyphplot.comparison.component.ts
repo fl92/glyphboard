@@ -180,13 +180,15 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
             this._configurationDataCompare.filteredItemsIds,
             this.configurationCompare.versionAnimation);
           }
-        } else {
-          this._comparedData.items.forEach(
-            item => {
-              glyph.comparisonDataItem = item;
-              glyph.draw();
-          });
-        }
+        } // else {
+        glyph.animation = this.configurationCompare.versionAnimation
+        glyph.context = this.context;
+        this._comparedData.items.forEach(
+          item => {
+            glyph.comparisonDataItem = item;
+            glyph.draw();
+        });
+        // }
 
         this.comparedData.drawA =
           this.configurationCompare.versionAnimation > 0.5;

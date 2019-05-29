@@ -158,11 +158,11 @@ export class MovementVisualizer {
 
     public drawConnections (animation: number) {
         const help = this.context.globalAlpha;
-        let alpha = this.context.globalAlpha = help * animation;
+        let alpha = this.context.globalAlpha = help * (1 - animation);
         if ( alpha !== 0) {
             this._drawConnections(true, true, animation);
         }
-        alpha = this.context.globalAlpha = help * (1 - animation);
+        alpha = this.context.globalAlpha = help * animation;
         if ( alpha !== 0) {
             this._drawConnections(false, false, (1 - animation));
         }
@@ -322,8 +322,8 @@ export class MovementVisualizer {
             const [_x1, _y1] = oppPoint1;
             const [_x2, _y2] = oppPoint2;
 
-            [x1, y1] = [_x1 + animation * (x1 - _x1), _y1 + animation * (y1 - _y1)];
-            [x2, y2] = [_x2 + animation * (x2 - _x2), _y2 + animation * (y2 - _y2)];
+            [x1, y1] = [x1 + animation * (_x1 - x1), y1 + animation * (_y1 - y1)];
+            [x2, y2] = [x2 + animation * (_x2 - x2), y2 + animation * (_y2 - y2)];
         }
         let code1: string;
         let code2: string;

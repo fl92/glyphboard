@@ -33,7 +33,7 @@ export class ConfigurationDataCompare extends ConfigurationData {
     ) {
       super(configuration, eventAggregator);
       this._configurationCompare = configuration;
-      this.selectedFeature = '16';
+      this.selectedFeature = null;
       this.globalFeatureContext = 1;
   }
 

@@ -8,6 +8,7 @@ export abstract class ComparisonGlyph {
   protected _selectedFeature: any = null;
   protected _detailLevel = 1; // 1=global, 2=middle, 3=local
   private _isPositionA = true;
+  private _animation = 0;
 
   public constructor() {
   }
@@ -93,10 +94,29 @@ public get isPositionA(): boolean {
     return this._isPositionA;
 }
 
-public get position () {
-  return this._isPositionA ?
-    this.positionA :
-    this.positionB;
+
+public get animation(): number {
+  return this._animation;
+}
+public set animation(v: number) {
+  this._animation = v;
+  this._isPositionA = v < .5;
+}
+
+
+public get position (): [number, number] {
+  if ( this.positionA == null && this.positionB == null) {
+    return null;
+  } else if ( this.positionA == null) {
+    return this.positionB;
+  } else if ( this.positionB == null) {
+    return this.positionA;
+  }
+  const [_xA, _yA] = this.positionA;
+  const [_xB, _yB] = this.positionB;
+
+  return [_xA + this.animation * (_xB - _xA),
+          _yA + this.animation * (_yB - _yA)];
 }
 
 get objectId() {
@@ -121,9 +141,9 @@ get objectId() {
     return this._comparisonDataItem.targetsB;
   }
   get positionA() {
-    return this._comparisonDataItem.positionA;
+    return this._comparisonDataItem.drawnPositionA;
   }
   get positionB() {
-    return this._comparisonDataItem.positionB;
+    return this._comparisonDataItem.drawnPositionB;
   }
 }
