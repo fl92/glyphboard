@@ -26,14 +26,8 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
         return; // can't draw without position.
       }
 
-      let feature = this._selectedFeature;
-      if (!this.targetsA.has(feature)) {
-        if (this.targetsA.size > 0) {
-          feature = this.targetsA.keys().next().value;
-        } else {
-          return;
-        }
-      }
+      const feature = this.selectedFeature;
+
       const [labelsA, predsA] = this.targetsA.get(feature);
       const [labelsB, predsB] = this.targetsB.get(feature);
       const isNewLabeled = labelsA == null
@@ -42,9 +36,9 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       const [predAIdx, predA] = (predsA != null) ? this.getMax(predsA) : [null, null];
       const [predBIdx, predB] = (predsB != null) ? this.getMax(predsB) : [null, null];
       const [labelIdx, answersFor] = (labels != null) ? this.getMax(labels) : [null, null];
-      const predAClass = (predsA != null) ? this.getTargetPrediction(predAIdx) : null;
-      const predBClass = (predsB != null) ? this.getTargetPrediction(predBIdx) : null;
-      const labelClass = (labels != null) ? this.getTargetLabel(labelIdx) : null;
+      const predAClass = (predAIdx != null) ? this.getTargetPrediction(predAIdx) : null;
+      const predBClass = (predBIdx != null) ? this.getTargetPrediction(predBIdx) : null;
+      const labelClass = (labelIdx != null) ? this.getTargetLabel(labelIdx) : null;
       const confVal = (labels != null) ? answersFor / labels.reduce((a, b) => a + b, 0) : null;
       this.drawTargetFeature(predAClass, predA,
         predBClass, predB, labelClass, [confVal, answersFor], isNewLabeled, this.position);
@@ -61,8 +55,6 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
     isNewLabeled: boolean,
     pos: [number, number]
     ) {
-      const possibleClassesLabel = this.getLabelSize();
-      const possibleClassesPred = this.getPredictionSize();
       const isCorrectA = predAClass === labelClass || labelClass == null;
       const isCorrectB = predBClass === labelClass || labelClass == null;
       const hasChanged = predAClass !== predBClass;
@@ -76,7 +68,11 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       let innerVal: number;
       let outerVal: number;
 
-      if ( isNew) {// new means no old prediction
+      if (isNew && isRemoved) {
+
+        innerVal = 0;
+        outerVal = 0.3;
+      } else if ( isNew) {// new means no old prediction
         innerVal = 0;
         outerVal = predB;
       } else if (isRemoved) {// removed means no new prediction
@@ -88,6 +84,7 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
         outerVal = (predA + predB);
       } else { // prediction class has not changed
               // difference of prediction scores plus minimum is built
+        const possibleClassesPred = this.getPredictionSize();
         innerVal = 0;
         const min = 1 / possibleClassesPred;
         outerVal = min + (Math.abs(predA - predB));
@@ -117,6 +114,7 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       if (isRemoved) {
         colCode = 'black';
       } else if (isLabelded) { // Typ A labeled Glyph
+        const possibleClassesLabel = this.getLabelSize();
         const minInterrater = (1 / possibleClassesLabel );
         const minS = 0.1;
         const map = this._labelColorMap;

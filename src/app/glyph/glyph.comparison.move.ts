@@ -9,14 +9,14 @@ export class ComparisonMoveGlyph extends ComparisonGlyph {
         const isRemoved = this.positionB == null;
         if ( this.position == null) {return; }
         const [x, y] = this.position;
-        if (isNew && !this.isPositionA ) {
+        if (isNew) {
             this._context.beginPath();
             this._context.ellipse(x, y, ComparisonMoveGlyph.RADIUS,
                 ComparisonMoveGlyph.RADIUS, 0, 0, 2 * Math.PI);
             this._context.strokeStyle = `rgba(70,70,70,${this.animation})`;
             this._context.lineWidth = 2;
             this._context.stroke();
-        } else if (isRemoved && this.isPositionA) {
+        } else if (isRemoved) {
             this._context.beginPath();
             this._context.ellipse(x, y, ComparisonMoveGlyph.RADIUS,
                 ComparisonMoveGlyph.RADIUS, 0, 0, 2 * Math.PI);

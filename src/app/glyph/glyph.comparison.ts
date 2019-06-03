@@ -5,7 +5,7 @@ export abstract class ComparisonGlyph {
   private _comparisonDataItem = new ComparisonDataItem();
 
   protected _context: CanvasRenderingContext2D = null;
-  protected _selectedFeature: any = null;
+  private _selectedFeature: any = null;
   protected _detailLevel = 1; // 1=global, 2=middle, 3=local
   private _isPositionA = true;
   private _animation = 0;
@@ -62,6 +62,29 @@ set selectedFeature(value: any) {
     this._selectedFeature = value;
 }
 
+get selectedFeature() {
+  let feature = this._selectedFeature;
+  if (!this.targetsA.has(feature)) {
+    if (this.targetsA.size > 0) {
+      feature = this.targetsA.keys().next().value;
+    } else {
+      return null;
+    }
+  }
+  return feature;
+}
+
+// get selectedFeature() {
+//   // if (!this.targetsA.has(feature)) {
+//   //   if (this.targetsA.size > 0) {
+//   //     feature = this.targetsA.keys().next().value;
+//   //   } else {
+//   //     return;
+//   //   }
+//   // }
+//   return null;
+// }
+
 set context(value: CanvasRenderingContext2D) {
   this._context = value;
 }
@@ -76,18 +99,18 @@ public set targetVariablesMeta(v: Map<any, {
 
 public getTargetLabel(labelIdx: number): string {
   return this._comparisonDataItem.getTargetLabel(labelIdx,
-    this._selectedFeature);
+    this.selectedFeature);
 }
 public getTargetPrediction(labelIdx: number) {
   return this._comparisonDataItem.getTargetPrediction(labelIdx,
-    this._selectedFeature);
+    this.selectedFeature);
 }
 
 public getLabelSize() {
-  return this._comparisonDataItem.getLabelSize(this._selectedFeature);
+  return this._comparisonDataItem.getLabelSize(this.selectedFeature);
 }
 public getPredictionSize() {
-  return this._comparisonDataItem.getPredictionSize(this._selectedFeature);
+  return this._comparisonDataItem.getPredictionSize(this.selectedFeature);
 }
 
 public get isPositionA(): boolean {
@@ -122,9 +145,9 @@ public get position (): [number, number] {
 get objectId() {
   return this._comparisonDataItem.objectId;
 }
-  get selectedFeature(): any {
-    return this._selectedFeature;
-  }
+  // get selectedFeature(): any {
+  //   return this._selectedFeature;
+  // }
   get detailLevel() {
     return this._detailLevel;
   }
