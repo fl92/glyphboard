@@ -10,9 +10,9 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
   constructor() {
     super();
 
-    this._labelColorMap.set('yes', 0);
-    this._labelColorMap.set('no', 300);
-    this._labelColorMap.set('maybe', 150);
+    this._labelColorMap.set('yes', 249);
+    this._labelColorMap.set('no', 345.4);
+    this._labelColorMap.set('maybe', 309.2);
   }
 
   public draw() {

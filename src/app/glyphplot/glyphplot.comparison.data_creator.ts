@@ -136,8 +136,8 @@ export class ComparisonDataCreator {
                 const target = targetObj[targetId];
                 let label = target['targetLabel'];
                 let prediction = target['targetPrediction'];
-                if (label.length === 0) {label = null; }
-                if (prediction.length === 0) {prediction = null; }
+                if (label == null || label.length === 0) {label = null; }
+                if (prediction == null || prediction.length === 0) {prediction = null; }
                 targetMap.set(targetId, [label, prediction])
               }
             }
