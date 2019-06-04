@@ -27,7 +27,7 @@ export class ConfigurationDataCompare extends ConfigurationData {
 
   private _configurationCompare: ConfigurationCompare;
 
-  private _TRANSPARENCY = 0.6;
+  private _TRANSPARENCY = 0.4;
 
   constructor(configuration: ConfigurationCompare, eventAggregator: EventAggregatorService
     ) {

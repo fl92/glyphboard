@@ -4,7 +4,6 @@ export class ComparisonMoveGlyph extends ComparisonGlyph {
     static RADIUS = 2;
 
     public draw() {
-        // throw new Error('method is deprecated');
         const isNew = this.positionA == null;
         const isRemoved = this.positionB == null;
         if ( this.position == null) {return; }

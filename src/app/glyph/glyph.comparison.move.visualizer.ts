@@ -39,41 +39,33 @@ export class MovementVisualizer {
     };
 
 
-    public init(
-        data: ComparisonDataContainer) {
-            const [pointsA, pointsB] = this.comparisonData2Positions(data.items);
-            let attributesSize = data.unnamedFeatureVectorLength;
-            const [attrVectorsA, attrVectorsB] = (attributesSize != null) ?
-                this.comparisonData2Attributes(data.items)
-                : [pointsA, pointsB];
-            attributesSize = (attributesSize != null) ? attributesSize : 2;
-            this._init(pointsA, pointsB, attributesSize, attrVectorsA, attrVectorsB);
-    }
+    public init( data: ComparisonDataContainer) {
+        const [pointsA, pointsB] = this.comparisonData2Positions(data.items);
+        const [origPointsA, origPointsB] = this.comparisonData2Positions(data.items);
+        let attributesSize = data.unnamedFeatureVectorLength;
+        const [attrVectorsA, attrVectorsB] = (attributesSize != null) ?
+            this.comparisonData2Attributes(data.items)
+            : [pointsA, pointsB];
+        attributesSize = (attributesSize != null) ? attributesSize : 2;
 
-    private _init(pointsA: Map<any, [number, number]>,
-                pointsB: Map<any, [number, number]>,
-                attributesSize: number,
-                attrVectorsA: Map<any, number[]>,
-                attrVectorsB: Map<any, number[]>
-                ) {
         this.pointsA = pointsA;
         this.pointsB = pointsB;
 
-        const pointsNotNullA = new Map<any, [number, number]>();
-        const pointsNotNullB = new Map<any, [number, number]>();
-        pointsA.forEach((point, key) => {
-            if (point != null) {
-                pointsNotNullA.set(key, point);
-            }
-        });
-        pointsB.forEach((point, key) => {
-            if (point != null) {
-                pointsNotNullB.set(key, point);
-            }
-        });
+        // const pointsNotNullA = new Map<any, [number, number]>();
+        // const pointsNotNullB = new Map<any, [number, number]>();
+        // pointsA.forEach((point, key) => {
+        //     if (point != null) {
+        //         pointsNotNullA.set(key, point);
+        //     }
+        // });
+        // pointsB.forEach((point, key) => {
+        //     if (point != null) {
+        //         pointsNotNullB.set(key, point);
+        //     }
+        // });
 
-        this.connectionsA = DelaunayWrapper.computeConnections(pointsNotNullA);
-        this.connectionsB = DelaunayWrapper.computeConnections(pointsNotNullB);
+        this.connectionsA = DelaunayWrapper.computeConnections(origPointsA);
+        this.connectionsB = DelaunayWrapper.computeConnections(origPointsB);
 
         this.attributesSize = attributesSize;
         this.attrVectorsA = attrVectorsA;
@@ -102,13 +94,19 @@ export class MovementVisualizer {
             this.pointsB = points;
     }
 
-    private comparisonData2Positions(data: ComparisonDataItem[]) {
+    private comparisonData2Positions(data: ComparisonDataItem[], isOriginal: boolean = false) {
         const pointsA = new Map<any, [number, number]> ();
         const pointsB = new Map<any, [number, number]> ();
 
         data.forEach( _data => {
-            pointsA.set(_data.objectId, _data.drawnPositionA);
-            pointsB.set(_data.objectId, _data.drawnPositionB);
+            if (_data.drawnPositionA == null || _data.drawnPositionB == null) {return; }
+            if (isOriginal) {
+                pointsA.set(_data.objectId, _data.positionA);
+                pointsB.set(_data.objectId, _data.positionB);
+            } else {
+                pointsA.set(_data.objectId, _data.drawnPositionA);
+                pointsB.set(_data.objectId, _data.drawnPositionB);
+            }
         });
         return [pointsA, pointsB];
     }
@@ -157,6 +155,10 @@ export class MovementVisualizer {
     }
 
     public drawConnections (animation: number) {
+
+            // this._drawConnections(false, false, (1 - animation));
+           // this._drawConnections(true, true, animation);
+
         const help = this.context.globalAlpha;
         let alpha = this.context.globalAlpha = help * (1 - animation);
         if ( alpha !== 0) {
@@ -169,13 +171,13 @@ export class MovementVisualizer {
         this.context.globalAlpha = help;
     }
 
-    private _drawConnections (drawAttributA: boolean, drawPointA: boolean = null,
+    private _drawConnections (drawConnectionsA: boolean, drawPointA: boolean = null,
         animation = 0, connectionsIdc: number[] = null) {
         if (drawPointA == null) {
-            drawPointA = drawAttributA; }
-        const connections = (drawAttributA) ? this.connectionsA : this.connectionsB;
+            drawPointA = drawConnectionsA; }
+        const connections = (drawConnectionsA) ? this.connectionsA : this.connectionsB;
 
-        const characteristics = (drawAttributA) ? this.characteristicsA : this.characteristicsB;
+        const characteristics = (drawConnectionsA) ? this.characteristicsA : this.characteristicsB;
         const meta = this.meta;
         const [minDiff, maxDiff, stdDevDiff] = [meta.minDiff, meta.maxDiff, meta.stdDevDiff];
         const absMaxDiff = Math.max(Math.abs(maxDiff), Math.abs(minDiff));
@@ -216,7 +218,8 @@ export class MovementVisualizer {
 
         const that = this;
         const help = this.context.globalAlpha;
-        const drawOrder = (animation < 0.5) ? [false, true] : [true, false];
+        // const drawOrder = [true];
+        const drawOrder = (animation < 0.5) ?  [true, false] : [false, true];
         drawOrder.forEach( (_drawA) => {
             const oppositeConnections = (_drawA) ? this.connectionsB : this.connectionsA;
             const _animation = (_drawA) ? animation : 1 - animation;

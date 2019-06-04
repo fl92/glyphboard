@@ -107,7 +107,7 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
       ? rect.start.x
       : rect.end.x;
     const compData = this._component.comparedData;
-    const drawA = this._component.configurationCompare.versionAnimation;
+    const drawA = this._component.configurationCompare.versionAnimation < 0.5;
     compData.items.forEach(item => {
       const _id = item.objectId;
       const position = drawA ? item.drawnPositionA : item.drawnPositionB;
