@@ -50,12 +50,14 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
 
   public onColorChange(e: any): void {}
 
-  
+
   public onFeatureConfigChange(e: any): void {
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }
 
   onOpenTab() {
+    // this.doubleDataProvider.downloadDataSetA('TableGlyphs', '22032018', 'tsne')
+    // this.doubleDataProvider.downloadDataSetB('TableGlyphs', '22032019', 'tsne');
     this.doubleDataProvider.downloadDataSetA('TfIdf', '28052018', 'tsne')
     this.doubleDataProvider.downloadDataSetB('TfIdf', '28052019', 'tsne')
     // this.doubleDataProvider.downloadDataSetA('compTest', '22032018', 'tsne')
