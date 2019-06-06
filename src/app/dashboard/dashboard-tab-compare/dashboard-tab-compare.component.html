@@ -1,43 +1,40 @@
-<!-- <p>
-  dashboard-tab-compare works!
-  <input type="button" value='Position'\>
-  <input type="button" value='Target-Variable'\>
-</p> -->
-<!-- <input type="button" \> -->
 
-<!-- <button>Position</button>
-<button>Target</button><br> -->
-<button (click)='onToggleMode()' >Compare <--> Single</button>
-<button (click)='onToggleDrawA()' >DrawA</button>
-<button (click)='onToggleGlyphType()' >GlyphType</button>
+<div class = 'button' (click)='onToggleMode()' >Compare Modus</div>
 
-<input type="range" min="0" max="1" step="0.001"
-[(ngModel)]="configurationCompare.versionAnimation" (input)="onFeatureConfigChange($event)"
-/>
 
-<property-config-item label='Correlation'
-min="-1" max="1"
-(input)="onFeatureConfigChange($event)"
-[(startValue)]="filter.minCorrelation"
-[(endValue)]="filter.maxCorrelation"
-></property-config-item>
-<property-config-item label='Difference'
-min="-1" max="1"
-(input)="onFeatureConfigChange($event)"
-[(startValue)]="filter.minDifference"
-[(endValue)]="filter.maxDifference"
-></property-config-item>
-<property-config-item label='Movement'
-min="0" max="1"
-(input)="onFeatureConfigChange($event)"
-[(startValue)]="filter.minMovement"
-[(endValue)]="filter.maxMovement"
-></property-config-item>
-<!-- <div id="featureOptions"> 
-  <feature-config-item class="featureOption" (onColorChange)="onColorChange($event)" (onConfigChange)="onFeatureConfigChange($event)"
-    [configuration]="configuration" label="correlation" property="correlation"
-    [object]="null" [active]="true" [events]="eventsSubject"></feature-config-item>
-</div> -->
+<div>    
+  <label>Choose Version</label>
 
-<!-- <ng5-slider [(value)]="diffMin" [(highValue)]='diffMax'
- [options]="diffOptions" (userChangeEnd)="onFeatureConfigChange($event)"></ng5-slider> -->
+  <div class='elementBox'>
+      <div style= 'float:left' class = 'button' (click)='onToggleDrawA()' ></div>
+      <input style= 'float:left' id="animationSlider" type="range" min="0" max="1" step="0.001"
+      [(ngModel)]="configurationCompare.versionAnimation" (input)="onFeatureConfigChange($event)"
+      />
+        
+  </div>
+ 
+  
+</div>
+
+<div class = 'button' (click)='onToggleGlyphType()' >Glyph Type</div>
+
+<div id="filter-container">
+  <property-config-item label='Correlation'
+  min="-1" max="1"
+  (input)="onFeatureConfigChange($event)"
+  [(startValue)]="filter.minCorrelation"
+  [(endValue)]="filter.maxCorrelation"
+  ></property-config-item>
+  <property-config-item label='Difference'
+  min="-1" max="1"
+  (input)="onFeatureConfigChange($event)"
+  [(startValue)]="filter.minDifference"
+  [(endValue)]="filter.maxDifference"
+  ></property-config-item>
+  <property-config-item label='Movement'
+  min="0" max="1"
+  (input)="onFeatureConfigChange($event)"
+  [(startValue)]="filter.minMovement"
+  [(endValue)]="filter.maxMovement"
+  ></property-config-item>
+</div>

@@ -64,9 +64,11 @@ set selectedFeature(value: any) {
 
 get selectedFeature() {
   let feature = this._selectedFeature;
-  if (!this.targetsA.has(feature)) {
-    if (this.targetsA.size > 0) {
-      feature = this.targetsA.keys().next().value;
+  const targets = (this.targetsA != null) ? this.targetsA : this.targetsB;
+  if (targets == null) {return null; }
+  if (!targets.has(feature)) {
+    if (targets.size > 0) {
+      feature = targets.keys().next().value;
     } else {
       return null;
     }

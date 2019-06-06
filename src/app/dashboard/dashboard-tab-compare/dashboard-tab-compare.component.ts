@@ -56,6 +56,10 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   }
 
   onOpenTab() {
+    //  this.doubleDataProvider.downloadDataSetA('ScenarioNewValues', '1', 'tsne')
+    //  this.doubleDataProvider.downloadDataSetB('ScenarioNewValues', '2', 'tsne');
+    //  this.doubleDataProvider.downloadDataSetA('testFile', '1', 'tsne')
+    //  this.doubleDataProvider.downloadDataSetB('testFile', '2', 'tsne');
     // this.doubleDataProvider.downloadDataSetA('TableGlyphs', '22032018', 'tsne')
     // this.doubleDataProvider.downloadDataSetB('TableGlyphs', '22032019', 'tsne');
     this.doubleDataProvider.downloadDataSetA('TfIdf', '28052018', 'tsne')

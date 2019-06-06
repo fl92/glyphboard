@@ -16,11 +16,6 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
   }
 
   public draw() {
-    const drawTarget = true;
-    if (drawTarget) {
-      if (this.targetsA === null || this.targetsB === null) {
-        return; }
-
       const position = this.position;
       if (position == null) {
         return; // can't draw without position.
@@ -28,9 +23,12 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
 
       const feature = this.selectedFeature;
 
-      const [labelsA, predsA] = this.targetsA.get(feature);
-      const [labelsB, predsB] = this.targetsB.get(feature);
-      const isNewLabeled = labelsA == null
+      const [labelsA, predsA] = this.targetsA != null ?
+          this.targetsA.get(feature) : [null, null];
+      const [labelsB, predsB] = this.targetsB != null ?
+          this.targetsB.get(feature) : [null, null];
+
+      const isNewLabeled = labelsA == null && labelsB != null
       const labels = labelsB; // only consider newer Label of both
 
       const [predAIdx, predA] = (predsA != null) ? this.getMax(predsA) : [null, null];
@@ -42,7 +40,6 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       const confVal = (labels != null) ? answersFor / labels.reduce((a, b) => a + b, 0) : null;
       this.drawTargetFeature(predAClass, predA,
         predBClass, predB, labelClass, [confVal, answersFor], isNewLabeled, this.position);
-    }
   }
 
   private drawTargetFeature(
@@ -129,7 +126,7 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
         const map = this._labelColorMap;
         const h = (!isRemoved) ? map.get(predBClass) : map.get(predAClass);
         let s = 100;
-        const l = 85;
+        const l = 90;
         s = Math.round(s);
         colCode = `hsl( ${h}, ${s}%, ${l}%)`;
       }

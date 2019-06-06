@@ -26,9 +26,9 @@ export class ComparisonDataCreator {
         targetPrediction: string[],
       }> ();
 
-    if (targetVariablesMeta.size >= 1) {
-      return;
-    }
+    // if (targetVariablesMeta.size >= 1) {
+    //   return;
+    // }
 
     // const targetVariablesObj = versionA['schema']['targetVariables'];
     // const targetLabelsObj = versionA['schema']['targetLabels'];
@@ -49,20 +49,23 @@ export class ComparisonDataCreator {
     let unnamedFeatureVectorLength = versionA['schema']['unnamedFeatureVectorLength'];
     unnamedFeatureVectorLength = unnamedFeatureVectorLength != null ?
       unnamedFeatureVectorLength : null;
-    for (const targetId in targetVariablesObj) {
-      if (targetVariablesObj.hasOwnProperty(targetId)) {
-        const targetName: string = targetVariablesObj[targetId]['targetName'];
-        const targetLabel: string[] = targetVariablesObj[targetId]['targetLabel'];
-        const targetPrediction: string[] = targetVariablesObj[targetId]['targetPrediction'];
-        targetVariablesMeta.set(targetId, {
-          targetName: targetName,
-          targetLabel: targetLabel,
-          targetPrediction: targetPrediction
-        }  );
+
+    if ( targetVariablesObj != null) {
+      for (const targetId in targetVariablesObj) {
+        if (targetVariablesObj.hasOwnProperty(targetId)) {
+          const targetName: string = targetVariablesObj[targetId]['targetName'];
+          const targetLabel: string[] = targetVariablesObj[targetId]['targetLabel'];
+          const targetPrediction: string[] = targetVariablesObj[targetId]['targetPrediction'];
+          targetVariablesMeta.set(targetId, {
+            targetName: targetName,
+            targetLabel: targetLabel,
+            targetPrediction: targetPrediction
+          }  );
+        }
       }
+      selectedTargetVariable = targetVariablesMeta.keys().next().value;
     }
 
-    selectedTargetVariable = targetVariablesMeta.keys().next().value;
 
     // TODO selected target Variable prüfen
     for (const object of objectsA) {
@@ -128,20 +131,23 @@ export class ComparisonDataCreator {
           }
 
 
-          const targetObj = object['targetVariables'];
-          if (targetObj != null) {
-            targetMap = new Map<string, [number[], number[]]>();
-            for (const targetId in targetObj) {
-              if (targetObj.hasOwnProperty(targetId)) {
-                const target = targetObj[targetId];
-                let label = target['targetLabel'];
-                let prediction = target['targetPrediction'];
-                if (label == null || label.length === 0) {label = null; }
-                if (prediction == null || prediction.length === 0) {prediction = null; }
-                targetMap.set(targetId, [label, prediction])
+          if ( targetVariablesObj != null) {
+            const targetObj = object['targetVariables'];
+            if (targetObj != null) {
+              targetMap = new Map<string, [number[], number[]]>();
+              for (const targetId in targetObj) {
+                if (targetObj.hasOwnProperty(targetId)) {
+                  const target = targetObj[targetId];
+                  let label = target['targetLabel'];
+                  let prediction = target['targetPrediction'];
+                  if (label == null || label.length === 0) {label = null; }
+                  if (prediction == null || prediction.length === 0) {prediction = null; }
+                  targetMap.set(targetId, [label, prediction])
+                }
               }
             }
           }
+
           if (unnamedFeatureVectorLength != null) {
             unnamedFeatureVector = object['unnamedFeatureVector'];
             if (unnamedFeatureVector == null

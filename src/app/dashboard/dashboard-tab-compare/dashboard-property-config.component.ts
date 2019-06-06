@@ -14,8 +14,8 @@ export class DashboardPropertyConfigComponent implements OnInit {
     @Output() input = new EventEmitter();
     private _min: number;
     private _max: number;
-    WIDTH = 200;
-    HEIGHT = 45;
+    WIDTH = 170;
+    HEIGHT = 20;
     startX: number = null;
     documentStartX: number = null;
     documentEndX: number = null;
