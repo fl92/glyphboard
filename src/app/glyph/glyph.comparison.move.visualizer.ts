@@ -20,7 +20,7 @@ export class MovementVisualizer {
     private attrVectorsA: Map<any, number[]>;
     private attrVectorsB: Map<any, number[]>;
 
-    private heatMapComputation = new ColorComputation();
+    private _heatMapComputation: ColorComputation  = null;
 
     private context: CanvasRenderingContext2D;
 
@@ -30,7 +30,7 @@ export class MovementVisualizer {
     private characteristicsA: [number, number, number, number][];
     private characteristicsB: [number, number, number, number][];
 
-    private meta = {
+    private _meta = {
         minDiff: <number> null,
         maxDiff: <number> null,
         stdDevDiff: <number> null,
@@ -147,11 +147,11 @@ export class MovementVisualizer {
             correlations = correlations.concat(_correlations);
             movements = movements.concat(_movements1).concat(_movements2);
         });
-        const meta = this.meta;
+        const meta = this._meta;
         [meta.minDiff, meta.maxDiff, meta.stdDevDiff] = this.computeMeta(differences);
         [, meta.maxMove, meta.meanMove] = this.computeMeta(movements);
         meta.maxDiff /= 0.99; // connections with one point missing in 1 version will be 100%
-        this.meta = meta;
+        this._meta = meta;
     }
 
     public drawConnections (animation: number) {
@@ -178,12 +178,12 @@ export class MovementVisualizer {
         const connections = (drawConnectionsA) ? this.connectionsA : this.connectionsB;
 
         const characteristics = (drawConnectionsA) ? this.characteristicsA : this.characteristicsB;
-        const meta = this.meta;
+        const meta = this._meta;
         const [minDiff, maxDiff, stdDevDiff] = [meta.minDiff, meta.maxDiff, meta.stdDevDiff];
         const absMaxDiff = Math.max(Math.abs(maxDiff), Math.abs(minDiff));
         const [maxMove, meanMove] = [meta.maxMove, meta.meanMove];
-        this.heatMapComputation.init(stdDevDiff, absMaxDiff);
-        this.heatMapComputation.initAlpha(meanMove, maxMove);
+        this._heatMapComputation.init(stdDevDiff, absMaxDiff);
+        this._heatMapComputation.initAlpha(meanMove, maxMove);
 
         const that = this;
 
@@ -333,7 +333,7 @@ export class MovementVisualizer {
         if (false) {
             const [r, g, b] = (isUnfiltered) ?
                 ColorComputation.unfilteredColor :
-                this.heatMapComputation.computeColor(difference);
+                this._heatMapComputation.computeColor(difference);
             if (movement1 < movement2) {
                 code1 = `rgb(${r},${g},${b},${Math.pow(movement1 / movement2, 2)})`;
                 code2 = `rgb(${r},${g},${b},${1})`;
@@ -342,11 +342,11 @@ export class MovementVisualizer {
                 code2 = `rgb(${r},${g},${b},${Math.pow(movement2 / movement1, 2)})`;
             }
         } else if (true) {
-            code1 = this.heatMapComputation.computeColorII(difference, movement1, isUnfiltered);
-            code2 = this.heatMapComputation.computeColorII(difference, movement2, isUnfiltered);
+            code1 = this._heatMapComputation.computeColorII(difference, movement1, isUnfiltered);
+            code2 = this._heatMapComputation.computeColorII(difference, movement2, isUnfiltered);
         } else {
-            code1 = this.heatMapComputation.computeColorIII(difference, movement1, isUnfiltered);
-            code2 = this.heatMapComputation.computeColorIII(difference, movement2, isUnfiltered);
+            code1 = this._heatMapComputation.computeColorIII(difference, movement1, isUnfiltered);
+            code2 = this._heatMapComputation.computeColorIII(difference, movement2, isUnfiltered);
         }
 
         const grad = this.context.createLinearGradient( x1, y1, x2, y2);
@@ -386,5 +386,17 @@ export class MovementVisualizer {
         sum += d * d;
         }
         return Math.sqrt(sum);
+    }
+
+    public get heatMapComputation () {
+        return this._heatMapComputation;
+    }
+
+    public set heatMapComputation (v: ColorComputation) {
+        this._heatMapComputation = v;
+    }
+
+    public get meta () {
+        return this._meta;
     }
 }

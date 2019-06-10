@@ -55,16 +55,20 @@ export class TooltipComponent implements OnInit {
         ? 4
         : clientX - tooltipWidth - this.cursorOffset
       : clientX + this.cursorOffset;
-    this._y = clientY + tooltipHeight > window.innerHeight
-      ? clientY - tooltipHeight - this.cursorOffset < 4
-        ? 4
-        : clientY - tooltipHeight - this.cursorOffset
-      : clientY + this.cursorOffset;
+    this._y =
+      this.configurationCompare.isComparisonMode ?
+        0 :
+        clientY + tooltipHeight > window.innerHeight ?
+          clientY - tooltipHeight - this.cursorOffset < 4 ?
+            4
+            : clientY - tooltipHeight - this.cursorOffset
+        : clientY + this.cursorOffset;
     this._values = [];
 
-    this._data.positions.forEach(d => {
+    const that = this;
+    this._data.positions.forEach((d) => {
       // ignore invisible points
-      if (this.helper.checkClipping(d.position)) {
+      if (that.helper.checkClipping(d.position)) {
         return;
       }
 
@@ -74,15 +78,16 @@ export class TooltipComponent implements OnInit {
       distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance < closestDistance) {
-        if ((this.configuration.configurations[0].currentLevelOfDetail === 0 && distance <= 3.5)
-          || this.configuration.configurations[0].currentLevelOfDetail === 1 && distance <= 20
-          || this.configuration.configurations[0].currentLevelOfDetail > 1 && distance <= 50
-          || (this.tolerance > 0 && distance <= this.tolerance)) {
-
-          closestDistance = distance;
-          closestPoint = d;
-        }
+        if ((that.configurationCompare.isComparisonMode && distance <= 10)
+            || (that.configuration.configurations[0].currentLevelOfDetail === 0 && distance <= 3.5)
+            || (that.configuration.configurations[0].currentLevelOfDetail === 1 && distance <= 20)
+            || (that.configuration.configurations[0].currentLevelOfDetail > 1 && distance <= 50)
+            || (that.tolerance > 0 && distance <= that.tolerance)
+          ) {
+            closestDistance = distance;
+            closestPoint = d;
       }
+    }
     });
 
     // member variable is undefined if no datapoint matches the criteria
@@ -100,7 +105,9 @@ export class TooltipComponent implements OnInit {
         if (this._data.schema.tooltip.hasOwnProperty(property)) {
           label = this._data.schema.tooltip[property];
           if (this.closestPoint.values !== undefined) {
-            const value = this.closestPoint.values[label] + ' (' + parseFloat(this.closestPoint.features[context][label]).toFixed(4) + ')';
+            const feature = this.closestPoint.features[context][label];
+            const featureStr = isNaN(feature) ? String(feature) : String(parseFloat(feature).toFixed(4));
+            const value = this.closestPoint.values[label] + ' (' + featureStr + ')';
             this._values.push([this._data.schema.label[label], value]);
           }
         }

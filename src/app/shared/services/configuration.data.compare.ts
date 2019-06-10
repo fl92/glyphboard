@@ -7,6 +7,7 @@ import { ComparisonMoveGlyph } from 'app/glyph/glyph.comparison.move';
 import { ConfigurationData } from './configuration.data';
 import { ConnectionCompareFilter } from '../filter/connection.compare-filter';
 import { ComparisonHoleGlyph } from 'app/glyph/glyph.comparison.hole';
+import { ColorComputation } from 'app/glyph/glyph.comparison.move.colorComputation';
 
 
 export class ConfigurationDataCompare extends ConfigurationData {
@@ -26,6 +27,8 @@ export class ConfigurationDataCompare extends ConfigurationData {
    private _connectionCompareFilter = new ConnectionCompareFilter();
 
   private _configurationCompare: ConfigurationCompare;
+  private _heatMapComputation = new ColorComputation();
+
 
   private _TRANSPARENCY = 0.4;
 
@@ -87,10 +90,15 @@ export class ConfigurationDataCompare extends ConfigurationData {
    public get TRANSPARENCY() {
     return this._TRANSPARENCY;
 }
+
    /////////
 
    public filterRefresh() {
        // do nothing, filter applied in movementvisualization directly
+   }
+
+   public get heatMapComputation() {
+       return this._heatMapComputation;
    }
 
   // public get configuration(): ConfigurationCompare {

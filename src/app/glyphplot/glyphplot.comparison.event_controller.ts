@@ -69,10 +69,15 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
       }
     if (!this.cursor.isVisible || this.cursor.isFixed ) {
 
-    if (this.configuration.useDragSelection) {
-        this.component.draw();
-        }
+      if (this.configuration.useDragSelection) {
+          this.component.draw();
+          }
     }
+    // else if (!this.component.tooltip.isFixed && !this.configuration.useDragSelection) {
+    //   this.component.tooltip.updateClosestPoint(e, this.component.transform);
+    // } else if (!this.component.tooltip.isFixed) {
+    //   this.component.tooltip.isVisible = false;
+    // }
 
   }
 
@@ -86,9 +91,9 @@ export class GlyphplotComparisonEventController extends GlyphplotEventController
       this._component.configurationDataCompare.filteredItemsIds = selectedIds;
       this._component.draw();
     } else {
-      this.component.tooltip.isVisible = true;
-      this.component.tooltip.updateClosestPoint(e, this.component.transform);
     }
+    this.component.tooltip.isVisible = true;
+    this.component.tooltip.updateClosestPoint(e, this.component.transform);
   }
 
   private findSelectedIds() {

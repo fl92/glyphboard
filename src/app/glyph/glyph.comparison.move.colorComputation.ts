@@ -32,38 +32,58 @@ export class ColorComputation {
       cls.diverg2 = cls.diverg2.concat(cls.magma);
     })();
 
-    private mean: number = null;
-    private max: number = null;
+    private _mean: number = null;
+    private _max: number = null;
     private exp: number = null;
-    private meanAlpha: number = null;
-    private maxAlpha: number = null;
+    private _meanAlpha: number = null;
+    private _maxAlpha: number = null;
     private expAlpha: number = null;
+    private _onChanged: () => void = null;
+
  /**
   * {param max: highest absolute value}
   * {param mean: mean value}
   */
   public init(mean: number, max: number) {
-    this.mean = mean;
-    this.max = max;
+    if (this._mean === mean && this._max === max) {
+      return;
+    }
+    this._mean = mean;
+    this._max = max;
     this.exp = Math.log(0.5) / Math.log(mean / max);
+
+    this.changed();
   }
   public initAlpha(mean: number, max: number) {
-    this.meanAlpha = mean;
-    this.maxAlpha = max;
+    if (this._meanAlpha === mean
+          && this._maxAlpha === max) {
+      return;
+    }
+    this._meanAlpha = mean;
+    this._maxAlpha = max;
     this.expAlpha = Math.log(0.5) / Math.log(mean / max);
+
+    this.changed();
+  }
+
+  private changed() {
+    if (this._onChanged != null
+      && this._max != null && this._maxAlpha != null) {
+        this._onChanged();
+  }
   }
 
  /**
   * computes heat from value considering mean and max and maps this to a color.
   */
   public computeColor( value: number): [number, number, number] {
-    if (Math.abs(value) > this.max) {
+    if (Math.abs(value) > this._max) {
       throw Error("value not in range");
     }
     let heat: number;
     const sig = Math.sign(value);
     value = Math.abs(value);
-    heat = sig * Math.pow((value / this.max), this.exp);
+    heat = sig * Math.pow((value / this._max), this.exp);
     heat = (heat + 1) / 2;
     const [r, g, b] = this.map(heat);
     return [r, g, b];
@@ -97,11 +117,17 @@ export class ColorComputation {
       return `rgba(${r},${g},${b})`
 
     } else {
-      const a = Math.pow((valToAlpha / this.maxAlpha), this.expAlpha * 1.5);
+      const a = Math.pow((valToAlpha / this._maxAlpha), this.expAlpha * 1.5);
       sign = Math.sign(valToColor);
       valToColor = Math.abs(valToColor);
-      heat = Math.pow((valToColor / this.max), this.exp * 0.7);
-      if (false) { // computation with transparency
+      heat = Math.pow((valToColor / this._max), this.exp * 0.7);
+      const color = this.heatToColor(sign, heat, a);
+      return color;
+    }
+  }
+
+  public heatToColor(sign: number, heat:  number, a: number) {
+    if (false) { // computation with transparency
 
       const h = sign > 0 ? 246 /*blue*/ : 0 /*red*/;
       // const h = sign > 0 ? 180 /*cyan*/ : 300 /*pink*/;
@@ -116,7 +142,7 @@ export class ColorComputation {
         rgb.forEach( (val, idx) => rgb[idx] = 0xFF - ((0xFF - val) * a));
         const [r, g, b] = rgb;
         return `rgb(${r},${g},${b})`
-      }}
+      }
   }
 
   
@@ -127,7 +153,7 @@ export class ColorComputation {
     let heat: number;
     let sign: number;
 
-    const a = Math.pow((valToAlpha / this.maxAlpha), this.expAlpha);
+    const a = Math.pow((valToAlpha / this._maxAlpha), this.expAlpha);
 
     if (isUnfiltered) {
       const [r, g, b] = ColorComputation.unfilteredColor;
@@ -136,7 +162,7 @@ export class ColorComputation {
     } else {
       sign = Math.sign(valToColor);
       valToColor = Math.abs(valToColor);
-      heat = Math.pow((valToColor / this.max), this.exp);
+      heat = Math.pow((valToColor / this._max), this.exp);
       heat *= sign;
 
       heat = (heat + 1) / 2;
@@ -145,5 +171,15 @@ export class ColorComputation {
     }
   }
 
+  set onChanged(onChanged: () => void) {
+    this._onChanged = onChanged;
+  }
+
+  get max() {
+    return this._max;
+  }
+  get maxAlpha() {
+    return this._maxAlpha;
+  }
 
 }

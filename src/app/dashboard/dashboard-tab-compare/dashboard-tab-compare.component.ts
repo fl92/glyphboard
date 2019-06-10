@@ -66,11 +66,15 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
     this.doubleDataProvider.downloadDataSetB('TfIdf', '28052019', 'tsne')
     // this.doubleDataProvider.downloadDataSetA('compTest', '22032018', 'tsne')
     // this.doubleDataProvider.downloadDataSetB('compTest', '22032019', 'tsne')
+
+    this.onToggleMode();
   }
 
   onToggleMode() {
-    const isComp = this.configurationCompare.isComparisonMode
-      = !this.configurationCompare.isComparisonMode;
+    let isComp = this.configurationCompare.isComparisonMode;
+    if (isComp == null) { isComp = true;
+    } else { isComp = !isComp; }
+    this.configurationCompare.isComparisonMode = isComp;
     const gylph1 = this.regionManager.regions[0];
     const gylph2 = this.regionManager.regions[1];
     const compare_glyph = this.regionManager.regions[4];

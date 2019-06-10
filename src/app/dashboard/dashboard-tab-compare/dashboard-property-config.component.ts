@@ -1,4 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter, HostListener } from '@angular/core';
+import { ColorComputation } from 'app/glyph/glyph.comparison.move.colorComputation';
+import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
+import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
@@ -24,6 +27,9 @@ export class DashboardPropertyConfigComponent implements OnInit {
     private _startValue: number ;
     private _endValue: number ;
     private context: CanvasRenderingContext2D;
+
+    private _heatMapComputation: ColorComputation;
+
 
     @Input()
     public set min(v: number) {
@@ -62,6 +68,36 @@ export class DashboardPropertyConfigComponent implements OnInit {
       this.endValueChange.emit(v);
     }
     private lock = true;
+
+    // @Input()
+    // public set heatMapComputation(v: ColorComputation) {
+    //   this._heatMapComputation = v;
+    //   this._heatMapComputation.onChanged
+    //   = () => {
+    //     const x = 0;
+    //     // for(let i = 0; i <)
+    //     // this.configurationDataCompare
+    //     // .heatMapComputation.computeColorII()
+    //   };
+    // }
+
+    constructor(private config: ConfigurationCompare) {
+      // const heatMap = config
+      //   .configurationCompareData.heatMapComputation;
+      // heatMap.onChanged
+      //     = () => {
+      //         const step = 2 * (heatMap.max / this.WIDTH);
+      //         for (let x = 0, heat = -heatMap.max;
+      //           x < this.WIDTH; x++, heat += step) {
+      //             const col = heatMap.computeColorII(heat, heatMap.maxAlpha, false);
+      //             this.context.beginPath();
+      //             this.context.fillStyle = col;
+      //             this.context.rect(x, 0, 2, 10);
+      //             this.context.fill();
+      //         }
+      //       };
+    }
+
     onMouseDown(e: MouseEvent) {
       const startDiff = Math.abs(this.startX - e.offsetX);
       const endDiff = Math.abs(this.endX - e.offsetX)

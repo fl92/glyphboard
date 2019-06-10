@@ -89,6 +89,9 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
          this.logger,
          this.configurationService
        );
+
+       movementVisualizer.heatMapComputation
+        = this.configurationDataCompare.heatMapComputation;
      }
 
     protected initControllers() {
@@ -180,7 +183,7 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
             this._configurationDataCompare.filteredItemsIds,
             this.configurationCompare.versionAnimation);
           }
-        } // else {
+        } ;
         glyph.animation = this.configurationCompare.versionAnimation
         glyph.context = this.context;
         this._comparedData.items.forEach(
@@ -188,7 +191,8 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
             glyph.comparisonDataItem = item;
             glyph.draw();
         });
-        // }
+
+        // this.drawScale(this.context, 0, 0);
 
         this.comparedData.drawA =
           this.configurationCompare.versionAnimation > 0.5;
@@ -197,6 +201,27 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
         this.selectionRect.clear();
         this.drawLock = false;
 
+    }
+
+    public drawScale(context: CanvasRenderingContext2D, x: number, y: number) {
+      // const heatMapComp = this.movementVisualizer.heatMapComputation;
+      // const maxDiff = Math.max(
+      //   Math.abs(this.movementVisualizer.meta.maxDiff),
+      //   Math.abs(this.movementVisualizer.meta.minDiff),
+      // );
+      // const minDiff = - maxDiff;
+      // const maxMove = this.movementVisualizer.meta.maxMove;
+      // const d = maxMove / 256;
+      // for (let diff = minDiff, _x = x; diff < maxDiff; diff += d, _x++) {
+      //   for (let move = 0, _y = y; move < maxMove; move += d, _y++) {
+      //     const col = heatMapComp.computeColorII(diff, move, false);
+      //     context.beginPath();
+      //     context.fillStyle = col;
+      //     context.rect(_x, _y, 1, 1);
+      //     context.fill();
+
+      //   }
+      // }
     }
 
     public animate() {

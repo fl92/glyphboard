@@ -27,8 +27,8 @@ export class ComparisonDataContainer {
         const positions = [];
         this.items.forEach((item) => {
             const pos = (this.drawA) ?
-            item.drawnPositionA
-            : item.drawnPositionB;
+            item.drawnPositionB
+            : item.drawnPositionA;
         const [_x, _y] = (pos != null) ? pos : [null, null];
         const posObj = {
             id: item.objectId,
@@ -54,30 +54,55 @@ export class ComparisonDataContainer {
     get features() {
         const features = [];
         this._dataItems.forEach(item => {
-            const featuresObj = {};
-            const valuesObj = {'1': {}};
+            const featuresObj = {'1': {}};
+            const valuesObj = {};
 
-            if (item.valuesA != null && item.valuesB != null) {
-                for (const key in item.valuesA.keys) {
-                if (item.valuesA.keys.hasOwnProperty(key)
-                && item.valuesB.keys.hasOwnProperty(key)) {
-                    let valueA = item.valuesA.get(key);
-                    let valueB = item.valuesB.get(key);
-                    const featureA = item.featuresA.get(key);
-                    const featureB = item.featuresB.get(key);
-                    featuresObj[key] = Math.abs(featureB - featureA);
-                    valueA = valueA == null ? '' : valueA;
-                    valueB = valueB == null ? '' : valueB;
-                    valuesObj[key] = valueA + ', ' + String(featureA.toFixed(4)) + '..'
-                        + ' => ' + valueB + ', ' + String(featureB.toFixed(4)) + '..';
+
+                const keys = new Set();
+
+                [item.valuesA, item.valuesB, item.featuresA, item.featuresB].forEach(
+                    (values) => {
+                    if (values != null) {
+                        const help = values.keys();
+                        Array.from(help).forEach((k) => keys.add(k)); }
                     }
-                }
-            }
+                );
+               keys.forEach((key) => {
+                    let valueA: any = (item.valuesA != null) ? item.valuesA.get(key) : '';
+                    let valueB: any = (item.valuesB != null) ? item.valuesB.get(key) : '';
+                    let featureA: any = (item.featuresA != null) ? item.featuresA.get(key) : '';
+                    let featureB: any = (item.featuresB != null) ? item.featuresB.get(key) : '';
+
+                    // floats to not more than 4 digits
+                    const toFixed = (_v) => {
+                        if (! isNaN(_v) && isFinite(_v)) {
+                            _v = Number(_v);
+                             if ( Math.floor(_v) - _v !== 0) {
+                                 _v = _v.toFixed(4);
+                             }}
+                        return _v;
+                    }
+
+                    valueA = toFixed(valueA);
+                    valueB = toFixed(valueB);
+                    featureA = toFixed(featureA);
+                    featureB = toFixed(featureB);
+
+                    const featureComp = (featureA === featureB) ?
+                        featureA : '' + featureA + '=>' + featureB;
+                    featuresObj['1'][key] = featureComp;
+
+                    const valueComp = (valueA === valueB) ?
+                        valueA : '' + valueA + '=>' + valueB;
+
+                    valuesObj[key] = valueComp;
+                });
+
             const featureObj = {
                 id: item.objectId,
                 'default-context': '1',
-                values: featuresObj,
-                features: valuesObj
+                features: featuresObj,
+                values: valuesObj
             };
             features.push(featureObj);
         }, this);
