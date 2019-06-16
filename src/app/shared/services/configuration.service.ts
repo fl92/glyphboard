@@ -20,7 +20,7 @@ export class Configuration {
     private _largeGlyphRadius = 50;
     private _legendGlyphRadius = 60;
 
-    private _isComparisonMode: boolean;
+    private _isComparisonMode = true;
 
     constructor(private logger: Logger, private eventAggregator: EventAggregatorService) {
         const flowerConfig = new FlowerGlyphConfiguration();

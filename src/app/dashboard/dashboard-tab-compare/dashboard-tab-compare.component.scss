@@ -32,18 +32,10 @@ label {
 }
 
 input[type=range] {
-    width: 340px;
+    width: 320px;
     margin-left: 10px;
     margin-top: 10px;
     margin-bottom: 15px;
-}
-
-property-config-item {
-    float: left;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -57,4 +49,12 @@ input[type=range]::-webkit-slider-thumb {
     // -webkit-appearance: none;
     margin-bottom: -18px;
   }
+
+property-config-item {
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
 

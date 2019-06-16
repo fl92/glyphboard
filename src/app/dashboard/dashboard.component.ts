@@ -60,6 +60,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.configuration.configurations[this.configuration.dataSetRequest].setData(message);
       this.configuration.configurations[this.configuration.dataSetRequest].activeDataSet = message;
 
+      (this.configuration.dataSetRequest === 0) ?
+        this.configurationCompare.configurationCompareData.setDataA(message) :
+        this.configurationCompare.configurationCompareData.setDataB(message);
+
       // get the list of contexts that each feature has. Set the list to the appropriate variable
       const unorderedContexts: any = message.schema['variant-context'];
       const orderedContexts: Array<any> = [];

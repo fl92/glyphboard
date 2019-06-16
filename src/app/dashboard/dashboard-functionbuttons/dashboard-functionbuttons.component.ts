@@ -61,6 +61,23 @@ export class DashboardFunctionbuttonsComponent extends DashboardTabComponent
     this.cursor.boundaries.right = width / (this.cursor.splitActive ? 2 : 1);
   }
 
+  public onCompareModeToggle(): void {
+    // this.configuration.splitScreenActive = ! this.configuration.splitScreenActive;
+    // this.configurationCompare.configurationCompareData.
+    // this.configurationCompare.isComparisonMode;
+    let isComp = this.configurationCompare.isComparisonMode;
+    if (isComp == null) { isComp = true;
+    } else { isComp = !isComp; }
+    this.configurationCompare.isComparisonMode = isComp;
+    const gylph1 = this.regionManager.regions[0];
+    const gylph2 = this.regionManager.regions[1];
+    const compare_glyph = this.regionManager.regions[4];
+    gylph1.display = (isComp) ? 'none' : 'block';
+    gylph2.display = 'none';
+    compare_glyph.display = (isComp) ? 'block' : 'none';
+  }
+
+
   /**
    * Change whether or not drawn glyphs are repositioned using the force layout.
    * @param  {any}    e the OnSelect evnt for HTML checkboxes

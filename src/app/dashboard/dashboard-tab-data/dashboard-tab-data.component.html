@@ -1,5 +1,9 @@
 <div class="dashboard-tab dashboard-tab-data">
-  <div class="dashboard-tab-data__group {{this.configuration.splitScreenActive ? 'dashboard-tab-data__group--split-left' : ''}}">
+  <div class="dashboard-tab-data__group {{
+    this.configuration.splitScreenActive || this.configurationCompare.isComparisonMode
+    ? 'dashboard-tab-data__group--split-left' : ''
+    
+  }}">
     <mat-form-field>
       <mat-select placeholder="Dataset" id="left_dataset" (selectionChange)="dashboardDataSetChanged()" [(value)]="selectedDataset">
         <mat-option *ngFor="let dataset of datasets; let i = index" [(value)]="dataset.Dataset" [attr.selected]="dataset === selectedDataset ? true : null">{{dataset.Dataset}}</mat-option>
@@ -29,7 +33,7 @@
     </mat-form-field>
   </div>
 
-  <div class="dashboard-tab-data__group {{this.configuration.splitScreenActive ? 'dashboard-tab-data__group--split-right' : 'hidden'}}">
+  <div class="dashboard-tab-data__group {{this.configuration.splitScreenActive || this.configurationCompare.isComparisonMode ? 'dashboard-tab-data__group--split-right' : 'hidden'}}">
     <mat-form-field ng-disabled="true">
       <mat-select placeholder="Dataset" id="right_dataset" [disabled]="true" (selectionChange)="dashboardDataSetChangedSecond()"
         [(value)]="selectedDatasetSecond">

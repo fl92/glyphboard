@@ -7,6 +7,7 @@ import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 import { RegionManager } from 'app/region/region.manager';
 import { LenseCursor } from 'app/lense/cursor.service';
 import { RefreshConfigEvent } from 'app/shared/events/refresh-config.event';
+import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 
 @Component({
   selector: 'app-dashboard-tab',
@@ -16,6 +17,7 @@ import { RefreshConfigEvent } from 'app/shared/events/refresh-config.event';
 export class DashboardTabComponent {
   protected logger: Logger;
   public configuration: Configuration;
+  public configurationCompare: ConfigurationCompare;
   protected dataProvider: DataproviderService;
   protected eventAggregator: EventAggregatorService;
   protected regionManager: RegionManager;
@@ -24,6 +26,7 @@ export class DashboardTabComponent {
   constructor(injector: Injector) {
     this.logger = injector.get(Logger);
     this.configuration = injector.get(Configuration);
+    this.configurationCompare = injector.get(ConfigurationCompare);
     this.dataProvider = injector.get(DataproviderService);
     this.eventAggregator = injector.get(EventAggregatorService);
     this.regionManager = injector.get(RegionManager);

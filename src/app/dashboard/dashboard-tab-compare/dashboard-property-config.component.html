@@ -5,5 +5,12 @@
     style="background-color: #ebebeb"
     >
     </canvas><br/>
+    <canvas #scale 
+    (mousedown)='onMouseDown($event)'
+    width="{{this.WIDTH}}" height="{{this.SCALE_HEIGHT }}" 
+    style="
+    background-color: #ebebeb;"
+    >
+    </canvas><br/>
     <label>{{this.label}}</label>
   </div>

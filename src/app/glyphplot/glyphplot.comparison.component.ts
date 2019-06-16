@@ -229,6 +229,8 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
 
       const that = this;
 
+      if ( this.context == null) {return; }
+
       if ( this.configurationCompare.isChangeVersion) {
         // const begin =  that.configurationCompare.isDrawPositionA;
         let animation = that.configurationCompare.versionAnimation;

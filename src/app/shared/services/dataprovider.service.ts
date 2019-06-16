@@ -50,14 +50,38 @@ export class DataproviderService {
     return JSON.stringify(a) === JSON.stringify(b);
   }
 
+
+  public isOneSchemaMode(name: string) {
+    const dataSets = this.dataSets;
+
+    if (dataSets == null) {return false; }
+    let dataSet = null;
+    dataSets.forEach(element => {
+      const _name = element.Dataset;
+      if (_name === name) {dataSet = element; }
+    });
+    if (dataSet == null) {return false; }
+    if (dataSet.Items == null) {return false; }
+
+   for (let i = 0; i < dataSet.Items.length; i++) {
+     const element = dataSet.Items[i];
+     const version = element.Time;
+      if (version === '_') {return true; }
+   }
+
+    return false;
+  }
   /**
-   * 
+   *
    * @param name name of dataset
    * @param version version identifier
    * @param position position algorithm
    * @param oneSchemaMode if true then searching for schema file with identifier '_' (only one schema for all Versions)
    */
   public downloadDataSet(name: string, version: string, position: string, oneSchemaMode = false) {
+
+    if (version === '_') { return; }
+    oneSchemaMode = this.isOneSchemaMode(name);
     this.http
       .get(this.backendAddress + 'datasets/' + name + '/' + ((oneSchemaMode) ? '_' : version) + '/schema')
       .subscribe((schemaData) => {
@@ -98,8 +122,24 @@ export class DataproviderService {
     this.setDataSet(this.dataSet);
   }
 
-  private setDataSets(value: string) {
-    this.dataSetsSubject.next(value);
+  private setDataSets(value: any) {
+    const dataSets = JSON.parse(JSON.stringify(value));
+    // const _dataSets = []
+
+    if (dataSets == null) {return; }
+    dataSets.forEach(dataSet => {
+      const _items = [];
+      if ( dataSet.Items == null) {return; }
+        for (let i = 0; i < dataSet.Items.length; i++) {
+          const element = dataSet.Items[i];
+          const version = element.Time;
+          if (version !== '_') {
+            _items.push(element);
+            }
+        }
+        dataSet.Items = _items;
+    });
+    this.dataSetsSubject.next(dataSets);
   }
 
   public getDataSets(): Observable<any> {

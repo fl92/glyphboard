@@ -1,4 +1,4 @@
-import { Component, OnInit, Injector } from '@angular/core';
+import { Component, OnInit, Injector, ViewChild, ElementRef } from '@angular/core';
 import { DashboardTabComponent } from '../dashboard-tab/dashboard-tab.component';
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 import { DoubleDataproviderService } from 'app/shared/services/doubledataprovider.service';
@@ -7,6 +7,8 @@ import { Subject } from 'rxjs';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 import { ConnectionCompareFilter } from 'app/shared/filter/connection.compare-filter';
+import { DashboardPropertyConfigComponent } from './dashboard-property-config.component';
+import { ColorComputation } from 'app/glyph/glyph.comparison.move.colorComputation';
 
 @Component({
   selector: 'app-dashboard-tab-compare',
@@ -22,6 +24,12 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   filter: ConnectionCompareFilter;
   test: number = null;
 
+  @ViewChild('correlation')
+  private correlationComponent: DashboardPropertyConfigComponent;
+  @ViewChild('difference')
+  private differenceComponent: DashboardPropertyConfigComponent;
+  @ViewChild('movement')
+  private movementComponent: DashboardPropertyConfigComponent;
 
   constructor(
     injector: Injector,
@@ -35,17 +43,33 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   }
 
   ngOnInit() {
-    this.doubleDataProvider.getDataSetA().subscribe(
-      msg => {
-        if (msg === undefined || msg === null) {return; }
-        this.configurationCompare.configurationCompareData.setDataA(msg);
-      });
-    this.doubleDataProvider.getDataSetB().subscribe(
-      msg => {
-        if (msg === undefined || msg === null) {return; }
-        this.configurationCompare.configurationCompareData.setDataB(msg);
-      });
       this.onOpenTab(); // TODO anders
+      this.differenceComponent.drawScale((context, w, h) => {
+        const computation: ColorComputation = this.configurationCompare.configurationCompareData.heatMapComputation;
+        computation.computeColorII(2, 2, false);
+
+        const step = 2 * (computation.max / w);
+        for (let x = 0, heat = -computation.max;
+                  x < w; x++, heat += step) {
+        context.fillRect(x, 0,
+          1, h);
+        context.fillStyle = computation.computeColorII(heat, computation.maxAlpha, false);
+        context.fill();
+        }
+      });
+      this.movementComponent.drawScale((context, w, h) => {
+        const computation: ColorComputation = this.configurationCompare.configurationCompareData.heatMapComputation;
+        computation.computeColorII(2, 2, false);
+
+        const step = (computation.maxAlpha / w);
+        for (let x = 0, heat = 0;
+                  x < w; x++, heat += step) {
+        context.fillRect(x, 0,
+          1, h);
+        context.fillStyle = computation.computeColorII(0, heat, false);
+        context.fill();
+        }
+      });
   }
 
   public onColorChange(e: any): void {}
@@ -56,17 +80,6 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   }
 
   onOpenTab() {
-    //  this.doubleDataProvider.downloadDataSetA('ScenarioNewValues', '1', 'tsne')
-    //  this.doubleDataProvider.downloadDataSetB('ScenarioNewValues', '2', 'tsne');
-    //  this.doubleDataProvider.downloadDataSetA('testFile', '1', 'tsne')
-    //  this.doubleDataProvider.downloadDataSetB('testFile', '2', 'tsne');
-    // this.doubleDataProvider.downloadDataSetA('TableGlyphs', '22032018', 'tsne')
-    // this.doubleDataProvider.downloadDataSetB('TableGlyphs', '22032019', 'tsne');
-    this.doubleDataProvider.downloadDataSetA('TfIdf', '28052018', 'tsne')
-    this.doubleDataProvider.downloadDataSetB('TfIdf', '28052019', 'tsne')
-    // this.doubleDataProvider.downloadDataSetA('compTest', '22032018', 'tsne')
-    // this.doubleDataProvider.downloadDataSetB('compTest', '22032019', 'tsne')
-
     this.onToggleMode();
   }
 

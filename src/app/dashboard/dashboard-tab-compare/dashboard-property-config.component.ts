@@ -13,12 +13,15 @@ import { ConfigurationCompare } from 'app/shared/services/configuration.compare.
 export class DashboardPropertyConfigComponent implements OnInit {
     @ViewChild('chart')
     private chartContainer: ElementRef;
+    @ViewChild('scale')
+    private scaleContainer: ElementRef;
     @Input() label = '';
     @Output() input = new EventEmitter();
     private _min: number;
     private _max: number;
     WIDTH = 170;
     HEIGHT = 20;
+    SCALE_HEIGHT = 10;
     startX: number = null;
     documentStartX: number = null;
     documentEndX: number = null;
@@ -27,6 +30,11 @@ export class DashboardPropertyConfigComponent implements OnInit {
     private _startValue: number ;
     private _endValue: number ;
     private context: CanvasRenderingContext2D;
+    private scaleContext: CanvasRenderingContext2D;
+
+
+    private _onDrawScale: (context: CanvasRenderingContext2D,
+      w: number, h: number) => void = null;
 
     private _heatMapComputation: ColorComputation;
 
@@ -167,10 +175,43 @@ export class DashboardPropertyConfigComponent implements OnInit {
         + (end * (this.max - this.min)) / this.WIDTH;
 
       this.input.emit('null');
+      this.test();
     }
 
     ngOnInit() {
       this.context = this.chartContainer.nativeElement.getContext('2d');
+      this.scaleContext = this.scaleContainer.nativeElement.getContext('2d');
+
+      // const step = this.WIDTH / 100;
+      // for (let x = 0, heat = 0;
+      //             x < this.WIDTH; x++, heat += step) {
+      //               this.scaleContext.beginPath();
+      //               this.scaleContext.strokeStyle = 'red'; // `hsl(0, 50%, 50%)`;
+      //               this.scaleContext.lineWidth = 1;
+      //               this.scaleContext.moveTo(x, this.SCALE_HEIGHT);
+      //               this.scaleContext.lineTo(x, 0);
+      //               this.scaleContext.stroke();
+      //           }
+
+      // this.scaleContext.fillRect(0, 0,
+      //   5, 100);
+      // this.scaleContext.fillRect(-100, -100,
+      //   100, 100);
+      // this.scaleContext.fillStyle = '#a4d0e5';
+      // this.scaleContext.fill()
+      // this.scaleContext.strokeStyle = 'white';
+      // this.scaleContext.stroke();
+    }
+
+    drawScale ( onDrawScale: (context: CanvasRenderingContext2D,
+      w: number, h: number) => void ) {
+        this._onDrawScale  = onDrawScale;
+      }
+
+    test() {
+        if (this._onDrawScale != null) {
+          this._onDrawScale(this.scaleContext, this.WIDTH, this.SCALE_HEIGHT);
+        }
     }
 
 }
