@@ -175,7 +175,7 @@ export class DashboardPropertyConfigComponent implements OnInit {
         + (end * (this.max - this.min)) / this.WIDTH;
 
       this.input.emit('null');
-      this.test();
+      // this.test();
     }
 
     ngOnInit() {
@@ -206,12 +206,13 @@ export class DashboardPropertyConfigComponent implements OnInit {
     drawScale ( onDrawScale: (context: CanvasRenderingContext2D,
       w: number, h: number) => void ) {
         this._onDrawScale  = onDrawScale;
+        this._onDrawScale(this.scaleContext, this.WIDTH, this.SCALE_HEIGHT);
       }
 
-    test() {
-        if (this._onDrawScale != null) {
-          this._onDrawScale(this.scaleContext, this.WIDTH, this.SCALE_HEIGHT);
-        }
-    }
+    // test() {
+    //     if (this._onDrawScale != null) {
+    //       this._onDrawScale(this.scaleContext, this.WIDTH, this.SCALE_HEIGHT);
+    //     }
+    // }
 
 }

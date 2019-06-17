@@ -44,32 +44,53 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
 
   ngOnInit() {
       this.onOpenTab(); // TODO anders
-      this.differenceComponent.drawScale((context, w, h) => {
-        const computation: ColorComputation = this.configurationCompare.configurationCompareData.heatMapComputation;
-        computation.computeColorII(2, 2, false);
 
-        const step = 2 * (computation.max / w);
-        for (let x = 0, heat = -computation.max;
-                  x < w; x++, heat += step) {
-        context.fillRect(x, 0,
-          1, h);
-        context.fillStyle = computation.computeColorII(heat, computation.maxAlpha, false);
-        context.fill();
-        }
-      });
-      this.movementComponent.drawScale((context, w, h) => {
-        const computation: ColorComputation = this.configurationCompare.configurationCompareData.heatMapComputation;
-        computation.computeColorII(2, 2, false);
+      const computation: ColorComputation = this.configurationCompare.configurationCompareData.heatMapComputation;
 
-        const step = (computation.maxAlpha / w);
-        for (let x = 0, heat = 0;
-                  x < w; x++, heat += step) {
-        context.fillRect(x, 0,
-          1, h);
-        context.fillStyle = computation.computeColorII(0, heat, false);
-        context.fill();
-        }
-      });
+      computation.onChanged = () => {
+        this.differenceComponent.drawScale((context, w, h) => {
+          computation.computeColorII(2, 2, false);
+
+          const step = 2 * (computation.max / w);
+          for (let x = 0, heat = -computation.max;
+                    x < w; x++, heat += step) {
+          context.fillRect(x, 0,
+            1, h);
+          context.fillStyle = computation.computeColorII(heat, computation.maxAlpha, false);
+          context.fill();
+          }
+        });
+
+        this.movementComponent.drawScale((context, w, h) => {
+          computation.computeColorII(2, 2, false);
+
+          const step = (computation.maxAlpha / w);
+          for (let x = 0, heat = 0;
+                    x < w; x++, heat += step) {
+          context.fillRect(x, 0,
+            1, h);
+          context.fillStyle = computation.computeColorII(0, heat, false);
+          context.fill();
+          }
+        });
+
+
+        this.correlationComponent.drawScale((context, w, h) => {
+          const halfW = w / 2;
+          const halfH = h / 2;
+          context.beginPath();
+          context.moveTo(0, halfH);
+          context.lineTo(halfW, halfH);
+          context.lineTo(w, halfH - 2);
+          context.lineTo(w, halfH + 3);
+          context.lineTo(halfW, halfH + 1);
+          context.lineTo(0, halfH + 1);
+          context.closePath();
+          context.fillStyle = '#000000';
+          context.fill();
+        });
+      };
+
   }
 
   public onColorChange(e: any): void {}
