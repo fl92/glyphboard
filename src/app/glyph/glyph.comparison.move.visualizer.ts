@@ -300,7 +300,7 @@ export class MovementVisualizer {
 
         const distA = this.diffMagnitude(vA1, vA2);
         const distB = this.diffMagnitude(vB1, vB2);
-        const difference = distA - distB;
+        const difference = distB - distA;
         return [difference, correlation, move1Mag, move2Mag];
 
     }

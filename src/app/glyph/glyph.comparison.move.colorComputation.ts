@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 export class ColorComputation {
 
 
@@ -23,6 +24,8 @@ export class ColorComputation {
       ];
     private static diverg2: string[];
 
+    private static colorMap;
+
     public static unfilteredColor: [number, number, number] = [0xef, 0xef, 0xef];
     public static unfilteredColor2: [number, number, number] = [0xf6, 0xf6, 0xf6];
 
@@ -30,6 +33,7 @@ export class ColorComputation {
       const cls = ColorComputation;
       cls.diverg2 = cls.viridis.reverse();
       cls.diverg2 = cls.diverg2.concat(cls.magma);
+      cls.colorMap = d3.interpolateRgbBasis(['#ff0000', '#00ff00', '#0000ff'])
     })();
 
     private _mean: number = null;
@@ -123,6 +127,7 @@ export class ColorComputation {
       heat = Math.pow((valToColor / this._max), this.exp * 0.7);
       const color = this.heatToColor(sign, heat, a);
       return color;
+
     }
   }
 
@@ -135,10 +140,20 @@ export class ColorComputation {
       const s = 100;
       const l = heat * 50; // mapped from black to color
       return  `hsla(${h},${s}%,${l}%,${a})`;
-      } else { // computation without transparency
+      } else if (false) { // computation without transparency
         // const rgb = sign > 0 ? [0, 0, 0xFF] : [0xFF, 0, 0];
         const rgb = sign > 0 ? [0, 0x40, 0xFF] : [0xFF, 0x40, 0]; // 0085ff, ff7a00
         rgb.forEach( (val, idx) => rgb[idx] = val * heat);
+        rgb.forEach( (val, idx) => rgb[idx] = 0xFF - ((0xFF - val) * a));
+        const [r, g, b] = rgb;
+        return `rgb(${r},${g},${b})`
+      } else {
+        heat = (sign * heat + 1) / 2;
+        const code: string = ColorComputation.colorMap(heat);
+        const numbersStr = code
+                            .slice(4, code.length - 1)
+                            .split(',');
+        const rgb = [Number(numbersStr[0]), Number(numbersStr[1]), Number(numbersStr[2]) ];
         rgb.forEach( (val, idx) => rgb[idx] = 0xFF - ((0xFF - val) * a));
         const [r, g, b] = rgb;
         return `rgb(${r},${g},${b})`
