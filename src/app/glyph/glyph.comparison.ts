@@ -13,7 +13,7 @@ export abstract class ComparisonGlyph {
   public constructor() {
   }
 
-  public abstract draw();
+  public abstract draw(isFiltered: boolean);
 
   protected getMax(z: number[]): [number, number] {
 

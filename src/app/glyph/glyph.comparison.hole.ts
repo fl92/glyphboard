@@ -15,7 +15,7 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
     this._labelColorMap.set('maybe', 309.2);
   }
 
-  public draw() {
+  public draw(isFiltered: boolean = false) {
       const position = this.position;
       if (position == null) {
         return; // can't draw without position.

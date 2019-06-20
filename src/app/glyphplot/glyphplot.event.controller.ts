@@ -252,6 +252,9 @@ export class GlyphplotEventController {
    * @param e mouse move event
    */
   public onMouseMove(e: MouseEvent): void {
+    if (this.component.data.posititions == null || this.component.compareConigurationService.isComparisonMode === true) {
+      return;
+    }
     if (this.cursor.isVisible && !this.cursor.isFixed) {
       this.cursor.position = { left: e.clientX, top: e.clientY };
       this.component.tooltip.isVisible = false;

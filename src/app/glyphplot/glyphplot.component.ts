@@ -23,6 +23,7 @@ import * as d3 from 'd3';
 import { GlyphplotLayoutController } from './glyphplot.layout.controller';
 import { GlyphLayout } from 'app/glyph/glyph.layout';
 import { DotGlyphConfiguration } from 'app/glyph/glyph.dot.configuration';
+import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 
 @Component({
   selector: 'app-glyphplot',
@@ -102,6 +103,7 @@ export class GlyphplotComponent implements OnInit, OnChanges {
     protected configurationService: Configuration,
     protected cursor: LenseCursor,
     protected eventAggregator: EventAggregatorService,
+    protected _compareConigurationService: ConfigurationCompare
   ) {
     this.configuration = this.configurationService.addConfiguration();
 
@@ -363,7 +365,7 @@ export class GlyphplotComponent implements OnInit, OnChanges {
    * by draw().
    */
   public updateGlyphLayout(updateAllItems: boolean = false): void {
-    if (this.data === undefined || this.data.length === 0) {
+    if (this.data === undefined || this.data.length === 0 || this._compareConigurationService.isComparisonMode) {
       return;
     }
     const that = this;
@@ -513,6 +515,11 @@ export class GlyphplotComponent implements OnInit, OnChanges {
    * updateGlyphLayout().
    */
   public animate(targetData?: any): void {
+
+    if (this._compareConigurationService.isComparisonMode) {
+      return;
+    }
+
     this.drawLock = true;
     // save current 'source' positions
     this._layoutController.getPositions().forEach(d => {
@@ -605,6 +612,10 @@ export class GlyphplotComponent implements OnInit, OnChanges {
   }
   set selectionRect(value: SelectionRect) {
     this._selectionRect = value;
+  }
+
+  get compareConigurationService () {
+    return this._compareConigurationService;
   }
   get xAxis() { return this._xAxis; }
   set xAxis(value: any) { this._xAxis = value; }

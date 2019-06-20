@@ -30,7 +30,7 @@ export class ConfigurationDataCompare extends ConfigurationData {
   private _heatMapComputation = new ColorComputation();
 
 
-  private _TRANSPARENCY = 0.4;
+  private _TRANSPARENCY = 0.2;
 
   constructor(configuration: ConfigurationCompare, eventAggregator: EventAggregatorService
     ) {

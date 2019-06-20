@@ -188,8 +188,14 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
         glyph.context = this.context;
         this._comparedData.items.forEach(
           item => {
+            let isFiltered = false;
             glyph.comparisonDataItem = item;
-            glyph.draw();
+            const id = item.objectId;
+            const filteredIds = this.configurationDataCompare.filteredItemsIds;
+            if (filteredIds != null) {
+              isFiltered = filteredIds.includes(id);
+            }
+            glyph.draw(isFiltered);
         });
 
         // this.drawScale(this.context, 0, 0);
