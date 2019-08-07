@@ -96,10 +96,10 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       innerRadius = Math.pow(innerVal, 0.7) * this.config.RADIUS_FACTOR;
       outerRadius = Math.pow(outerVal, 0.7) * this.config.RADIUS_FACTOR;
       const innerRoundness = isLabelded ?
-                                ((isCorrectA) ? 0 : 1)
+                                ((isCorrectA) ? 1 : 0)
                                 : 1;
       const outerRoundness = isLabelded ?
-                                ((isCorrectB) ? 0 : 1)
+                                ((isCorrectB) ? 1 : 0)
                                 : 1;
 
       // 2nd optimation triangle and circle should not overlapp

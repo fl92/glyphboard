@@ -67,7 +67,7 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
        cursor: LenseCursor,
        eventAggregator: EventAggregatorService
     ) {
-     super(logger, helper, configurationCompareService, cursor, eventAggregator);
+     super(logger, helper, configurationCompareService, cursor, eventAggregator, configurationCompareService);
 
      this._configurationCompare = configurationCompareService;
      this._configurationDataCompare = this._configurationCompare.configurationCompareData;
@@ -210,24 +210,24 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
     }
 
     public drawScale(context: CanvasRenderingContext2D, x: number, y: number) {
-      // const heatMapComp = this.movementVisualizer.heatMapComputation;
-      // const maxDiff = Math.max(
-      //   Math.abs(this.movementVisualizer.meta.maxDiff),
-      //   Math.abs(this.movementVisualizer.meta.minDiff),
-      // );
-      // const minDiff = - maxDiff;
-      // const maxMove = this.movementVisualizer.meta.maxMove;
-      // const d = maxMove / 256;
-      // for (let diff = minDiff, _x = x; diff < maxDiff; diff += d, _x++) {
-      //   for (let move = 0, _y = y; move < maxMove; move += d, _y++) {
-      //     const col = heatMapComp.computeColorII(diff, move, false);
-      //     context.beginPath();
-      //     context.fillStyle = col;
-      //     context.rect(_x, _y, 1, 1);
-      //     context.fill();
+      const heatMapComp = this.movementVisualizer.heatMapComputation;
+      const maxDiff = Math.max(
+        Math.abs(this.movementVisualizer.meta.maxDiff),
+        Math.abs(this.movementVisualizer.meta.minDiff),
+      );
+      const minDiff = - maxDiff;
+      const maxMove = this.movementVisualizer.meta.maxMove;
+      const d = maxMove / 256;
+      for (let diff = minDiff, _x = x; diff < maxDiff; diff += d, _x++) {
+        for (let move = 0, _y = y; move < maxMove; move += d, _y++) {
+          const col = heatMapComp.computeColorII(diff, move, false);
+          context.beginPath();
+          context.fillStyle = col;
+          context.rect(_x, _y, 1, 1);
+          context.fill();
 
-      //   }
-      // }
+        }
+      }
     }
 
     public animate() {
