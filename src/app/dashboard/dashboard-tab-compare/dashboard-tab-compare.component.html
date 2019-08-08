@@ -1,43 +1,44 @@
-
-<div class = 'button' (click)='onToggleMode()' >Compare Modus</div>
-
-
-<div>    
-  <label>Choose Version</label>
-
-  <div class='elementBox'>
-      <div style= 'float:left' class = 'button' (click)='onToggleDrawA()' ></div>
-      <input type="range" style= 'float:left' id="animationSlider" min="0" max="1" step="0.001"
-      [(ngModel)]="configurationCompare.versionAnimation" (input)="onFeatureConfigChange($event)"
-      />
-        
-  </div>
- 
+<!-- <div class="dashboard-tab"> -->
+<div [style.display]="isActive ? 'block': 'none'">
+  <div>    
+    <label>Choose Version</label>
   
+    <div class='elementBox'>
+        <div style= 'float:left' class = 'button' (click)='onToggleDrawA()' ></div>
+        <input type="range" style= 'float:left' id="animationSlider" min="0" max="1" step="0.001"
+        [(ngModel)]="configurationCompare.versionAnimation" (input)="onFeatureConfigChange($event)"
+        />
+          
+    </div> 
+  </div>
+  
+  <div class = 'button' (click)='onToggleGlyphType()' >Glyph Type</div>
+  
+  <div id="filter-container">
+    <property-config-item 
+    #correlation label='Correlation'
+    min="-1" max="1"
+    (input)="onFeatureConfigChange($event)"
+    [(startValue)]="filter.minCorrelation"
+    [(endValue)]="filter.maxCorrelation"
+    ></property-config-item>
+    <property-config-item 
+    #difference label='Distance Change'
+    min="-1" max="1"
+    (input)="onFeatureConfigChange($event)"
+    [(startValue)]="filter.minDifference"
+    [(endValue)]="filter.maxDifference"
+    ></property-config-item>
+    <property-config-item 
+    #movement label='Movement'
+    min="0" max="1"
+    (input)="onFeatureConfigChange($event)"
+    [(startValue)]="filter.minMovement"
+    [(endValue)]="filter.maxMovement"
+    ></property-config-item>
+  </div>
 </div>
 
-<div class = 'button' (click)='onToggleGlyphType()' >Glyph Type</div>
-
-<div id="filter-container">
-  <property-config-item 
-  #correlation label='Correlation'
-  min="-1" max="1"
-  (input)="onFeatureConfigChange($event)"
-  [(startValue)]="filter.minCorrelation"
-  [(endValue)]="filter.maxCorrelation"
-  ></property-config-item>
-  <property-config-item 
-  #difference label='Distance Change'
-  min="-1" max="1"
-  (input)="onFeatureConfigChange($event)"
-  [(startValue)]="filter.minDifference"
-  [(endValue)]="filter.maxDifference"
-  ></property-config-item>
-  <property-config-item 
-  #movement label='Movement'
-  min="0" max="1"
-  (input)="onFeatureConfigChange($event)"
-  [(startValue)]="filter.minMovement"
-  [(endValue)]="filter.maxMovement"
-  ></property-config-item>
-</div>
+ <div class="infobox" [style.display]="isActive ? 'none': 'block'">
+      This tab only is active when comparison mode is selected and data exists.
+ </div>

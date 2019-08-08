@@ -29,6 +29,12 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   @ViewChild('movement')
   private movementComponent: DashboardPropertyConfigComponent;
 
+  // has this tab data
+  private _hasData = false;
+
+  // is this tab active to use
+  isActive = false;
+
   constructor(
     injector: Injector,
     public configurationCompare: ConfigurationCompare,
@@ -40,12 +46,12 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   }
 
   ngOnInit() {
-      this.onOpenTab(); // TODO anders
-
       const computation: ColorComputation = this.configurationCompare.configurationCompareData.heatMapComputation;
-
+      const that = this;
       computation.onChanged = () => {
-        this.differenceComponent.drawScale((context, w, h) => {
+        that._hasData = true;
+        that.updateIsActive();
+        that.differenceComponent.drawScale((context, w, h) => {
           computation.computeColorII(2, 2, false);
 
           const step = 2 * (computation.max / w);
@@ -58,7 +64,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
           }
         });
 
-        this.movementComponent.drawScale((context, w, h) => {
+        that.movementComponent.drawScale((context, w, h) => {
           computation.computeColorII(2, 2, false);
 
           const step = (computation.maxAlpha / w);
@@ -72,7 +78,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
         });
 
 
-        this.correlationComponent.drawScale((context, w, h) => {
+        that.correlationComponent.drawScale((context, w, h) => {
           const halfW = w / 2;
           const halfH = h / 2;
           context.beginPath();
@@ -88,6 +94,8 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
         });
       };
 
+      this.configurationCompare.addOnComparisonModeChanged ( (_) => that.updateIsActive());
+
   }
 
   public onColorChange(e: any): void {}
@@ -95,14 +103,6 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
 
   public onFeatureConfigChange(e: any): void {
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
-  }
-
-  onOpenTab() {
-    this.onToggleMode();
-  }
-
-  onToggleMode() {
-    // TODO evtl. function in dashboard-functionbuttons aufrufen
   }
 
   /** which version determines positions */
@@ -114,6 +114,12 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   onToggleGlyphType() {
     this.configurationDataCompare.toggleComparisonGlyphs();
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
+  }
+
+  private updateIsActive() {
+    let buffer = this.configurationCompare.isComparisonMode;
+    buffer = buffer && this._hasData;
+    this.isActive = buffer;
   }
 
 }

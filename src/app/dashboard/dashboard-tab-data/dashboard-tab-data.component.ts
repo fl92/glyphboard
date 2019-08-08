@@ -213,7 +213,26 @@ export class DashboardTabDataComponent extends DashboardTabComponent implements 
         this.positionAlgorithmsSecond.push(dataset.position);
       }
     });
-    this.selectedPositionAlgorithmSecond = this.positionAlgorithmsSecond[0];
+
+    // set selected second position algorithm
+    if (this.selectedPositionAlgorithm ==null) {
+      this.selectedPositionAlgorithmSecond = this.positionAlgorithmsSecond[0];
+    } else if (this.configurationCompare.isComparisonMode) {
+      // same position algorithm as 0 as default
+      if (this.positionAlgorithmsSecond.includes(this.selectedPositionAlgorithm)) {
+        this.selectedPositionAlgorithmSecond =  this.selectedPositionAlgorithm;
+      } else {
+        this.selectedPositionAlgorithmSecond = this.positionAlgorithmsSecond[0];
+      }
+    } else {
+      // different position algorithm as 0 as default
+      this.positionAlgorithmsSecond.forEach(alg => {
+        if (alg !== this.selectedPositionAlgorithm) {
+          this.selectedPositionAlgorithmSecond = alg;
+        }
+      })
+
+    }
 
     this.updateDataSetInfo(true);
     this.updateData(1);

@@ -67,7 +67,13 @@ export class DashboardFunctionbuttonsComponent extends DashboardTabComponent
       true :
       !isComp;
 
-    this.configurationCompare.isComparisonMode = isComp;
+      this.configurationCompare.isComparisonMode = isComp;
+
+      // no splitscreen when compare mode
+      if (isComp && this.configuration.splitScreenActive) {
+        this.onScreenToggle();
+      }
+
     const gylph1 = this.regionManager.regions[0];
     const gylph2 = this.regionManager.regions[1];
     const compare_glyph = this.regionManager.regions[4];
@@ -79,6 +85,7 @@ export class DashboardFunctionbuttonsComponent extends DashboardTabComponent
     const height = window.innerHeight;
     this.regionManager.updateRegions(width, height);
 
+   
   }
 
 
