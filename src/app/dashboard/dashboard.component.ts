@@ -42,69 +42,23 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   constructor(
     private logger: Logger,
-    public configuration: Configuration,
-    public configurationCompare: ConfigurationCompare,
-    public cursor: LenseCursor,
+    private configuration: Configuration,
+    private configurationCompare: ConfigurationCompare,
+    private cursor: LenseCursor,
     private regionManager: RegionManager,
     private dataProvider: DataproviderService,
     private eventAggregator: EventAggregatorService
   ) {}
 
   ngOnInit(): void {
+    const that = this;
     this.dataProvider.getDataSet().subscribe(message => {
       if (message == null) {
         return;
       }
-
-      // set the dataset for the appropriate configuration object (either 0 or 1)
-      this.configuration.configurations[this.configuration.dataSetRequest].setData(message);
-      this.configuration.configurations[this.configuration.dataSetRequest].activeDataSet = message;
-
-      (this.configuration.dataSetRequest === 0) ?
-        this.configurationCompare.configurationCompareData.setDataA(message) :
-        this.configurationCompare.configurationCompareData.setDataB(message);
-
-      // get the list of contexts that each feature has. Set the list to the appropriate variable
-      const unorderedContexts: any = message.schema['variant-context'];
-      const orderedContexts: Array<any> = [];
-      for (const key in unorderedContexts) {
-        if (unorderedContexts.hasOwnProperty(key)) {
-          orderedContexts.push(unorderedContexts[key]);
-        }
-      }
-
-      this.configuration.configurations[this.configuration.dataSetRequest].featureContexts = orderedContexts;
-      this.configuration.configurations[this.configuration.dataSetRequest].selectedContext = orderedContexts[0];
-
-      // initially set all features in the data as active
-      this.configuration.configurations[this.configuration.dataSetRequest].activeFeatures = [];
-
-      // Histograms should show all the features not only glyphs...
-      for (const key in message.schema.label) {
-        if (message.schema.label.hasOwnProperty(key)) {
-          if (message.meta.features.hasOwnProperty(key)) {
-            const value = message.schema.label[key];
-            if (message.schema.glyph.includes(key)) {
-              this.configuration.configurations[this.configuration.dataSetRequest].activeFeatures.push({
-                active: true,
-                property: key,
-                label: value
-              });
-            } else {
-              this.configuration.configurations[this.configuration.dataSetRequest].activeFeatures.push({
-                active: false,
-                property: key,
-                label: value
-              });
-            }
-          }
-        }
-      }
-
-      const colorFeature = message.schema.color;
-      this.configuration.configurations[
-        this.configuration.dataSetRequest
-      ].selectedFeatureName = message.schema.label[colorFeature];
+      (that.configurationCompare.isComparisonMode) ?
+        that.loadDataComparisonMode(message) :
+        that.loadDataSingleOrSplitscreen(message);
     });
 
     this.configuration.splitScreenActive = this.regionManager.regions[1].display === 'block';
@@ -116,6 +70,62 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     } else {
       this.cursor.boundaries.right = window.innerWidth;
     }
+  }
+
+  public loadDataSingleOrSplitscreen(message) {
+    const that = this;
+    // set the dataset for the appropriate configuration object (either 0 or 1)
+    that.configuration.configurations[that.configuration.dataSetRequest].setData(message);
+    that.configuration.configurations[that.configuration.dataSetRequest].activeDataSet = message;
+
+    // get the list of contexts that each feature has. Set the list to the appropriate variable
+    const unorderedContexts: any = message.schema['variant-context'];
+    const orderedContexts: Array<any> = [];
+    for (const key in unorderedContexts) {
+      if (unorderedContexts.hasOwnProperty(key)) {
+        orderedContexts.push(unorderedContexts[key]);
+      }
+    }
+
+    that.configuration.configurations[that.configuration.dataSetRequest].featureContexts = orderedContexts;
+    that.configuration.configurations[that.configuration.dataSetRequest].selectedContext = orderedContexts[0];
+
+    // initially set all features in the data as active
+    that.configuration.configurations[that.configuration.dataSetRequest].activeFeatures = [];
+
+    // Histograms should show all the features not only glyphs...
+    for (const key in message.schema.label) {
+      if (message.schema.label.hasOwnProperty(key)) {
+        if (message.meta.features.hasOwnProperty(key)) {
+          const value = message.schema.label[key];
+          if (message.schema.glyph.includes(key)) {
+            that.configuration.configurations[that.configuration.dataSetRequest].activeFeatures.push({
+              active: true,
+              property: key,
+              label: value
+            });
+          } else {
+            that.configuration.configurations[that.configuration.dataSetRequest].activeFeatures.push({
+              active: false,
+              property: key,
+              label: value
+            });
+          }
+        }
+      }
+    }
+
+    const colorFeature = message.schema.color;
+    that.configuration.configurations[
+      that.configuration.dataSetRequest
+    ].selectedFeatureName = message.schema.label[colorFeature];
+  }
+
+  public loadDataComparisonMode(message) {
+    (this.configuration.dataSetRequest === 0) ?
+      this.configurationCompare.configurationCompareData.setDataA(message) :
+      this.configurationCompare.configurationCompareData.setDataB(message);
+
   }
 
 

@@ -1,15 +1,15 @@
 <div class="dashboard__functionbuttons">
   <label class="fancy-checkbox" matTooltip="Split screen">
-    <input type="checkbox" id="split" value="split" (change) = "onCompareModeToggle()"
-      [checked]="this.configurationCompare.isComparisonMode" />
-    <i class="icon icon-compare unchecked"></i>
-    <i class="icon icon-compare checked"></i>
-  </label>
-  <label class="fancy-checkbox" matTooltip="Split screen">
     <input type="checkbox" id="split" value="split" (change)="onScreenToggle()"
       [checked]="this.configuration.splitScreenActive" />
     <i class="icon icon-splitscreen unchecked"></i>
     <i class="icon icon-splitscreen checked"></i>
+  </label>
+  <label class="fancy-checkbox" matTooltip="Comparison Mode">
+    <input type="checkbox" id="split" value="split" (change) = "onCompareModeToggle()"
+      [checked]="this.configurationCompare.isComparisonMode" />
+    <i class="icon icon-compare unchecked"></i>
+    <i class="icon icon-compare checked"></i>
   </label>
   <label class="fancy-checkbox" matTooltip="Prevent Overlapping" >
     <input type="checkbox" id="forceLayout" value="forceLayout" (change)="onForceLayoutToggle($event)"

@@ -34,9 +34,10 @@ export class DashboardTabDataComponent extends DashboardTabComponent implements 
   }
 
   ngOnInit() {
+    const that = this;
     this.dataProvider.getDataSets().subscribe(message => {
-      this.datasets = message;
-      this.updateDatasets();
+      that.datasets = message;
+      that.updateDatasets();
     });
 
     this.dataProvider.getDataSet().subscribe(message => {
@@ -44,13 +45,27 @@ export class DashboardTabDataComponent extends DashboardTabComponent implements 
         return;
       }
 
-      if (this.configuration.dataSetRequest === 0 &&
-          this.selectedDataset !== this.selectedDatasetSecond) {
+      if (that.configuration.dataSetRequest === 0 &&
+          that.selectedDataset !== that.selectedDatasetSecond) {
         // Load same dataset for right side!
-        this.selectedDatasetSecond = this.selectedDataset;
-        this.dashboardDataSetChangedSecond();
+        that.selectedDatasetSecond = that.selectedDataset;
+        that.dashboardDataSetChangedSecond();
       }
     });
+
+    // reload Data when comparisonMode is changed
+    this.configurationCompare.addOnComparisonModeChanged(
+      (isComparisonMode) => {
+        if (isComparisonMode) {
+          this.updateData(0);
+          this.updateData(1);
+        } else {
+          this.updateData(0);
+          if (this.configuration.splitScreenActive) {
+            this.updateData(1);
+          }
+        }
+      });
   }
 
   private updateDatasets() {
@@ -186,7 +201,9 @@ export class DashboardTabDataComponent extends DashboardTabComponent implements 
         this.versionsSecond.push(dataset.version);
       }
     });
-    this.selectedVersionSecond = this.versionsSecond[0];
+    this.selectedVersionSecond = (this.versionsSecond.length >= 2) ?
+       this.versionsSecond[1] :
+       this.versionsSecond[0];
 
     this.allDatasets.forEach(dataset => {
       if (

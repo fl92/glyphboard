@@ -62,12 +62,11 @@ export class DashboardFunctionbuttonsComponent extends DashboardTabComponent
   }
 
   public onCompareModeToggle(): void {
-    // this.configuration.splitScreenActive = ! this.configuration.splitScreenActive;
-    // this.configurationCompare.configurationCompareData.
-    // this.configurationCompare.isComparisonMode;
     let isComp = this.configurationCompare.isComparisonMode;
-    if (isComp == null) { isComp = true;
-    } else { isComp = !isComp; }
+    isComp = (isComp == null) ?
+      true :
+      !isComp;
+
     this.configurationCompare.isComparisonMode = isComp;
     const gylph1 = this.regionManager.regions[0];
     const gylph2 = this.regionManager.regions[1];
@@ -75,6 +74,11 @@ export class DashboardFunctionbuttonsComponent extends DashboardTabComponent
     gylph1.display = (isComp) ? 'none' : 'block';
     gylph2.display = 'none';
     compare_glyph.display = (isComp) ? 'block' : 'none';
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    this.regionManager.updateRegions(width, height);
+
   }
 
 

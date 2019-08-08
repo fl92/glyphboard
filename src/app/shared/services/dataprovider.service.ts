@@ -51,6 +51,7 @@ export class DataproviderService {
   }
 
 
+  // shema has '_' instead of version number
   public isOneSchemaMode(name: string) {
     const dataSets = this.dataSets;
 
@@ -124,7 +125,6 @@ export class DataproviderService {
 
   private setDataSets(value: any) {
     const dataSets = JSON.parse(JSON.stringify(value));
-    // const _dataSets = []
 
     if (dataSets == null) {return; }
     dataSets.forEach(dataSet => {

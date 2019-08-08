@@ -20,8 +20,6 @@ export class Configuration {
     private _largeGlyphRadius = 50;
     private _legendGlyphRadius = 60;
 
-    private _isComparisonMode = true;
-
     constructor(private logger: Logger, private eventAggregator: EventAggregatorService) {
         const flowerConfig = new FlowerGlyphConfiguration();
         flowerConfig.radius = this.largeGlyphRadius;
@@ -82,13 +80,6 @@ export class Configuration {
 
     get legendGlyphRadius(): number { return this._legendGlyphRadius; }
     set legendGlyphRadius(value: number) { this._legendGlyphRadius = value; }
-
-    public get isComparisonMode(): boolean {
-        return this._isComparisonMode;
-    }
-    public set isComparisonMode(v: boolean) {
-        this._isComparisonMode = v;
-    }
 
     public activeGlyphConfig(): GlyphConfiguration {
         switch (this.activeGlyphType) {

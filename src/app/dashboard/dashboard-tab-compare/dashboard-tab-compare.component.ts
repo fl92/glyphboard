@@ -1,7 +1,6 @@
 import { Component, OnInit, Injector, ViewChild, ElementRef } from '@angular/core';
 import { DashboardTabComponent } from '../dashboard-tab/dashboard-tab.component';
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
-import { DoubleDataproviderService } from 'app/shared/services/doubledataprovider.service';
 import { Subject } from 'rxjs';
 // import { Options, LabelType } from 'ng5-slider';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
@@ -14,7 +13,6 @@ import { ColorComputation } from 'app/glyph/glyph.comparison.move.colorComputati
   selector: 'app-dashboard-tab-compare',
   templateUrl: './dashboard-tab-compare.component.html',
   styleUrls: ['./dashboard-tab-compare.component.scss'],
-  providers: [DoubleDataproviderService]
 })
 export class DashboardTabCompareComponent extends DashboardTabComponent implements OnInit {
 
@@ -34,7 +32,6 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   constructor(
     injector: Injector,
     public configurationCompare: ConfigurationCompare,
-    private doubleDataProvider: DoubleDataproviderService
   ) {
     super(injector);
     this.configurationDataCompare = configurationCompare.configurationCompareData;
@@ -105,16 +102,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   }
 
   onToggleMode() {
-    let isComp = this.configurationCompare.isComparisonMode;
-    if (isComp == null) { isComp = true;
-    } else { isComp = !isComp; }
-    this.configurationCompare.isComparisonMode = isComp;
-    const gylph1 = this.regionManager.regions[0];
-    const gylph2 = this.regionManager.regions[1];
-    const compare_glyph = this.regionManager.regions[4];
-    gylph1.display = (isComp) ? 'none' : 'block';
-    gylph2.display = 'none';
-    compare_glyph.display = (isComp) ? 'block' : 'none';
+    // TODO evtl. function in dashboard-functionbuttons aufrufen
   }
 
   /** which version determines positions */

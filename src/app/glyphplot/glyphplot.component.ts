@@ -122,32 +122,32 @@ export class GlyphplotComponent implements OnInit, OnChanges {
       }
     });
   }
+
   protected initControllers() {
-    this._eventController =
-      new GlyphplotEventController(
-        this,
-        this.configuration,
-        this.cursor,
-        this.logger,
-        this.configurationService,
-        this.eventAggregator
-      );
+    this._eventController = new GlyphplotEventController(
+      this,
+      this.configuration,
+      this.cursor,
+      this.logger,
+      this.configurationService,
+      this.eventAggregator
+    );
+    this._flexiWallController = new FlexiWallController(
+      this,
+      this.logger,
+      this.cursor,
+      this.configuration
+    );
     this._layoutController = new GlyphplotLayoutController(
       this,
       this.logger,
       this.configurationService
     );
-    //   this._flexiWallController = new FlexiWallController(
-    //     this,
-    //     this.logger,
-    //     this.cursor,
-    //     this.configuration
-    //   );
-    //   this.configuration.leftSide = this.configurationService.configurations.length === 1;
-    //   if (this.configuration.leftSide) {
-    //     // Flexiwall connection only for first glyphboard component
-    //     this._flexiWallController.doWebSocket();
-    //   }
+    this.configuration.leftSide = this.configurationService.configurations.length === 1;
+    if (this.configuration.leftSide) {
+      // Flexiwall connection only for first glyphboard component
+      this._flexiWallController.doWebSocket();
+    }
   }
 
   //#region initialization and update methods
@@ -365,7 +365,7 @@ export class GlyphplotComponent implements OnInit, OnChanges {
    * by draw().
    */
   public updateGlyphLayout(updateAllItems: boolean = false): void {
-    if (this.data === undefined || this.data.length === 0 || this._compareConigurationService.isComparisonMode) {
+    if (this.data === undefined || this.data.length === 0) {
       return;
     }
     const that = this;
@@ -515,11 +515,6 @@ export class GlyphplotComponent implements OnInit, OnChanges {
    * updateGlyphLayout().
    */
   public animate(targetData?: any): void {
-
-    if (this._compareConigurationService.isComparisonMode) {
-      return;
-    }
-
     this.drawLock = true;
     // save current 'source' positions
     this._layoutController.getPositions().forEach(d => {
@@ -580,9 +575,6 @@ export class GlyphplotComponent implements OnInit, OnChanges {
   get eventController(): GlyphplotEventController {
     return this._eventController;
   }
-  set eventController(v: GlyphplotEventController ) {
-    this._eventController = v;
-  }
   get suppressAnimations(): boolean {
     return this._suppressAnimations;
   }
@@ -613,8 +605,7 @@ export class GlyphplotComponent implements OnInit, OnChanges {
   set selectionRect(value: SelectionRect) {
     this._selectionRect = value;
   }
-
-  get compareConigurationService () {
+  get compareConfigurationService () {
     return this._compareConigurationService;
   }
   get xAxis() { return this._xAxis; }

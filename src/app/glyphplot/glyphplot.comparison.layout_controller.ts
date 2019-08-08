@@ -5,7 +5,7 @@ import { GlyphplotComparisonComponent } from './glyphplot.comparison.component';
 import { GlyphplotLayoutController } from './glyphplot.layout.controller';
 
 
-export class GlyphplotComparisonLayoutController extends GlyphplotLayoutController{
+export class GlyphplotComparisonLayoutController extends GlyphplotLayoutController {
     constructor(
         private _component: GlyphplotComparisonComponent,
         private _logger: Logger,
@@ -60,8 +60,4 @@ export class GlyphplotComparisonLayoutController extends GlyphplotLayoutControll
     public getItems(): [Map<any, [number[], number[]]>, [number, number]] {
         return null;
     }
-
-   // public getPositions(): any {}
-
- //   public getFeaturesForItem(d: any) {}
 }

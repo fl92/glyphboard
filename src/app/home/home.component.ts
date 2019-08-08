@@ -23,11 +23,11 @@ export class HomeComponent implements OnInit {
     private configuration: Configuration,
     private cursor: LenseCursor,
     private eventAggregator: EventAggregatorService) {
-    this.regionManager.addRegion('glyphs', 0, 0.8, false);
+    this.regionManager.addRegion('glyphs', 0, 0.8, true);
     this.regionManager.addRegion('glyphs2', 0.5, 0.8, false);
     this.regionManager.addRegion('features', 0, 0, false);
     this.regionManager.addRegion('dataflow', 0, 0, false);
-    this.regionManager.addRegion('compare_glyphs', 0, 0.8, true);
+    this.regionManager.addRegion('compare_glyphs', 0, 0.8, false);
   }
 
   @HostListener('document:keyup', ['$event'])
