@@ -1,6 +1,4 @@
-import { FeatureFilter } from "./feature-filter";
-
-
+// author: Florian Dietz
 export class ConnectionCompareFilter {
     private _minDifference = -1;
     private _maxDifference = 1;

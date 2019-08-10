@@ -1,12 +1,15 @@
+// author: Florian Dietz
 import { Component, OnInit, Input, ViewChild, ElementRef, Output, EventEmitter, HostListener } from '@angular/core';
 import { ColorComputation } from 'app/glyph/glyph.comparison.move.colorComputation';
-import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 
+/**
+ * This componet is used to define min and max value
+ * for filtering within a data set.
+ */
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'property-config-item',
-    // templateUrl: './dashboard-property-config.component.html',
     templateUrl: './dashboard-property-config.component.html',
     styleUrls: []
   })
@@ -19,9 +22,9 @@ export class DashboardPropertyConfigComponent implements OnInit {
     @Output() input = new EventEmitter();
     private _min: number;
     private _max: number;
-    WIDTH = 170;
-    HEIGHT = 20;
-    SCALE_HEIGHT = 10;
+    private readonly WIDTH = 170;
+    private readonly HEIGHT = 20;
+    private readonly SCALE_HEIGHT = 10;
     startX: number = null;
     documentStartX: number = null;
     documentEndX: number = null;
@@ -77,34 +80,7 @@ export class DashboardPropertyConfigComponent implements OnInit {
     }
     private lock = true;
 
-    // @Input()
-    // public set heatMapComputation(v: ColorComputation) {
-    //   this._heatMapComputation = v;
-    //   this._heatMapComputation.onChanged
-    //   = () => {
-    //     const x = 0;
-    //     // for(let i = 0; i <)
-    //     // this.configurationDataCompare
-    //     // .heatMapComputation.computeColorII()
-    //   };
-    // }
-
-    constructor(private config: ConfigurationCompare) {
-      // const heatMap = config
-      //   .configurationCompareData.heatMapComputation;
-      // heatMap.onChanged
-      //     = () => {
-      //         const step = 2 * (heatMap.max / this.WIDTH);
-      //         for (let x = 0, heat = -heatMap.max;
-      //           x < this.WIDTH; x++, heat += step) {
-      //             const col = heatMap.computeColorII(heat, heatMap.maxAlpha, false);
-      //             this.context.beginPath();
-      //             this.context.fillStyle = col;
-      //             this.context.rect(x, 0, 2, 10);
-      //             this.context.fill();
-      //         }
-      //       };
-    }
+    constructor(private config: ConfigurationCompare) {}
 
     onMouseDown(e: MouseEvent) {
       const startDiff = Math.abs(this.startX - e.offsetX);
@@ -175,32 +151,11 @@ export class DashboardPropertyConfigComponent implements OnInit {
         + (end * (this.max - this.min)) / this.WIDTH;
 
       this.input.emit('null');
-      // this.test();
     }
 
     ngOnInit() {
       this.context = this.chartContainer.nativeElement.getContext('2d');
       this.scaleContext = this.scaleContainer.nativeElement.getContext('2d');
-
-      // const step = this.WIDTH / 100;
-      // for (let x = 0, heat = 0;
-      //             x < this.WIDTH; x++, heat += step) {
-      //               this.scaleContext.beginPath();
-      //               this.scaleContext.strokeStyle = 'red'; // `hsl(0, 50%, 50%)`;
-      //               this.scaleContext.lineWidth = 1;
-      //               this.scaleContext.moveTo(x, this.SCALE_HEIGHT);
-      //               this.scaleContext.lineTo(x, 0);
-      //               this.scaleContext.stroke();
-      //           }
-
-      // this.scaleContext.fillRect(0, 0,
-      //   5, 100);
-      // this.scaleContext.fillRect(-100, -100,
-      //   100, 100);
-      // this.scaleContext.fillStyle = '#a4d0e5';
-      // this.scaleContext.fill()
-      // this.scaleContext.strokeStyle = 'white';
-      // this.scaleContext.stroke();
     }
 
     drawScale ( onDrawScale: (context: CanvasRenderingContext2D,
@@ -208,11 +163,4 @@ export class DashboardPropertyConfigComponent implements OnInit {
         this._onDrawScale  = onDrawScale;
         this._onDrawScale(this.scaleContext, this.WIDTH, this.SCALE_HEIGHT);
       }
-
-    // test() {
-    //     if (this._onDrawScale != null) {
-    //       this._onDrawScale(this.scaleContext, this.WIDTH, this.SCALE_HEIGHT);
-    //     }
-    // }
-
 }

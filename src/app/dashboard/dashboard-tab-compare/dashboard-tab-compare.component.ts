@@ -1,14 +1,19 @@
-import { Component, OnInit, Injector, ViewChild, ElementRef } from '@angular/core';
+// author: Florian Dietz
+import { Component, OnInit, Injector, ViewChild} from '@angular/core';
 import { DashboardTabComponent } from '../dashboard-tab/dashboard-tab.component';
 import { ConfigurationCompare } from 'app/shared/services/configuration.compare.service';
 import { Subject } from 'rxjs';
-// import { Options, LabelType } from 'ng5-slider';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';
 import { RefreshPlotEvent } from 'app/shared/events/refresh-plot.event';
 import { ConnectionCompareFilter } from 'app/shared/filter/connection.compare-filter';
 import { DashboardPropertyConfigComponent } from './dashboard-property-config.component';
 import { ColorComputation } from 'app/glyph/glyph.comparison.move.colorComputation';
 
+
+/**
+ * This component defines a dashboard tab in which holds all
+ * the control elements for version comparison.
+ */
 @Component({
   selector: 'app-dashboard-tab-compare',
   templateUrl: './dashboard-tab-compare.component.html',
@@ -19,13 +24,16 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   public eventsSubject: Subject<void> = new Subject<void>();
   private configurationDataCompare: ConfigurationDataCompare;
 
-  filter: ConnectionCompareFilter;
-  test: number = null;
+  private filter: ConnectionCompareFilter;
 
+  // components to define min and max of movement characteristics
+  // for filtering
   @ViewChild('correlation')
   private correlationComponent: DashboardPropertyConfigComponent;
+
   @ViewChild('difference')
   private differenceComponent: DashboardPropertyConfigComponent;
+
   @ViewChild('movement')
   private movementComponent: DashboardPropertyConfigComponent;
 
@@ -46,6 +54,8 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
   }
 
   ngOnInit() {
+
+      // init color scale of differenceComponent
       const computation: ColorComputation = this.configurationCompare.configurationCompareData.heatMapComputation;
       const that = this;
       computation.onChanged = () => {
@@ -64,6 +74,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
           }
         });
 
+        // init color scale of movementComponent
         that.movementComponent.drawScale((context, w, h) => {
           computation.computeColorIII(2, 2, false);
 
@@ -78,6 +89,7 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
         });
 
 
+        // init color scale of correlationComponent
         that.correlationComponent.drawScale((context, w, h) => {
           const halfW = w / 2;
           const halfH = h / 2;
@@ -105,12 +117,18 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }
 
-  /** which version determines positions */
+  /**
+   * which version determines positions
+   * */
   onToggleDrawA() {
     this.configurationCompare.isChangeVersion = true;
       this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
   }
 
+
+  /**
+   * MovementVisualizer and MovementGlyph or HoleGlyph
+   */
   onToggleGlyphType() {
     this.configurationDataCompare.toggleComparisonGlyphs();
     this.eventAggregator.getEvent(RefreshPlotEvent).publish(true);
