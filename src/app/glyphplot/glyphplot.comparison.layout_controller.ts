@@ -1,3 +1,4 @@
+// author: Florian Dietz
 import { Logger } from 'app/shared/services/logger.service';
 import * as d3 from 'd3';
 import { Configuration } from '../shared/services/configuration.service';

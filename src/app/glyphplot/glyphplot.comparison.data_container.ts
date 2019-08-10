@@ -1,10 +1,17 @@
+// author: Florian Dietz
+
 import { ComparisonDataItem } from './glyphplot.comparison.data_item';
 
 
-
+/**
+ * This class holds an array of ComparisonDataItem[]
+ * It was was written as a wrapper for the
+ * comparison data structure to match the single data structure
+ * which is necessary for tooltips just as in glyphplot.component
+ */
 export class ComparisonDataContainer {
 
-    private _drawA : boolean;
+    private _drawA: boolean;
 
     public constructor (
         private _dataItems: ComparisonDataItem[] = [],

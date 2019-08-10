@@ -1,3 +1,4 @@
+// author: Florian Dietz
 import { GlyphplotEventController } from './glyphplot.event.controller';
 import { GlyphplotComparisonComponent } from './glyphplot.comparison.component';
 import { ConfigurationDataCompare } from 'app/shared/services/configuration.data.compare';

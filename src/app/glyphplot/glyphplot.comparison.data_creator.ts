@@ -1,7 +1,14 @@
+// author: Florian Dietz
 import { ComparisonDataItem } from './glyphplot.comparison.data_item';
 import { Injectable } from '@angular/core';
 import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
 
+/**
+ * This class is used to match two versions of the data set.
+ * It finds corresponding feature-objects and position-objects
+ * of both versions and combines them in a single object of
+ * class ComparisonDataItem.
+ */
 @Injectable()
 export class ComparisonDataCreator {
   public versions2Data(versionA: any, versionB: any,
@@ -26,25 +33,6 @@ export class ComparisonDataCreator {
         targetPrediction: string[],
       }> ();
 
-    // if (targetVariablesMeta.size >= 1) {
-    //   return;
-    // }
-
-    // const targetVariablesObj = versionA['schema']['targetVariables'];
-    // const targetLabelsObj = versionA['schema']['targetLabels'];
-    // const targetPredictionsObj = versionA['schema']['targetPredictions'];
-    // for (const targetId in targetVariablesObj) {
-    //   if (targetVariablesObj.hasOwnProperty(targetId)) {
-    //     const targetName = targetVariablesObj[targetId];
-    //     const targetLabel = targetLabelsObj[targetId];
-    //     const targetPrediction = targetPredictionsObj[targetId];
-    //   targetVariablesMeta.set(targetId, {
-    //     targetName: targetName,
-    //     targetLabel: targetLabel,
-    //     targetPrediction: targetPrediction
-    //   }  );
-    //   }
-
     const targetVariablesObj = versionA['schema']['targetVariables'];
     let unnamedFeatureVectorLength = versionA['schema']['unnamedFeatureVectorLength'];
     unnamedFeatureVectorLength = unnamedFeatureVectorLength != null ?
@@ -66,8 +54,6 @@ export class ComparisonDataCreator {
       selectedTargetVariable = targetVariablesMeta.keys().next().value;
     }
 
-
-    // TODO selected target Variable prüfen
     for (const object of objectsA) {
       objIds.add(object['id']);
       objectsAMap.set(object['id'], object);
@@ -130,7 +116,6 @@ export class ComparisonDataCreator {
             }
           }
 
-
           if ( targetVariablesObj != null) {
             const targetObj = object['targetVariables'];
             if (targetObj != null) {
@@ -172,26 +157,5 @@ export class ComparisonDataCreator {
     const container = new ComparisonDataContainer(comparison_items, schema);
     return container;
   }
-
-  // public data2PositionData(items: ComparisonDataItem[], useA: boolean) {
-  //   const buffer = { positions: []};
-  //   items.forEach( item => {
-  //     const _id = item.objectId;
-  //     const position = useA ? item.drawnPositionA : item.drawnPositionB;
-  //     if (position == null) {
-  //       return;
-  //     }
-  //     const [_x, _y] = position;
-  //     const elem =  {
-  //       id : _id,
-  //       position: {
-  //         x: _x,
-  //         y: _y
-  //       }
-  //     }
-  //     buffer.positions.push(elem);
-  //   });
-  //   return buffer;
-  // }
 
 }

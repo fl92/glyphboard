@@ -1,3 +1,4 @@
+// author: Florian Dietz
 import {Component, ElementRef, HostListener, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
 
 import {Logger} from 'app/shared/services/logger.service';
@@ -22,12 +23,15 @@ import { GlyphplotLayoutController } from './glyphplot.layout.controller';
 import { GlyphplotComparisonEventController } from './glyphplot.comparison.event_controller';
 import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
 
-
+/**
+ * This component is used to compare two versions of a data set
+ * instead of glyphplot.component.ts
+ * It uses MovementVisualizer, ComparisonHoleGlyph and ComparisonHoleGlyph.
+ */
 @Component({
     selector: 'app-glyphplot-comparison',
     templateUrl: './glyphplot.component.html',
     styleUrls: ['./glyphplot.component.css'],
-    // template: '<div>Hallo Compare</div>',
     providers: [ComparisonDataCreator, MovementVisualizer]
   })
   export class GlyphplotComparisonComponent extends GlyphplotComponent
@@ -119,41 +123,35 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
       if (this.width === 0 || this.height === 0) {
         return;
       }
-      // this.selectionRect.offset = {
-      //   x: this.configuration.leftSide ? 0 : window.innerWidth - this.width,
-      //   y: 0
-      // };
-      this.updateZoom();
       this.updateGlyphLayout();
       this.animate();
     }
 
     createChart(): void {
-    const that = this;
-    const element = this.chartContainer.nativeElement;
-    this.context = element.getContext('2d');
-    this.tooltip.data = this._comparedData;
+      const that = this;
+      const element = this.chartContainer.nativeElement;
+      this.context = element.getContext('2d');
+      this.tooltip.data = this._comparedData;
 
-    this.movementVisualizer.init(this._comparedData);
-    this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
-    this.selectionRect = new SelectionRect(this, this.selectionContext, this.helper);
-    this.selectionRect.offset = {
-      x: this.configuration.leftSide ? 0 : window.innerWidth - this.width,
-      y: 0
-    };
-    this._simulation = d3
-      .forceSimulation()
-      .force('collision', d3.forceCollide().radius(20))
-      .on('end', () => {
-        GlyphplotComponent.ticked(that);
-      })
-      .stop();
+      this.movementVisualizer.init(this._comparedData);
+      this.selectionContext = this.selectionRectangle.nativeElement.getContext('2d');
+      this.selectionRect = new SelectionRect(this, this.selectionContext, this.helper);
+      this.selectionRect.offset = {
+        x: this.configuration.leftSide ? 0 : window.innerWidth - this.width,
+        y: 0
+      };
+      this._simulation = d3
+        .forceSimulation()
+        .force('collision', d3.forceCollide().radius(20))
+        .on('end', () => {
+          GlyphplotComponent.ticked(that);
+        })
+        .stop();
 
-    this.layoutController.updatePositions();
+      this.layoutController.updatePositions();
 
-    this.updateZoom();
-    this.animate();
-
+      this.updateZoom();
+      this.animate();
     }
 
     draw(): void {
@@ -198,12 +196,9 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
             glyph.draw(isFiltered);
         });
 
-        // this.drawScale(this.context, 0, 0);
-
         this.comparedData.drawA =
           this.configurationCompare.versionAnimation > 0.5;
 
-        // context.restore();
         this.selectionRect.clear();
         this.drawLock = false;
 
@@ -220,7 +215,7 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
       const d = maxMove / 256;
       for (let diff = minDiff, _x = x; diff < maxDiff; diff += d, _x++) {
         for (let move = 0, _y = y; move < maxMove; move += d, _y++) {
-          const col = heatMapComp.computeColorII(diff, move, false);
+          const col = heatMapComp.computeColorIII(diff, move, false);
           context.beginPath();
           context.fillStyle = col;
           context.rect(_x, _y, 1, 1);
@@ -238,7 +233,6 @@ import { ComparisonDataContainer } from './glyphplot.comparison.data_container';
       if ( this.context == null) {return; }
 
       if ( this.configurationCompare.isChangeVersion) {
-        // const begin =  that.configurationCompare.isDrawPositionA;
         let animation = that.configurationCompare.versionAnimation;
         const [step, end] = (animation > 0.5) ? [-0.08, 0] : [0.08, 1];
         const t = d3.timer(() => {

@@ -1,3 +1,4 @@
+// author: Florian Dietz
 import { ComparisonDataItem } from "app/glyphplot/glyphplot.comparison.data_item";
 
 

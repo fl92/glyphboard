@@ -1,13 +1,20 @@
+// author: Florian Dietz
 import { ColorComputation } from './glyph.comparison.move.colorComputation';
 import { DelaunayWrapper } from './glyph.comparison.move.delaunayWrapper';
-import { ComparisonGlyph} from './glyph.comparison';
 import { Injectable } from '@angular/core';
-import { forEach } from '@angular/router/src/utils/collection';
 import { ComparisonDataItem } from 'app/glyphplot/glyphplot.comparison.data_item';
 import { ConnectionCompareFilter } from 'app/shared/filter/connection.compare-filter';
-import { MetadataOverrider } from '@angular/core/testing/src/metadata_overrider';
 import { ComparisonDataContainer } from 'app/glyphplot/glyphplot.comparison.data_container';
 
+
+/**
+ * This class visualizes the movement between two versions
+ * of a dataset using explicit encoding for encoding characteristics
+ * of relative changes between neighbouring points.
+ * The input are the points of both versions (e.g. held by dimension reduction)
+ * and an attribute vector for both version on which these relative
+ * changes are computed
+ */
 @Injectable()
 export class MovementVisualizer {
     private pointsA: Map<any, [number, number]>;
@@ -50,19 +57,6 @@ export class MovementVisualizer {
 
         this.pointsA = pointsA;
         this.pointsB = pointsB;
-
-        // const pointsNotNullA = new Map<any, [number, number]>();
-        // const pointsNotNullB = new Map<any, [number, number]>();
-        // pointsA.forEach((point, key) => {
-        //     if (point != null) {
-        //         pointsNotNullA.set(key, point);
-        //     }
-        // });
-        // pointsB.forEach((point, key) => {
-        //     if (point != null) {
-        //         pointsNotNullB.set(key, point);
-        //     }
-        // });
 
         this.connectionsA = DelaunayWrapper.computeConnections(origPointsA);
         this.connectionsB = DelaunayWrapper.computeConnections(origPointsB);
@@ -156,9 +150,6 @@ export class MovementVisualizer {
 
     public drawConnections (animation: number) {
 
-            // this._drawConnections(false, false, (1 - animation));
-           // this._drawConnections(true, true, animation);
-
         const help = this.context.globalAlpha;
         let alpha = this.context.globalAlpha = help * (1 - animation);
         if ( alpha !== 0) {
@@ -218,12 +209,10 @@ export class MovementVisualizer {
 
         const that = this;
         const help = this.context.globalAlpha;
-        // const drawOrder = [true];
         const drawOrder = (animation < 0.5) ?  [true, false] : [false, true];
         drawOrder.forEach( (_drawA) => {
             const oppositeConnections = (_drawA) ? this.connectionsB : this.connectionsA;
             const _animation = (_drawA) ? animation : 1 - animation;
-            // const alpha = (_drawA) ? help * animation : help * (1 - animation);
 
             const connectionsIdc: number[] = [];
             oppositeConnections.forEach(([attrkey1, attrkey2], idx) => {
@@ -232,7 +221,6 @@ export class MovementVisualizer {
                     connectionsIdc.push(idx);
                 }
             });
-            // this.context.globalAlpha = alpha;
             that._drawConnections(!_drawA, _drawA, _animation, connectionsIdc);
         });
         this.context.globalAlpha = help;
@@ -333,7 +321,7 @@ export class MovementVisualizer {
         if (false) {
             const [r, g, b] = (isUnfiltered) ?
                 ColorComputation.unfilteredColor :
-                this._heatMapComputation.computeColor(difference);
+                this._heatMapComputation.computeColorI(difference);
             if (movement1 < movement2) {
                 code1 = `rgb(${r},${g},${b},${Math.pow(movement1 / movement2, 2)})`;
                 code2 = `rgb(${r},${g},${b},${1})`;
@@ -341,7 +329,7 @@ export class MovementVisualizer {
                 code1 = `rgb(${r},${g},${b},${1})`;
                 code2 = `rgb(${r},${g},${b},${Math.pow(movement2 / movement1, 2)})`;
             }
-        } else if (true) {
+        } else if (false) {
             code1 = this._heatMapComputation.computeColorII(difference, movement1, isUnfiltered);
             code2 = this._heatMapComputation.computeColorII(difference, movement2, isUnfiltered);
         } else {

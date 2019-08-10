@@ -1,16 +1,31 @@
+// author Florian Dietz
 import { HoleGlyphConfig } from './glyph.comparison.hole.config';
 
+/**
+ * This class is used to draw a hole glyph by defining its geometric characteristica:
+ * - its position
+ * - its inner and outer radius
+ * - wheather inner or outer structure is round (1) or a triangle (0) or something between
+ * - its filling
+ * - its stroke
+ */
 export class HoleGlyphKernel {
 
+  /**
+   * angles of triangle vertices
+   */
   private static ANGLES: number[] = [
     0.5 * Math.PI / 3,
     2.5 * Math.PI / 3,
     4.5 * Math.PI / 3];
   private static EDGES = HoleGlyphKernel.ANGLES.length;
+  /**
+   * vectors of triangle normals
+   */
   private static NORMAL_TRIANGLE: [number, number][];
   private static DIST_FACTOR = (4 / 3) * Math.tan(Math.PI / (2 * HoleGlyphKernel.EDGES));
 
-  static _ctor = (() => {
+  private static _ctor = (() => {
     HoleGlyphKernel.NORMAL_TRIANGLE = [];
     HoleGlyphKernel.ANGLES.forEach((angle) => {
       HoleGlyphKernel.NORMAL_TRIANGLE.push(
@@ -32,6 +47,11 @@ export class HoleGlyphKernel {
     ) {
 
   }
+
+  /**
+   * drawing glyph on canvas using rendering context
+   * @param context // CanvasRenderingContext2D
+   */
   public draw (context: CanvasRenderingContext2D ) {
       const innerTriangle = this.getTrianglePoints(this.x, this.y, this.innerRadius);
       const innerBezier = this.getBezierPoints(this.x, this.y, this.innerRadius,
@@ -42,7 +62,6 @@ export class HoleGlyphKernel {
 
       const n = HoleGlyphKernel.EDGES;
       const path = new Path2D();
-      // ([[innerTriangle, innerBezier], [outerTriangle, outerBezier]])
       const drawInnerOuter = (triangle: [number, number][],
         bezier: [number, number, number, number][]) => {
 
@@ -89,10 +108,19 @@ export class HoleGlyphKernel {
       return buffer;
   }
 
+  /**
+   * compute bezier points to interpolate between circle and triangle
+   * see drawing circle using beziers:
+   * https://stackoverflow.com/questions/1734745/how-to-create-circle-with-b%C3%A9zier-curves
+   * @param x
+   * @param y
+   * @param radius
+   * @param roundness
+   * @param isAntiClockwise
+   */
   private getBezierPoints(
     x: number, y: number, radius: number, roundness: number, isAntiClockwise: boolean = false)
   : [number, number, number, number][] {
-    // https://stackoverflow.com/questions/1734745/how-to-create-circle-with-b%C3%A9zier-curves
     const beziers: [number, number, number, number][] = [];
     const normalBeziers: [number, number, number, number][] = [];
     const n = HoleGlyphKernel.ANGLES.length;

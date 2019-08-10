@@ -1,12 +1,35 @@
+// author: Florian Dietz
+
+/**
+ * This class contains attributes of objects of two versions.
+ */
 export class ComparisonDataItem {
 
     private _objectId: any;
-    private _featuresA: Map<any, number> = null;
-    private _valuesA: Map<any, string> = null;
-    private _targetsA: Map<any, [number[], number[]]> = null;
+
+    // version A /////////////////////
+    // numerical value which is shown in flower and star glyph, only shown in tooltip here
+    private _featuresA: Map<any, number> = null; // id -> feature
+
+    // string value, only shown in tooltip here
+    private _valuesA: Map<any, string> = null; // id -> value
+
+    // target variables containing Array of label and prediction values
+    // each index in targetArr and predictionArr corresponds to a value
+    // in one category
+    private _targetsA: Map<any, [number[], number[]]> = null; // id -> [targetArr, predArr]
+
+    // position after dimension reduction
     private _positionA: [number, number] = null;
+
+    // position after zooming and panning which is drawn in canvas
     private _drawnPositionA: [number, number] = [null, null];
+
+    // feature vector which is used to compute the characteristics of the edges
+    // if null the position is used instead
     private _unnamedFeatureVectorA: number[];
+
+    // version B /////////////////////
     private _featuresB: Map<any, number> = null;
     private _valuesB: Map<any, string> = null;
     private _targetsB: Map<any, [number[], number[]]> = null;
@@ -20,8 +43,7 @@ export class ComparisonDataItem {
       targetPrediction: string[],
     }>;
 
-    public constructor() {
-    }
+    public constructor() {}
 
     public setVersionA(targets: Map<any, [number[], number[]]>,
       position: [number, number], features: Map<any, number>,

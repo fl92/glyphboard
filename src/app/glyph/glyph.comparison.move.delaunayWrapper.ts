@@ -1,8 +1,19 @@
+// author: Florian Dietz
+
 // requires Delaunay triangulation package: https://www.npmjs.com/package/delaunay-triangulation
 import * as Delaunay from 'delaunay-triangulation';
 
+
+/**
+ * This class computes connections resulting from Delaunay triangulation
+ * for any set of 2d Points using an extern package
+ */
 export class DelaunayWrapper {
-    
+
+    /**
+     * @param points Map key -> point as Map<key, [x, y]>
+     * @returns array of connections as [key1, key2]
+     */
     public static computeConnections (points: Map<any, [number, number]> )
             : [any, any][] {
 

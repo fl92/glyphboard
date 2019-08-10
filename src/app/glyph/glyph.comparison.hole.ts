@@ -1,7 +1,36 @@
+// author: Florian Dietz
 import { ComparisonGlyph} from './glyph.comparison';
 import { HoleGlyphConfig } from './glyph.comparison.hole.config';
 import { HoleGlyphKernel } from './glyph.comparison.hole.kernel';
 
+/**
+ * This class draws a hole glyph for comparing two target variables.
+ * It uses following visual variables:
+ *
+ * color hue = class of Label or of Prediction B (newer Prediction)
+ * color saturation = interrater agreement
+ * inner shape (triangle or round) = is Prediction A Class = Label Class
+ * outer shape (triangle or round) = is Prediction B Class = Label Class
+ * in case Prediction A Class != Prediction B Class
+ *    inner radius = percentage of Prediction A
+ *    outer radius = percentage of Prediction B
+ * in case Prediction A Class == Prediction B Class
+ *    radius = difference of Prediction percentage between A and B
+ *
+ * An object might be in five stati which are recognizable on
+ * the following characteristics:
+ * - unlabeled, added to data set between A and B
+ *    has stroke
+ * - unlabeled
+ *     color hue visualizes Prediction B Class instead of Label Class
+ *     using paler color
+ * - new labeled
+ *    has stroke
+ * - labeled
+ *    normal status as described above
+ * - removed
+ *    color = black
+ */
 export class ComparisonHoleGlyph extends ComparisonGlyph {
 
   protected _labelColorMap = new Map<string, number>();
@@ -31,9 +60,9 @@ export class ComparisonHoleGlyph extends ComparisonGlyph {
       const isNewLabeled = labelsA == null && labelsB != null
       const labels = labelsB; // only consider newer Label of both
 
-      const [predAIdx, predA] = (predsA != null) ? this.getMax(predsA) : [null, null];
-      const [predBIdx, predB] = (predsB != null) ? this.getMax(predsB) : [null, null];
-      const [labelIdx, answersFor] = (labels != null) ? this.getMax(labels) : [null, null];
+      const [predAIdx, predA] = (predsA != null) ? this.computeMaxIndexMaxVal(predsA) : [null, null];
+      const [predBIdx, predB] = (predsB != null) ? this.computeMaxIndexMaxVal(predsB) : [null, null];
+      const [labelIdx, answersFor] = (labels != null) ? this.computeMaxIndexMaxVal(labels) : [null, null];
       const predAClass = (predAIdx != null) ? this.getTargetPrediction(predAIdx) : null;
       const predBClass = (predBIdx != null) ? this.getTargetPrediction(predBIdx) : null;
       const labelClass = (labelIdx != null) ? this.getTargetLabel(labelIdx) : null;

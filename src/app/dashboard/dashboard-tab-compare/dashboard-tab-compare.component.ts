@@ -52,27 +52,27 @@ export class DashboardTabCompareComponent extends DashboardTabComponent implemen
         that._hasData = true;
         that.updateIsActive();
         that.differenceComponent.drawScale((context, w, h) => {
-          computation.computeColorII(2, 2, false);
+          computation.computeColorIII(2, 2, false);
 
           const step = 2 * (computation.max / w);
           for (let x = 0, heat = -computation.max;
                     x < w; x++, heat += step) {
           context.fillRect(x, 0,
             1, h);
-          context.fillStyle = computation.computeColorII(heat, computation.maxAlpha, false);
+          context.fillStyle = computation.computeColorIII(heat, computation.maxAlpha, false);
           context.fill();
           }
         });
 
         that.movementComponent.drawScale((context, w, h) => {
-          computation.computeColorII(2, 2, false);
+          computation.computeColorIII(2, 2, false);
 
           const step = (computation.maxAlpha / w);
           for (let x = 0, heat = 0;
                     x < w; x++, heat += step) {
           context.fillRect(x, 0,
             1, h);
-          context.fillStyle = computation.computeColorII(0, heat, false);
+          context.fillStyle = computation.computeColorIII(0, heat, false);
           context.fill();
           }
         });

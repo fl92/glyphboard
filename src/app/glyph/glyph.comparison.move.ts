@@ -1,5 +1,12 @@
+// author: Florian Dietz
 import { ComparisonGlyph } from './glyph.comparison';
 
+/**
+ * This class visualizes additionally to move.visualizer.ts
+ * certain objects (removed ones, new ones, filtered ones).
+ *
+ * Furthermore it indicates when to use the move visualization (see glyph.comparison.move.visualization)
+ */
 export class ComparisonMoveGlyph extends ComparisonGlyph {
     static RADIUS = 2;
     static FILTERED_RADIUS = 5;
