@@ -56,6 +56,7 @@ export class DashboardGlyphlegendComponent extends DashboardTabComponent impleme
   }
 
   private updateDummyFeatures() {
+    if (this.configuration.configurations[0].activeDataSet == null) {return; }
     this.dummyFeatures = {};
     for (const l in this.configuration.configurations[0].activeDataSet.schema.label) {
       if (this.configuration.configurations[0].activeDataSet.schema.label.hasOwnProperty(l)) {

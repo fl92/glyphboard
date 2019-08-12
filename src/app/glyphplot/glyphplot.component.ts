@@ -312,11 +312,12 @@ export class GlyphplotComponent implements OnInit, OnChanges {
         if (this.helper.checkClipping(d.position)) {
           return;
         }
+        const data = this.layoutController.getFeaturesForItem(d);
+        if (data == null) {return; }
 
         this.context.beginPath();
         this.context.moveTo(d.position.x, d.position.y);
 
-        const data = this.layoutController.getFeaturesForItem(d);
 
         if (this.configuration.filteredItemsIds.indexOf(d.id) > -1 || this.configuration.featureFilters.length == 0) {
           this.layoutController.drawSingleGlyph(d.position, data.features, null, false, false, 0);

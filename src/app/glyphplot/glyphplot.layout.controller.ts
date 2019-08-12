@@ -208,8 +208,13 @@ export class GlyphplotLayoutController {
         itemContext = item['default-context'];
       }
     }
+    const features = item.features[itemContext];
+    const features_global = item.features['global'];
+    if (features == null || features_global == null) {
+      return null;
+    }
     const ret = {
-      features: Object.assign(item.features[itemContext], item.features['global']),
+      features: Object.assign(features, features_global),
       values: item.values
     }
     return ret;

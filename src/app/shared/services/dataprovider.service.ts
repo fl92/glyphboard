@@ -79,8 +79,9 @@ export class DataproviderService {
    * @param position position algorithm
    * @param oneSchemaMode if true then searching for schema file with identifier '_' (only one schema for all Versions)
    */
-  public downloadDataSet(name: string, version: string, position: string, oneSchemaMode = false) {
-
+  public downloadDataSet(name: string, version: string, position: string) {
+    let oneSchemaMode = false
+    if (name == null || version == null || position == null) {return; }
     if (version === '_') { return; }
     oneSchemaMode = this.isOneSchemaMode(name);
     this.http
@@ -88,6 +89,7 @@ export class DataproviderService {
       .subscribe((schemaData) => {
         const schemaResponse = schemaData['_body'] || '';
         this.deliverSchema = JSON.parse(schemaResponse);
+        // });
         this.http
           .get(this.backendAddress + 'datasets/' + name + '/' + version + '/feature')
           .subscribe((featureData) => {
@@ -110,7 +112,7 @@ export class DataproviderService {
                   });
               });
           });
-      });
+        });
   }
 
   private doSetDownloadedData() {
