@@ -318,7 +318,7 @@ export class MovementVisualizer {
         }
         let code1: string;
         let code2: string;
-        if (false) {
+        if (false) { // variant I
             const [r, g, b] = (isUnfiltered) ?
                 ColorComputation.unfilteredColor :
                 this._heatMapComputation.computeColorI(difference);
@@ -329,10 +329,10 @@ export class MovementVisualizer {
                 code1 = `rgb(${r},${g},${b},${1})`;
                 code2 = `rgb(${r},${g},${b},${Math.pow(movement2 / movement1, 2)})`;
             }
-        } else if (false) {
+        } else if (false) { // variant II
             code1 = this._heatMapComputation.computeColorII(difference, movement1, isUnfiltered);
             code2 = this._heatMapComputation.computeColorII(difference, movement2, isUnfiltered);
-        } else {
+        } else { // variant III
             code1 = this._heatMapComputation.computeColorIII(difference, movement1, isUnfiltered);
             code2 = this._heatMapComputation.computeColorIII(difference, movement2, isUnfiltered);
         }

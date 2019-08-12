@@ -1,14 +1,16 @@
 @import './fonts';
 @import './colors';
 
+$dashboard-padding-bottom: 15px;
 $dashboard-padding: 15px;
+$dashboard-padding-left: 10px;
 $dashboard-width: 395px;
 
-$tabselection-font-size: 21px;
+$tabselection-font-size: 20.6px;
 $dashboard-font-size: 14px;
 $dashboard-title-font-size: 24px;
 
-$icon-size: 37px;
+$icon-size: 36.5px;
 $icon-padding: 8px;
 $icon-font-size: $icon-size - ($icon-padding * 2);
 

@@ -4,5 +4,6 @@
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    padding-bottom: $dashboard-padding;
+    padding-bottom: $dashboard-padding-bottom;
+    padding-left: $dashboard-padding-left;
 }
