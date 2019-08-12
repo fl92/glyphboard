@@ -24,6 +24,9 @@ export class GlyphplotLayoutController {
   }
 
   public updatePositions(): void {
+    if (this.component.compareConfigurationService.isComparisonMode) {
+      return;
+    }
     let minX = 0,
       maxX = 0,
       minY = 0,

@@ -365,7 +365,7 @@ export class GlyphplotComponent implements OnInit, OnChanges {
    * by draw().
    */
   public updateGlyphLayout(updateAllItems: boolean = false): void {
-    if (this.data === undefined || this.data.length === 0) {
+    if (this.data === undefined || this.data.length === 0 || this._compareConigurationService.isComparisonMode) {
       return;
     }
     const that = this;
@@ -515,6 +515,9 @@ export class GlyphplotComponent implements OnInit, OnChanges {
    * updateGlyphLayout().
    */
   public animate(targetData?: any): void {
+    if (this._compareConigurationService.isComparisonMode) {
+      return;
+    }
     this.drawLock = true;
     // save current 'source' positions
     this._layoutController.getPositions().forEach(d => {
