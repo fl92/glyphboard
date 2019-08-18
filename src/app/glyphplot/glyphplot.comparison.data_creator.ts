@@ -15,16 +15,16 @@ export class ComparisonDataCreator {
     selectedTargetVariable: string = '') {
     const comparison_items: ComparisonDataItem[] = [];
     const objectsA = versionA['features'];
-    const objectsAMap = new Map<any, object> ();
+    let objectsAMap = new Map<any, object> ();
     const objectsB = versionB['features'];
-    const objectsBMap = new Map<any, object> ();
+    let objectsBMap = new Map<any, object> ();
 
     const positionsA = versionA['positions'];
-    const positionsAMap = new Map<any, [number, number]> ();
+    let positionsAMap = new Map<any, [number, number]> ();
     const positionsB = versionB['positions'];
-    const positionsBMap = new Map<any, [number, number]> ();
+    let positionsBMap = new Map<any, [number, number]> ();
 
-    const objIds = new Set<any>();
+    let objIds = new Set<any>();
 
     const targetVariablesMeta
       = new Map<any, {
@@ -33,8 +33,9 @@ export class ComparisonDataCreator {
         targetPrediction: string[],
       }> ();
 
-    const targetVariablesObj = versionA['schema']['targetVariables'];
-    let unnamedFeatureVectorLength = versionA['schema']['unnamedFeatureVectorLength'];
+    const schema = versionA['schema'];
+    const targetVariablesObj = schema['targetVariables'];
+    let unnamedFeatureVectorLength = schema['unnamedFeatureVectorLength'];
     unnamedFeatureVectorLength = unnamedFeatureVectorLength != null ?
       unnamedFeatureVectorLength : null;
 
@@ -74,6 +75,10 @@ export class ComparisonDataCreator {
       [Number(object['position']['x']), Number(object['position']['y'])];
       positionsBMap.set(object['id'], pos);
     }
+
+    [objectsAMap, positionsAMap, objectsBMap, positionsBMap, objIds]
+      = this.correctIDs(objectsAMap, positionsAMap, objectsBMap, positionsBMap,
+                    objIds, schema);
 
     objIds.forEach((objId) => {
       const data_item = new ComparisonDataItem();
@@ -153,9 +158,96 @@ export class ComparisonDataCreator {
      comparison_items.push(data_item);
     }, this);
 
-    const schema = versionA['schema']
     const container = new ComparisonDataContainer(comparison_items, schema);
     return container;
+  }
+
+  /**
+   * The objectId is only valid to map featureObject and positionObject of
+   * one version.
+   * For mapping objects of two versions the id in the feature list is necessary.
+   * This method creates maps for objects which use a unique id in
+   * objectMaps and positonMaps of both versions.
+   * @param objectsAMap 
+   * @param positionsAMap 
+   * @param objectsBMap 
+   * @param positionsBMap 
+   * @param objIds 
+   * @param schema 
+   */
+  private correctIDs(
+      objectsAMap: Map<any, object>,
+      positionsAMap: Map<any, [number, number]>,
+      objectsBMap: Map<any, object>,
+      positionsBMap: Map<any, [number, number]>,
+      objIds: Set<any>, schema: any)
+        : [Map<any, object>, Map<any, [number, number]>,
+        Map<any, object>, Map<any, [number, number]>,
+        Set<any>] {
+
+    let idMarker = null;
+
+    const schemaLabel = schema['label']
+    for (const key in schemaLabel) {
+      if (schemaLabel.hasOwnProperty(key)) {
+        if (schemaLabel[key] === 'id') {
+          idMarker = key;
+        };
+      }
+    }
+
+    if (idMarker == null) {
+      return [objectsAMap, positionsAMap, objectsBMap, positionsBMap, objIds];
+    }
+
+    const _objectsAMap = new Map<any, object>();
+    const _positionsAMap = new Map<any, [number, number]>();
+    const _objectsBMap = new Map<any, object>();
+    const _positionsBMap = new Map<any, [number, number]>();
+    const _objIds = new Set<any>();
+
+
+    objIds.forEach((id) => {
+      if (!objectsAMap.has(id)
+          || !positionsAMap.has(id)) {
+        return;
+      }
+      const obj = objectsAMap.get(id);
+      const pos = positionsAMap.get(id);
+      if (obj['values'] == null) {
+        return;
+      }
+      const correctId = obj['values'][idMarker];
+      if (objectsAMap.has(id)) {
+        _objectsAMap.set(correctId, obj);
+      }
+      if (positionsAMap.has(id)) {
+        _positionsAMap.set(correctId, pos);
+      }
+      _objIds.add(correctId);
+    });
+
+    objIds.forEach((id) => {
+      if (!objectsBMap.has(id)
+          || !positionsBMap.has(id)) {
+        return;
+      }
+      const obj = objectsBMap.get(id);
+      const pos = positionsBMap.get(id);
+      if (obj['values'] == null) {
+        return;
+      }
+      const correctId = obj['values'][idMarker];
+      if (objectsBMap.has(id)) {
+        _objectsBMap.set(correctId, obj);
+      }
+      if (positionsBMap.has(id)) {
+        _positionsBMap.set(correctId, pos);
+      }
+      _objIds.add(correctId);
+    });
+
+    return [_objectsAMap, _positionsAMap, _objectsBMap, _positionsBMap, _objIds];
   }
 
 }

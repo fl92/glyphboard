@@ -45,7 +45,8 @@ export class DashboardGlyphlegendComponent extends DashboardTabComponent impleme
       .subscribe(this.onRefreshConfig);
 
     this.dataProvider.getDataSet().subscribe(message => {
-      if (message == null) {
+      if (message == null
+        || this.configurationCompare.isComparisonMode) {
         return;
       }
       // update view
